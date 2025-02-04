@@ -20,6 +20,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Objects;
 
 @Slf4j
 @Component
@@ -54,6 +55,9 @@ public class JwtProvider {
     }
 
     private String createToken(JwtClaim claim, long expiration) {
+        if (Objects.isNull(claim)) {
+            throw new InternalServerException(ErrorCode.INVALID_INPUT_VALUE);
+        }
         Instant now = clock.instant();
         Instant expiredAt = now.plus(expiration, ChronoUnit.HOURS);
 

@@ -8,6 +8,9 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static com.swyp8team2.common.util.Validator.validateEmptyString;
+import static com.swyp8team2.common.util.Validator.validateNull;
+
 @Getter
 @Entity
 @Table(name = "users")
@@ -21,6 +24,8 @@ public class User {
     private String nickname;
 
     public User(Long id, String nickname) {
+        validateNull(nickname);
+        validateEmptyString(nickname);
         this.id = id;
         this.nickname = nickname;
     }

@@ -9,6 +9,9 @@ import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static com.swyp8team2.common.util.Validator.validateEmptyString;
+import static com.swyp8team2.common.util.Validator.validateNull;
+
 @Getter
 @Entity
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
@@ -28,6 +31,8 @@ public class SocialAccount {
     private Provider provider;
 
     public SocialAccount(Long id, Long userId, String socialId, Provider provider) {
+        validateNull(userId, socialId, provider);
+        validateEmptyString(socialId);
         this.id = id;
         this.userId = userId;
 //        this.email = email;
