@@ -18,7 +18,7 @@ import static org.mockito.Mockito.spy;
 class JwtProviderTest {
 
     @Test
-    @DisplayName("올바른 access token, refresh token 생성")
+    @DisplayName("jwt 토큰 생성")
     void createToken() throws Exception {
         //given
         JwtProvider jwtProvider = new JwtProvider("2345asdfasdfsadfsdf243dfdsfsfssasdf", "issuer", Clock.systemDefaultZone());
@@ -37,7 +37,7 @@ class JwtProviderTest {
     }
 
     @Test
-    @DisplayName("토큰이 만료된 경우 예외가 발생해야 함")
+    @DisplayName("jwt 토큰 생성 - 만료 토큰")
     void parseClaim_expiredToken() throws Exception {
         //given
         Clock clock = Clock.systemDefaultZone();
@@ -54,7 +54,7 @@ class JwtProviderTest {
     }
 
     @Test
-    @DisplayName("토큰 key가 다른 경우 예외가 발생해야 함")
+    @DisplayName("jwt 토큰 생성 - key가 다른 경우")
     void parseClaim_differentKey() throws Exception {
         //given
         Clock clock = Clock.systemDefaultZone();
@@ -69,7 +69,7 @@ class JwtProviderTest {
     }
 
     @Test
-    @DisplayName("토큰 issuer가 다른 경우 예외가 발생해야 함")
+    @DisplayName("jwt 토큰 생성 - issuer가 다른 경우")
     void parseClaim_differentIssuer() throws Exception {
         //given
         Clock clock = Clock.systemDefaultZone();
