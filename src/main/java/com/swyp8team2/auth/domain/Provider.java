@@ -1,5 +1,7 @@
 package com.swyp8team2.auth.domain;
 
+import com.swyp8team2.common.exception.ErrorCode;
+import com.swyp8team2.common.exception.InternalServerException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +20,6 @@ public enum Provider {
         return Arrays.stream(Provider.values())
                 .filter(provider -> provider.registrationId.equals(registrationId))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(registrationId + "에 해당하는 SocialType이 없습니다."));
+                .orElseThrow(() -> new InternalServerException(ErrorCode.INVALID_INPUT_VALUE));
     }
 }

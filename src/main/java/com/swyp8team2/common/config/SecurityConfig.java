@@ -5,7 +5,7 @@ import com.swyp8team2.auth.presentation.filter.JwtAuthFilter;
 import com.swyp8team2.auth.presentation.filter.JwtExceptionFilter;
 import com.swyp8team2.auth.presentation.filter.OAuthLoginFailureHandler;
 import com.swyp8team2.auth.presentation.filter.OAuthLoginSuccessHandler;
-import com.swyp8team2.common.filter.CustomAccessDeniedHandler;
+import com.swyp8team2.auth.presentation.filter.CustomAccessDeniedHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +30,7 @@ public class SecurityConfig {
     private final OAuthService oAuthService;
     private final OAuthLoginSuccessHandler oAuthLoginSuccessHandler;
     private final OAuthLoginFailureHandler oAuthLoginFailureHandler;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -39,13 +40,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspect) throws Exception {
-        MvcRequestMatcher.Builder mvc = new MvcRequestMatcher.Builder(introspect);
+        MvcRequestMatcher[] permitWhiteList = getWhiteList(introspect);
 
-        MvcRequestMatcher[] permitWhiteList = {
-                mvc.pattern("/auth/sign-in"),
-                mvc.pattern("/auth/sign-up"),
-                mvc.pattern("/auth/refresh"),
-        };
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -57,7 +53,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 .requestMatchers(permitWhiteList).permitAll()
-                                .requestMatchers("/","/index.html", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
                                 .anyRequest().authenticated()
                 )
 
@@ -66,7 +61,7 @@ public class SecurityConfig {
 
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtExceptionFilter, JwtAuthFilter.class)
-                .exceptionHandling(e -> e.accessDeniedHandler(new CustomAccessDeniedHandler()))
+                .exceptionHandling(e -> e.accessDeniedHandler(customAccessDeniedHandler))
 
                 .oauth2Login(oauth ->
                         oauth.userInfoEndpoint(userInfo -> userInfo.userService(oAuthService))
@@ -74,5 +69,22 @@ public class SecurityConfig {
                                 .failureHandler(oAuthLoginFailureHandler));
 
         return http.build();
+    }
+
+    private MvcRequestMatcher[] getWhiteList(HandlerMappingIntrospector introspect) {
+        MvcRequestMatcher.Builder mvc = new MvcRequestMatcher.Builder(introspect);
+
+        return new MvcRequestMatcher[]{
+                mvc.pattern("/auth/sign-in"),
+                mvc.pattern("/auth/sign-up"),
+                mvc.pattern("/auth/refresh"),
+                mvc.pattern("/"),
+                mvc.pattern("/index.html"),
+                mvc.pattern("/css/**"),
+                mvc.pattern("/images/**"),
+                mvc.pattern("/js/**"),
+                mvc.pattern("/favicon.ico"),
+                mvc.pattern("/h2-console/**")
+        };
     }
 }

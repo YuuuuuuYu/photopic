@@ -2,6 +2,8 @@ package com.swyp8team2.auth.presentation.filter;
 
 import com.swyp8team2.auth.application.JwtClaim;
 import com.swyp8team2.auth.application.JwtProvider;
+import com.swyp8team2.common.exception.BadRequestException;
+import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import jakarta.servlet.FilterChain;
@@ -31,24 +33,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-
         JwtClaim claim = jwtProvider.parseToken(headerTokenExtractor.extractToken(authorization));
 
         User user = userRepository.findById(claim.idAsLong())
-                .orElseThrow(() -> new IllegalArgumentException("ErrorCode.INVALID_USER"));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
 
+        Authentication authentication = getAuthentication(user);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        doFilter(request, response, filterChain);
+    }
+
+    private Authentication getAuthentication(User user) {
         List<GrantedAuthority> authorities = Collections.emptyList();
         UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
                 .username(user.getNickname())
                 .password("")
                 .authorities(authorities)
                 .build();
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        doFilter(request, response, filterChain);
+        return new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
     }
 }

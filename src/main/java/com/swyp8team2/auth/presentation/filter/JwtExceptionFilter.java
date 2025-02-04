@@ -23,16 +23,19 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
     private final ObjectMapper objectMapper;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
         } catch (UnauthorizedException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write(objectMapper.writeValueAsString(new ErrorResponse(e.getErrorCode())));
+            response.getWriter()
+                    .write(objectMapper.writeValueAsString(new ErrorResponse(e.getErrorCode())));
         } catch (Exception e) {
             log.error("JwtExceptionFilter error", e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write(objectMapper.writeValueAsString(new ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR)));
+            response.getWriter()
+                    .write(objectMapper.writeValueAsString(new ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR)));
         }
     }
 }

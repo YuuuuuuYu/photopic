@@ -8,10 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -19,19 +17,17 @@ import java.io.IOException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class OAuthLoginFailureHandler implements AuthenticationFailureHandler {
+public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     private final ObjectMapper objectMapper;
 
     @Override
-    public void onAuthenticationFailure(
+    public void handle(
             HttpServletRequest request,
             HttpServletResponse response,
-            AuthenticationException exception
+            AccessDeniedException accessDeniedException
     ) throws IOException, ServletException {
-        log.error("OAuth login failed", exception);
-        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         response.getWriter()
-                .write(objectMapper.writeValueAsString(new ErrorResponse(ErrorCode.OAUTH_LOGIN_FAILED)));
+                .write(objectMapper.writeValueAsString(new ErrorResponse(ErrorCode.ACCESS_DENIED)));
     }
 }

@@ -25,22 +25,30 @@ public class OAuthService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        Provider provider = Provider.of(registrationId);
+        Provider provider = getProvider(userRequest);
+
         String userNameAttributeName = userRequest.getClientRegistration()
                 .getProviderDetails()
                 .getUserInfoEndpoint()
                 .getUserNameAttributeName();
-        Map<String, Object> attributes = oAuth2User.getAttributes();
 
+        Map<String, Object> attributes = oAuth2User.getAttributes();
         OAuthUserInfo oAuthUserInfo = OAuthUserInfo.of(provider, attributes);
 
-        SocialAccount socialAccount = socialAccountRepository.findBySocialIdAndProvider(oAuthUserInfo.getSocialId(), provider)
-                .orElseGet(() -> {
-                    Long userId = userService.createUser();
-                    return socialAccountRepository.save(SocialAccount.create(userId, oAuthUserInfo.getSocialId(), provider));
-                });
+        SocialAccount socialAccount = socialAccountRepository.findBySocialIdAndProvider(
+                        oAuthUserInfo.getSocialId(), provider)
+                .orElseGet(() -> createUser(oAuthUserInfo, provider));
 
         return new OAuthUser(oAuth2User.getAuthorities(), attributes, userNameAttributeName, socialAccount.getUserId());
+    }
+
+    private Provider getProvider(OAuth2UserRequest userRequest) {
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        return Provider.of(registrationId);
+    }
+
+    private SocialAccount createUser(OAuthUserInfo oAuthUserInfo, Provider provider) {
+        Long userId = userService.createUser();
+        return socialAccountRepository.save(SocialAccount.create(userId, oAuthUserInfo.getSocialId(), provider));
     }
 }

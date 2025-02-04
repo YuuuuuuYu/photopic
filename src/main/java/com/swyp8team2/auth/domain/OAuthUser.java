@@ -13,9 +13,14 @@ import java.util.Map;
 @Getter
 public class OAuthUser extends DefaultOAuth2User {
 
-    private final Long userId;
+    private final long userId;
 
-    public OAuthUser(Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes, String nameAttributeKey, Long userId) {
+    public OAuthUser(
+            Collection<? extends GrantedAuthority> authorities,
+            Map<String, Object> attributes,
+            String nameAttributeKey,
+            long userId
+    ) {
         super(authorities, attributes, nameAttributeKey);
         this.userId = userId;
     }

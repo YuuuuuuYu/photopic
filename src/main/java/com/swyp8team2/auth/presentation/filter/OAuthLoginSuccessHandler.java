@@ -26,15 +26,18 @@ public class OAuthLoginSuccessHandler implements AuthenticationSuccessHandler {
     private final ObjectMapper objectMapper;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication authentication
+    ) throws IOException, ServletException {
         OAuthUser oAuthUser = (OAuthUser) authentication.getPrincipal();
 
         TokenPair tokenPair = jwtProvider.createToken(JwtClaim.from(oAuthUser.getUserId()));
+        TokenResponse tokenResponse = new TokenResponse(tokenPair.accessToken(), tokenPair.refreshToken());
 
         response.setContentType(APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_OK);
-
-        TokenResponse tokenResponse = new TokenResponse(tokenPair.accessToken(), tokenPair.refreshToken());
         response.getWriter().write(objectMapper.writeValueAsString(tokenResponse));
         response.getWriter().flush();
     }

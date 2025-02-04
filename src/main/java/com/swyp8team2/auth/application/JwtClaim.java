@@ -6,11 +6,11 @@ public class JwtClaim {
 
     private final String id;
 
-    public JwtClaim(Long id) {
+    public JwtClaim(long id) {
         this.id = String.valueOf(id);
     }
 
-    public static JwtClaim from(Long id) {
+    public static JwtClaim from(long id) {
         return new JwtClaim(id);
     }
 

@@ -1,6 +1,8 @@
 package com.swyp8team2.auth.application;
 
 import com.swyp8team2.auth.domain.Provider;
+import com.swyp8team2.common.exception.ErrorCode;
+import com.swyp8team2.common.exception.InternalServerException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -17,7 +19,7 @@ public class OAuthUserInfo {
             case KAKAO:
                 return ofKakao(attributes);
             default:
-                throw new IllegalArgumentException(provider + "에 해당하는 OAuthUserInfo가 없습니다.");
+                throw new InternalServerException(ErrorCode.INVALID_INPUT_VALUE);
         }
     }
 
