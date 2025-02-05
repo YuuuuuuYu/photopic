@@ -26,23 +26,32 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
   
       - name: Build with Gradle
-        run: ./gradlew clean build
+        run: ./gradlew build
+      
+      - name: Mkdir
+        run: mkdir -p deploy
+
+      - name: Cp Jar
+        run: cp ./build/libs/*.jar ./deploy
         
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          working-directory: ./
           name: photopic-dev-jar
-          path: ./photopic-dev.jar        
+          path: ./deploy/photopic-dev.jar        
   
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - run: cat 
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           name: photopic-dev-jar
+
+      - name: Display downloaded file
+        run: ls -R
 
       - name: Build and deploy
         run: |
