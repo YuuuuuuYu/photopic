@@ -23,24 +23,24 @@ public class SocialAccount {
 
     private Long userId;
 
-//    private String email;
+    private String email;
 
     private String socialId;
 
     @Enumerated(EnumType.STRING)
     private Provider provider;
 
-    public SocialAccount(Long id, Long userId, String socialId, Provider provider) {
-        validateNull(userId, socialId, provider);
-        validateEmptyString(socialId);
+    public SocialAccount(Long id, Long userId, String socialId, Provider provider, String email) {
+        validateNull(userId, socialId, provider, email);
+        validateEmptyString(socialId, email);
         this.id = id;
         this.userId = userId;
-//        this.email = email;
+        this.email = email;
         this.socialId = socialId;
         this.provider = provider;
     }
 
-    public static SocialAccount create(Long userId, String socialId, Provider provider) {
-        return new SocialAccount(null, userId, socialId, provider);
+    public static SocialAccount create(Long userId, String socialId, Provider provider, String email) {
+        return new SocialAccount(null, userId, socialId, provider, email);
     }
 }

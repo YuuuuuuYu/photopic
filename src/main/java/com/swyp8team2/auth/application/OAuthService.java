@@ -36,7 +36,7 @@ public class OAuthService extends DefaultOAuth2UserService {
         OAuthUserInfo oAuthUserInfo = OAuthUserInfo.of(provider, attributes);
 
         SocialAccount socialAccount = socialAccountRepository.findBySocialIdAndProvider(
-                        oAuthUserInfo.getSocialId(), provider)
+                        oAuthUserInfo.socialId(), provider)
                 .orElseGet(() -> createUser(oAuthUserInfo, provider));
 
         return new OAuthUser(oAuth2User.getAuthorities(), attributes, userNameAttributeName, socialAccount.getUserId());
@@ -48,7 +48,8 @@ public class OAuthService extends DefaultOAuth2UserService {
     }
 
     private SocialAccount createUser(OAuthUserInfo oAuthUserInfo, Provider provider) {
-        Long userId = userService.createUser();
-        return socialAccountRepository.save(SocialAccount.create(userId, oAuthUserInfo.getSocialId(), provider));
+        String email = oAuthUserInfo.email();
+        Long userId = userService.createUser(email);
+        return socialAccountRepository.save(SocialAccount.create(userId, oAuthUserInfo.socialId(), provider, email));
     }
 }

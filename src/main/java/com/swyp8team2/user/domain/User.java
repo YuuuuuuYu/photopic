@@ -23,14 +23,17 @@ public class User {
 
     private String nickname;
 
-    public User(Long id, String nickname) {
-        validateNull(nickname);
-        validateEmptyString(nickname);
+    private String email;
+
+    public User(Long id, String nickname, String email) {
+        validateNull(nickname, email);
+        validateEmptyString(nickname, email);
         this.id = id;
         this.nickname = nickname;
+        this.email = email;
     }
 
-    public static User create(String nickname) {
-        return new User(null, nickname);
+    public static User create(String nickname, String email) {
+        return new User(null, nickname, email);
     }
 }

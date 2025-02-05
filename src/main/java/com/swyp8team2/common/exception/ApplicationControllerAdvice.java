@@ -32,7 +32,6 @@ public class ApplicationControllerAdvice {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handle(MethodArgumentNotValidException e) {
-        log.info("MethodArgumentNotValidException", e);
         return ResponseEntity.badRequest()
                 .body(new ErrorResponse(ErrorCode.INVALID_ARGUMENT));
     }
@@ -47,13 +46,13 @@ public class ApplicationControllerAdvice {
         return ResponseEntity.notFound().build();
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handle(AuthenticationException e) {
         log.info(e.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(ErrorCode.INVALID_TOKEN));
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handle(AccessDeniedException e) {
         log.info(e.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(ErrorCode.INVALID_TOKEN));

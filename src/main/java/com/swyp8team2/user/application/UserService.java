@@ -13,8 +13,8 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Long createUser() {
-        User user = userRepository.save(User.create("user_" + System.currentTimeMillis()));
+    public Long createUser(String email) {
+        User user = userRepository.save(User.create("user_" + System.currentTimeMillis(), email));
         return user.getId();
     }
 }

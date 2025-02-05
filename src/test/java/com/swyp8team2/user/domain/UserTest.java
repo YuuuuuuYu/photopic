@@ -1,7 +1,5 @@
 package com.swyp8team2.user.domain;
 
-import com.swyp8team2.auth.domain.Provider;
-import com.swyp8team2.auth.domain.SocialAccount;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.common.exception.InternalServerException;
 import org.junit.jupiter.api.DisplayName;
@@ -9,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 
 class UserTest {
 
@@ -20,7 +17,7 @@ class UserTest {
         String nickname = "nickname";
 
         //when
-        User user = User.create(nickname);
+        User user = User.create(nickname, "email");
 
         //then
         assertThat(user.getNickname()).isEqualTo(nickname);
@@ -32,7 +29,7 @@ class UserTest {
         //given
 
         //when then
-        assertThatThrownBy(() -> User.create(null))
+        assertThatThrownBy(() -> User.create(null, "email"))
                 .isInstanceOf(InternalServerException.class)
                 .hasMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage());
     }
@@ -43,7 +40,7 @@ class UserTest {
         //given
 
         //when then
-        assertThatThrownBy(() -> User.create(""))
+        assertThatThrownBy(() -> User.create("", "email"))
                 .isInstanceOf(InternalServerException.class)
                 .hasMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage());
     }
