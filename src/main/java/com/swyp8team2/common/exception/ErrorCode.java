@@ -6,20 +6,19 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum ErrorCode {
-    //common
+    //400
+    USER_NOT_FOUND("존재하지 않는 유저"),
     INVALID_ARGUMENT("잘못된 파라미터 요청"),
-    INTERNAL_SERVER_ERROR("서버 내부 오류"),
-    INVALID_INPUT_VALUE("잘못된 입력 값"),
 
-    //auth
+    //401
     EXPIRED_TOKEN("토큰 만료"),
     INVALID_TOKEN("유효하지 않은 토큰"),
     INVALID_AUTH_HEADER("잘못된 인증 헤더"),
     OAUTH_LOGIN_FAILED("소셜 로그인 실패"),
-    ACCESS_DENIED("접근 권한 없음"),
 
-    //user
-    USER_NOT_FOUND("존재하지 않는 유저"), ;
+    //500
+    INTERNAL_SERVER_ERROR("서버 내부 오류"),
+    INVALID_INPUT_VALUE("잘못된 입력 값"), ;
 
     private final String message;
 }
