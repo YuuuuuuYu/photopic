@@ -75,26 +75,22 @@ public class SecurityConfig {
             HandlerMappingIntrospector introspect,
             JwtProvider jwtProvider
     ) throws Exception {
-        MvcRequestMatcher[] matchers = getWhiteList(introspect);
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
+                .headers(headers ->
+                        headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .requestMatchers(
-                                        matchers
-                                ).permitAll()
-                                .requestMatchers(PathRequest.toH2Console()).permitAll()
+                                .requestMatchers(getWhiteList(introspect)).permitAll()
+//                                .requestMatchers(PathRequest.toH2Console()).permitAll()
                                 .anyRequest().authenticated()
                 )
-                .headers(headers ->
-                        headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .addFilterBefore(
                         new JwtAuthFilter(jwtProvider, new HeaderTokenExtractor()),
@@ -108,12 +104,13 @@ public class SecurityConfig {
                 .oauth2Login(oauth ->
                         oauth.userInfoEndpoint(userInfo -> userInfo.userService(oAuthService))
                                 .successHandler(oAuthLoginSuccessHandler)
-                                .failureHandler(oAuthLoginFailureHandler));
+                                .failureHandler(oAuthLoginFailureHandler)
+                );
 
         return http.build();
     }
 
-    private static MvcRequestMatcher[] getWhiteList(HandlerMappingIntrospector introspect) {
+    private MvcRequestMatcher[] getWhiteList(HandlerMappingIntrospector introspect) {
         MvcRequestMatcher.Builder mvc = new MvcRequestMatcher.Builder(introspect);
         return new MvcRequestMatcher[]{
                 mvc.pattern("/auth/reissue"),

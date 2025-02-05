@@ -2,9 +2,8 @@ package com.swyp8team2.auth.presentation.filter;
 
 import com.swyp8team2.auth.application.JwtClaim;
 import com.swyp8team2.auth.application.JwtProvider;
+import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.common.exception.ApplicationException;
-import com.swyp8team2.common.exception.BadRequestException;
-import com.swyp8team2.common.exception.ErrorCode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,7 +37,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             Authentication authentication = getAuthentication(claim.idAsLong());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (ApplicationException e) {
-            request.setAttribute("exception", e);
+            request.setAttribute(EXCEPTION_KEY, e);
         } finally {
             doFilter(request, response, filterChain);
         }
