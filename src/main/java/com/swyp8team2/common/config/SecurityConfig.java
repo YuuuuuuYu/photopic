@@ -7,7 +7,6 @@ import com.swyp8team2.auth.presentation.filter.JwtAuthFilter;
 import com.swyp8team2.auth.presentation.filter.JwtAuthenticationEntryPoint;
 import com.swyp8team2.auth.presentation.filter.OAuthLoginFailureHandler;
 import com.swyp8team2.auth.presentation.filter.OAuthLoginSuccessHandler;
-import com.swyp8team2.user.domain.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -74,8 +73,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             HandlerMappingIntrospector introspect,
-            JwtProvider jwtProvider,
-            UserRepository userRepository
+            JwtProvider jwtProvider
     ) throws Exception {
         MvcRequestMatcher[] matchers = getWhiteList(introspect);
         http
@@ -99,7 +97,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .addFilterBefore(
-                        new JwtAuthFilter(jwtProvider, new HeaderTokenExtractor(), userRepository),
+                        new JwtAuthFilter(jwtProvider, new HeaderTokenExtractor()),
                         UsernamePasswordAuthenticationFilter.class
                 )
                 .exceptionHandling(exception ->
