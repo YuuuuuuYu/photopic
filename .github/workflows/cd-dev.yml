@@ -43,14 +43,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: photopic-dev-jar
+
+      - name: Build and deploy
+        run: |
+          echo "$SSH_PEM_KEY" >> $HOME/key.pem
+          chmod 400 $HOME/key.pem
+          ssh -i $HOME/key.pem ${SSH_USER}@${SSH_URL}
+          sudo fuser -k -n tcp 3000 || true
+          sudo nohup java -jar ./build/libs/*SNAPSHOT.jar &
+        env:
+          SSH_USER: ${{ secrets.AWS_EC2_USER }}
+          SSH_URL: ${{secrets.AWS_EC2_URL_DEV}}
+          SSH_PEM_KEY: ${{ secrets.AWS_EC2_KEY }}
         
-      - name: Deploy to Development Server
-        uses: appleboy/ssh-action@v0.1.8
-        with:
-          host: ${{ secrets.AWS_EC2_URL_DEV }}
-          username: ${{ secrets.AWS_EC2_USER }}
-          key: ${{ secrets.AWS_EC2_KEY }}
-          port: 22
-          script: |
-            sudo fuser -k -n tcp 3000 || true
-            sudo nohup java -jar ./build/libs/*SNAPSHOT.jar &
