@@ -46,13 +46,9 @@ jobs:
 
       - name: Build and deploy
         run: |
-          echo "$SSH_PEM_KEY" >> $HOME/key.pem
+          echo "${{ secrets.AWS_EC2_KEY }}" > $HOME/key.pem
           chmod 400 $HOME/key.pem
-          ssh -i $HOME/key.pem ${SSH_USER}@${SSH_URL}
+          scp -i $HOME/key.pem -r ./* ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_URL_DEV }}:/
           sudo fuser -k -n tcp 3000 || true
           sudo nohup java -jar ./build/libs/*SNAPSHOT.jar &
-        env:
-          SSH_USER: ${{ secrets.AWS_EC2_USER }}
-          SSH_URL: ${{secrets.AWS_EC2_URL_DEV}}
-          SSH_PEM_KEY: ${{ secrets.AWS_EC2_KEY }}
         
