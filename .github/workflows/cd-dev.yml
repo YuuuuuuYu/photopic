@@ -46,9 +46,9 @@ jobs:
 
       - name: Build and deploy
         run: |
-          echo "${{ secrets.AWS_EC2_KEY }}" > $HOME/key.pem
+          echo "${{ secrets.AWS_EC2_KEY }}" | tr -d '\r' > $HOME/key.pem
           chmod 400 $HOME/key.pem
-          scp -i $HOME/key.pem -r ./* ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_URL_DEV }}:/
+          scp -i $HOME/key.pem ./photopic-dev-jar ${{ secrets.AWS_EC2_USER }}@${{ secrets.AWS_EC2_URL_DEV }}:/
           sudo fuser -k -n tcp 3000 || true
-          sudo nohup java -jar ./build/libs/*SNAPSHOT.jar &
+          sudo nohup java -jar ./*SNAPSHOT.jar &
         
