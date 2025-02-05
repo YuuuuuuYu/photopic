@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -30,6 +32,7 @@ public class OAuthLoginFailureHandler implements AuthenticationFailureHandler {
             AuthenticationException exception
     ) throws IOException, ServletException {
         log.error("OAuth login failed", exception);
+        response.setContentType(APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         response.getWriter()
                 .write(objectMapper.writeValueAsString(new ErrorResponse(ErrorCode.OAUTH_LOGIN_FAILED)));
