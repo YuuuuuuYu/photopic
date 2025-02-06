@@ -2,3 +2,4 @@
 [submodule "src/main/resources/server-config"]
 	path = src/main/resources/server-config
 	url = https://github.com/YuuuuuuYu/server-config.git
+	branch = develop
