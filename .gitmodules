@@ -1,0 +1,4 @@
+[submodule "photopic-submodule-test"]
+	path = photopic-submodule-test
+	url = https://github.com/YuuuuuuYu/photopic-submodule-test.git
+	branch = develop
