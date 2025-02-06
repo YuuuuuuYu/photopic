@@ -1,0 +1,4 @@
+
+[submodule "server-config"]
+	path = server-config
+	url = https://github.com/YuuuuuuYu/server-config.git
