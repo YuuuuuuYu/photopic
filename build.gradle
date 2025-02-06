@@ -30,7 +30,6 @@ task copyYML(type: Copy){
         into './src/main/resources'
     }
 }
-build.dependsOn copyYML
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
