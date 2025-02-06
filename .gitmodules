@@ -1,4 +1,4 @@
 
-[submodule "src/main/resources/photopic-submodule-test"]
-	path = src/main/resources/photopic-submodule-test
-	url = https://github.com/YuuuuuuYu/photopic-submodule-test.git
+[submodule "src/main/resources/server-config"]
+	path = src/main/resources/server-config
+	url = https://github.com/YuuuuuuYu/server-config.git
