@@ -26,8 +26,8 @@ import java.util.Objects;
 @Component
 public class JwtProvider {
 
-    private static final long ACCESS_TOKEN_EXPIRATION_HOUR = 2;
-    private static final long REFRESH_TOKEN_EXPIRATION_HOUR = 24 * 14;
+    private static final long ACCESS_TOKEN_EXPIRATION_MINUTES = 30;
+    private static final long REFRESH_TOKEN_EXPIRATION_HOUR_MINUTES = 60 * 24 * 14;
 
     private final Key key;
     private final Clock clock;
@@ -47,11 +47,11 @@ public class JwtProvider {
     }
 
     public String createAccessToken(JwtClaim claim) {
-        return createToken(claim, ACCESS_TOKEN_EXPIRATION_HOUR);
+        return createToken(claim, ACCESS_TOKEN_EXPIRATION_MINUTES);
     }
 
     public String createRefreshToken(JwtClaim claim) {
-        return createToken(claim, REFRESH_TOKEN_EXPIRATION_HOUR);
+        return createToken(claim, REFRESH_TOKEN_EXPIRATION_HOUR_MINUTES);
     }
 
     private String createToken(JwtClaim claim, long expiration) {
@@ -59,7 +59,7 @@ public class JwtProvider {
             throw new InternalServerException(ErrorCode.INVALID_INPUT_VALUE);
         }
         Instant now = clock.instant();
-        Instant expiredAt = now.plus(expiration, ChronoUnit.HOURS);
+        Instant expiredAt = now.plus(expiration, ChronoUnit.MINUTES);
 
         return Jwts.builder()
                 .claim(JwtClaim.ID, claim.id())
@@ -88,7 +88,7 @@ public class JwtProvider {
             log.trace("Invalid Jwt Token: {}", e.getMessage());
             throw new UnauthorizedException(ErrorCode.INVALID_TOKEN);
         } catch (Exception e) {
-            throw new InternalServerException();
+            throw new InternalServerException(e);
         }
     }
 }
