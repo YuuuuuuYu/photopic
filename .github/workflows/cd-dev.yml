@@ -49,7 +49,7 @@ jobs:
           source: photopic-dev.jar
           target: /home/${{ secrets.AWS_EC2_USER }}
 
-      - name: SSH
+      - name: (SSH) connect EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.AWS_EC2_URL_DEV }}
@@ -58,4 +58,4 @@ jobs:
           script_stop: true
           script: |
             sudo fuser -k -n tcp 3000 || true
-            nohup java -jar photopic-dev.jar &
+            nohup java -jar photopic-dev.jar > ./output.log 2>&1 &
