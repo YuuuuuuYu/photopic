@@ -38,7 +38,7 @@ jobs:
             ${{ runner.os }}-gradle-
   
       - name: Build with Gradle
-        run: ./gradlew bootJar
+        run: ./gradlew build
 
       - name: Copy jar file
         run: mv ./build/libs/*SNAPSHOT.jar ./photopic-dev.jar
