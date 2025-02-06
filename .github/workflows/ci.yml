@@ -2,7 +2,7 @@ name: ci
 
 on:
   pull_request:
-    branches: ['develop', 'main']
+    branches: [ "develop" , "main" ]
 
 jobs:
   build:
@@ -10,6 +10,9 @@ jobs:
     steps:
     - name: Checkout sources
       uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.SUBMODULE_TOKEN }}
+        submodules: true
       
     - name: Setup JDK 21
       uses: actions/setup-java@v4
@@ -29,8 +32,11 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - name: Build with Gradle
-      run: ./gradlew build
+    - name: Set application.yml
+      run: ./gradlew copyYML
+      
+    - name: Test with Gradle
+      run: ./gradlew test
     
     - name: Publish Test Report
       uses: mikepenz/action-junit-report@v5
