@@ -36,7 +36,10 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-  
+
+      - name: Set application.yml
+        run: ./gradlew copyYML
+        
       - name: Build with Gradle
         run: ./gradlew build
 
