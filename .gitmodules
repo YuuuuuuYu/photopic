@@ -1,0 +1,3 @@
+[submodule "server-config"]
+	path = server-config
+	url = https://github.com/SWYP-team-2th/server-config.git
