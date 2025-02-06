@@ -21,7 +21,7 @@ class SocialAccountTest {
         Provider givenProvider = Provider.KAKAO;
 
         //when
-        SocialAccount socialAccount = SocialAccount.create(givenUserId, givenSocialId, givenProvider);
+        SocialAccount socialAccount = SocialAccount.create(givenUserId, givenSocialId, givenProvider, "email");
 
         //then
         assertAll(
@@ -38,10 +38,10 @@ class SocialAccountTest {
 
         //when then
         assertAll(
-                () -> assertThatThrownBy(() -> SocialAccount.create(1L, null, Provider.KAKAO))
+                () -> assertThatThrownBy(() -> SocialAccount.create(1L, null, Provider.KAKAO, "email"))
                         .isInstanceOf(InternalServerException.class)
                         .hasMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage()),
-                () -> assertThatThrownBy(() -> SocialAccount.create(1L, "socialId", null))
+                () -> assertThatThrownBy(() -> SocialAccount.create(1L, "socialId", null, "email"))
                         .isInstanceOf(InternalServerException.class)
                         .hasMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage())
         );
@@ -53,7 +53,7 @@ class SocialAccountTest {
         //given
 
         //when then
-        assertThatThrownBy(() -> SocialAccount.create(1L, "", Provider.KAKAO))
+        assertThatThrownBy(() -> SocialAccount.create(1L, "", Provider.KAKAO, "email"))
                 .isInstanceOf(InternalServerException.class)
                 .hasMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage());
     }
