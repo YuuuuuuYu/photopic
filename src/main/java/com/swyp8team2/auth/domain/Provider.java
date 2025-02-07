@@ -12,7 +12,6 @@ import java.util.Arrays;
 public enum Provider {
 
     KAKAO("kakao");
-//    NAVER("naver"),;
 
     private final String registrationId;
 
