@@ -2,7 +2,7 @@ name: cd dev
 
 on:
   pull_request:
-    branches: [ "develop", "main" ]
+    branches: [ "develop" ]
     types: [closed]
 
 jobs:
@@ -37,8 +37,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Set application.yml
-        run: ./gradlew copyYML
+      - name: Copy application.yml
+        run: cp ./server-config/*.yml ./src/main/resources/
         
       - name: Build with Gradle
         run: ./gradlew build
@@ -63,5 +63,5 @@ jobs:
           key: ${{ secrets.AWS_EC2_KEY }}
           script_stop: true
           script: |
-            sudo fuser -k -n tcp 3000 || true
+            sudo fuser -k -n tcp 8080 || true
             nohup java -jar -Dspring.profiles.active=dev photopic-dev.jar > ./output.log 2>&1 &
