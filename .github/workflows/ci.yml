@@ -32,8 +32,8 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - name: Set application.yml
-      run: ./gradlew copyYML
+    - name: Copy application.yml
+      run: cp ./server-config/*.yml ./src/main/resources/
       
     - name: Test with Gradle
       run: ./gradlew test

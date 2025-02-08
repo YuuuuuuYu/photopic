@@ -2,7 +2,7 @@ name: cd dev
 
 on:
   pull_request:
-    branches: [ "develop", "main" ]
+    branches: [ "develop" ]
     types: [closed]
 
 jobs:
@@ -37,8 +37,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Set application.yml
-        run: ./gradlew copyYML
+      - name: Copy application.yml
+        run: cp ./server-config/*.yml ./src/main/resources/
         
       - name: Build with Gradle
         run: ./gradlew build
