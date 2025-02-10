@@ -33,7 +33,7 @@ jobs:
           ${{ runner.os }}-gradle-
 
     - name: Copy application.yml
-      run: cp ./server-config/application-test.yml ./src/main/resources/application.yml
+      run: cp ./server-config/application-test.yml ./src/test/resources/application.yml
       
     - name: Test with Gradle
       run: ./gradlew test
