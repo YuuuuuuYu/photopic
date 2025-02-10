@@ -23,14 +23,6 @@ repositories {
     mavenCentral()
 }
 
-task copyYML(type: Copy){
-    copy {
-        from './server-config'
-        include "*.yml"
-        into './src/main/resources'
-    }
-}
-
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
