@@ -32,7 +32,7 @@ class UserControllerTest extends RestDocsTest {
                 .andExpect(content().json(objectMapper.writeValueAsString(response)))
                 .andDo(restDocs.document(
                         responseFields(
-                                fieldWithPath("userId").description("유저 아이디").type(NUMBER),
+                                fieldWithPath("id").description("유저 아이디").type(NUMBER),
                                 fieldWithPath("nickname").description("닉네임").type(STRING),
                                 fieldWithPath("profileUrl").description("프로필 이미지 URL").type(STRING),
                                 fieldWithPath("email").description("이메일").type(STRING)
