@@ -139,7 +139,7 @@ class CommentControllerTest extends RestDocsTest {
                         requestHeaders(authorizationHeader()),
                         pathParameters(
                                 parameterWithName("postId").description("게시글 Id"),
-                                parameterWithName("commentId").description("댯글 Id")
+                                parameterWithName("commentId").description("댓글 Id")
                         )
                 ));
     }

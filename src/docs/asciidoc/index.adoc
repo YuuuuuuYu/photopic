@@ -8,3 +8,9 @@ api문서
 :sectlinks:
 
 include::users.adoc[]
+
+include::posts.adoc[]
+
+include::votes.adoc[]
+
+include::comments.adoc

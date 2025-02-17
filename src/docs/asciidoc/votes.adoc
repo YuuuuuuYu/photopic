@@ -1,0 +1,22 @@
+[[투표-API]]
+== 투표 API
+
+[[투표]]
+=== 투표
+
+operation::vote-controller-test/vote[snippets='http-request,curl-request,request-headers,request-fields,http-response']
+
+[[게스트-투표]]
+=== 게스트 투표
+
+operation::vote-controller-test/guest-vote[snippets='http-request,curl-request,request-headers,request-fields,http-response']
+
+[[투표-변경]]
+=== 투표 변경
+
+operation::vote-controller-test/change-vote[snippets='http-request,curl-request,request-headers,request-fields,http-response']
+
+[[게스트-투표-변경]]
+=== 게스트 투표 변경
+
+operation::vote-controller-test/guest-change-vote[snippets='http-request,curl-request,request-headers,request-fields,http-response']
