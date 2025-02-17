@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -21,6 +22,7 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
@@ -62,7 +64,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Profile({"dev", "local"})
+    @Profile("local")
     @ConditionalOnProperty(name = "spring.h2.console.enabled", havingValue = "true")
     public WebSecurityCustomizer configureH2ConsoleEnable() {
         return web -> web.ignoring()
@@ -88,7 +90,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 .requestMatchers(getWhiteList(introspect)).permitAll()
-//                                .requestMatchers(PathRequest.toH2Console()).permitAll()
                                 .anyRequest().authenticated()
                 )
 
@@ -106,15 +107,16 @@ public class SecurityConfig {
                                 .successHandler(oAuthLoginSuccessHandler)
                                 .failureHandler(oAuthLoginFailureHandler)
                 );
-
         return http.build();
     }
 
-    private MvcRequestMatcher[] getWhiteList(HandlerMappingIntrospector introspect) {
+    public static MvcRequestMatcher[] getWhiteList(HandlerMappingIntrospector introspect) {
         MvcRequestMatcher.Builder mvc = new MvcRequestMatcher.Builder(introspect);
         return new MvcRequestMatcher[]{
                 mvc.pattern("/auth/reissue"),
-                mvc.pattern("/guest")
+                mvc.pattern("/guest"),
+                mvc.pattern(HttpMethod.GET, "/posts/{sharedUrl}"),
+                mvc.pattern("/votes/guest/**"),
         };
     }
 }

@@ -30,7 +30,7 @@ class UserControllerTest extends RestDocsTest {
         UserInfoResponse response = new UserInfoResponse(1L, "nickname", "https://image.com/profile-image");
 
         //when then
-        mockMvc.perform(RestDocumentationRequestBuilders.get("/api/users/{userId}", "1"))
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/users/{userId}", "1"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(response)))
                 .andDo(restDocs.document(
