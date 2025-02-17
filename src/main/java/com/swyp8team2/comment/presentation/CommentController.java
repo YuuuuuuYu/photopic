@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/posts/{postId}/comments")
+@RequestMapping("/posts/{postId}/comments")
 public class CommentController {
 
     @PostMapping("")
@@ -55,5 +56,14 @@ public class CommentController {
                 )
         );
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable("postId") Long postId,
+            @PathVariable("commentId") Long commentId,
+            @AuthenticationPrincipal UserInfo userInfo
+    ) {
+        return ResponseEntity.ok().build();
     }
 }

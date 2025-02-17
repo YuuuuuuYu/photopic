@@ -116,6 +116,7 @@ public class SecurityConfig {
                 mvc.pattern("/auth/reissue"),
                 mvc.pattern("/guest"),
                 mvc.pattern(HttpMethod.GET, "/posts/{sharedUrl}"),
+                mvc.pattern(HttpMethod.GET, "/posts/{postId}/comments"),
                 mvc.pattern("/votes/guest/**"),
         };
     }
