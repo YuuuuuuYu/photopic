@@ -1,0 +1,9 @@
+[[인증-API]]
+== 인증 API
+
+[[토큰-재발급]]
+=== 토큰 재발급
+
+이 부분 프런트와 다시 고민해봐야 함
+
+operation::auth-controller-test/reissue[snippets='http-request,curl-request,request-headers,http-response,response-fields']
