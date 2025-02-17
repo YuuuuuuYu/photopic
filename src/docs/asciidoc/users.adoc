@@ -1,0 +1,7 @@
+[[유저-API]]
+== 유저 API
+
+[[유저-정보-조회]]
+=== 유저 정보 조회
+
+operation::user-controller-test/find-user-info[snippets='http-request,curl-request,path-parameters,http-response,response-fields']
