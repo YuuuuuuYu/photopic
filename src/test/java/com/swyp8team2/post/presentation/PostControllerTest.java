@@ -59,12 +59,11 @@ class PostControllerTest extends RestDocsTest {
                                         .attributes(constraints("1~200자 사이")),
                                 fieldWithPath("votes")
                                         .type(JsonFieldType.ARRAY)
-                                        .description("투표 후보 이미지 URL 목록")
+                                        .description("투표 후보")
                                         .attributes(constraints("최소 2개")),
-                                fieldWithPath("votes.imageUrl")
-                                        .type(JsonFieldType.ARRAY)
-                                        .description("투표 후보 이미지 URL 목록")
-                                        .attributes(constraints("최소 2개"))
+                                fieldWithPath("votes[].imageUrl")
+                                        .type(JsonFieldType.STRING)
+                                        .description("투표 후보 이미지 URL")
                         )));
     }
 
