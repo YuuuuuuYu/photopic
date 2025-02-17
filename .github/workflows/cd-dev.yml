@@ -43,7 +43,7 @@ jobs:
           cp ./server-config/application-test.yml ./src/test/resources/application.yml
         
       - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew bootJar
 
       - name: Copy jar file
         run: mv ./build/libs/*SNAPSHOT.jar ./photopic-dev.jar
@@ -65,5 +65,5 @@ jobs:
           key: ${{ secrets.AWS_EC2_KEY }}
           script_stop: true
           script: |
-            sudo fuser -k -n tcp 3000 || true
-            nohup java -jar photopic-dev.jar > ./output.log 2>&1 &
+            sudo fuser -k -n tcp 8080 || true
+            nohup java -jar -Dspring.profiles.active=dev photopic-dev.jar > ./output.log 2>&1 &
