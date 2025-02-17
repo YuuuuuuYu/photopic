@@ -15,10 +15,12 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import java.util.UUID;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class VoteControllerTest extends RestDocsTest {
@@ -28,20 +30,20 @@ class VoteControllerTest extends RestDocsTest {
     @DisplayName("투표")
     void vote() throws Exception {
         //given
-        VoteRequest request = new VoteRequest(1L, 1L);
+        VoteRequest request = new VoteRequest(1L);
 
         //when test
-        mockMvc.perform(post("/votes")
+        mockMvc.perform(post("/posts/{postId}/votes", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                 .andExpect(status().isOk())
                 .andDo(restDocs.document(
                         requestHeaders(authorizationHeader()),
+                        pathParameters(
+                                parameterWithName("postId").description("게시글 Id")
+                        ),
                         requestFields(
-                                fieldWithPath("postId")
-                                        .type(JsonFieldType.NUMBER)
-                                        .description("투표 게시글 Id"),
                                 fieldWithPath("voteId")
                                         .type(JsonFieldType.NUMBER)
                                         .description("투표 후보 Id")
@@ -54,20 +56,20 @@ class VoteControllerTest extends RestDocsTest {
     @DisplayName("게스트 투표")
     void guestVote() throws Exception {
         //given
-        VoteRequest request = new VoteRequest(1L, 1L);
+        VoteRequest request = new VoteRequest(1L);
 
         //when test
-        mockMvc.perform(post("/votes/guest")
+        mockMvc.perform(post("/posts/{postId}/votes/guest", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                         .header(CustomHeader.GUEST_ID, UUID.randomUUID().toString()))
                 .andExpect(status().isOk())
                 .andDo(restDocs.document(
                         requestHeaders(guestHeader()),
+                        pathParameters(
+                                parameterWithName("postId").description("게시글 Id")
+                        ),
                         requestFields(
-                                fieldWithPath("postId")
-                                        .type(JsonFieldType.NUMBER)
-                                        .description("투표 게시글 Id"),
                                 fieldWithPath("voteId")
                                         .type(JsonFieldType.NUMBER)
                                         .description("투표 후보 Id")
@@ -80,20 +82,20 @@ class VoteControllerTest extends RestDocsTest {
     @DisplayName("투표 변경")
     void changeVote() throws Exception {
         //given
-        ChangeVoteRequest request = new ChangeVoteRequest(1L, 1L);
+        ChangeVoteRequest request = new ChangeVoteRequest(1L);
 
         //when
-        mockMvc.perform(patch("/votes/{voteId}", "1")
+        mockMvc.perform(patch("/posts/{postId}/votes", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                 .andExpect(status().isOk())
                 .andDo(restDocs.document(
                         requestHeaders(authorizationHeader()),
+                        pathParameters(
+                                parameterWithName("postId").description("변경할 게시글 Id")
+                        ),
                         requestFields(
-                                fieldWithPath("postId")
-                                        .type(JsonFieldType.NUMBER)
-                                        .description("변경할 투표 게시글 Id"),
                                 fieldWithPath("voteId")
                                         .type(JsonFieldType.NUMBER)
                                         .description("변경할 투표 후보 Id")
@@ -106,20 +108,20 @@ class VoteControllerTest extends RestDocsTest {
     @DisplayName("게스트 투표 변경")
     void guestChangeVote() throws Exception {
         //given
-        ChangeVoteRequest request = new ChangeVoteRequest(1L, 1L);
+        ChangeVoteRequest request = new ChangeVoteRequest(1L);
 
         //when
-        mockMvc.perform(patch("/votes/guest/{voteId}", "1")
+        mockMvc.perform(patch("/posts/{postId}/votes/guest", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                         .header(CustomHeader.GUEST_ID, UUID.randomUUID().toString()))
                 .andExpect(status().isOk())
                 .andDo(restDocs.document(
                         requestHeaders(guestHeader()),
+                        pathParameters(
+                                parameterWithName("postId").description("변경활 게시글 Id")
+                        ),
                         requestFields(
-                                fieldWithPath("postId")
-                                        .type(JsonFieldType.NUMBER)
-                                        .description("변경할 투표 게시글 Id"),
                                 fieldWithPath("voteId")
                                         .type(JsonFieldType.NUMBER)
                                         .description("변경할 투표 후보 Id")

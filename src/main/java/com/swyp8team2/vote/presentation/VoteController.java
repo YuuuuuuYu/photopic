@@ -21,11 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/votes")
+@RequestMapping("/posts/{postId}/votes")
 public class VoteController {
 
     @PostMapping("")
     public ResponseEntity<Void> vote(
+            @PathVariable("postId") Long postId,
             @Valid @RequestBody VoteRequest request,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
@@ -34,24 +35,25 @@ public class VoteController {
 
     @PostMapping("/guest")
     public ResponseEntity<Void> guestVote(
+            @PathVariable("postId") Long postId,
             @RequestHeader(CustomHeader.GUEST_ID) String guestId,
             @Valid @RequestBody VoteRequest request
     ) {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/{voteId}")
+    @PatchMapping("")
     public ResponseEntity<Void> changeVote(
-            @PathVariable("voteId") Long voteId,
+            @PathVariable("postId") Long postId,
             @Valid @RequestBody ChangeVoteRequest request,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/guest/{voteId}")
+    @PatchMapping("/guest")
     public ResponseEntity<Void> changeGuestVote(
-            @PathVariable("voteId") Long voteId,
+            @PathVariable("postId") Long postId,
             @RequestHeader(CustomHeader.GUEST_ID) String guestId,
             @Valid @RequestBody ChangeVoteRequest request
     ) {
