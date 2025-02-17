@@ -44,7 +44,7 @@ public abstract class RestDocsTest {
     }
 
     protected static HeaderDescriptor guestHeader() {
-        return headerWithName(CustomHeader.GUEST_ID).description("게스트 Id");
+        return headerWithName(CustomHeader.GUEST_ID).description("게스트 Id (UUID 형식)");
     }
 
     protected static ParameterDescriptor[] cursorQueryParams() {
