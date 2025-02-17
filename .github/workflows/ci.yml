@@ -32,6 +32,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
+    - name: Create directory resources
+      run: mkdir -p ./src/test/resources
+      
     - name: Copy application.yml
       run: cp ./server-config/*.yml ./src/main/resources/
       
