@@ -2,10 +2,8 @@ package com.swyp8team2.post.presentation;
 
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.post.presentation.dto.AuthorDto;
-import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.SimplePostResponse;
-import com.swyp8team2.post.presentation.dto.VoteRequestDto;
 import com.swyp8team2.post.presentation.dto.VoteResponseDto;
 import com.swyp8team2.support.RestDocsTest;
 import com.swyp8team2.support.WithMockUserInfo;
@@ -13,22 +11,22 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
-import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,32 +37,46 @@ class PostControllerTest extends RestDocsTest {
     @DisplayName("게시글 생성")
     void createPost() throws Exception {
         //given
-        CreatePostRequest request = new CreatePostRequest(
-                "제목",
-                List.of(new VoteRequestDto("https://image.com/1"), new VoteRequestDto("https://image.com/2"))
+        MockMultipartFile description = new MockMultipartFile(
+                "description",
+                null,
+                null,
+                "게시물 설명".getBytes(StandardCharsets.UTF_8)
+        );
+        MockMultipartFile file1 = new MockMultipartFile(
+                "files",
+                "image.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                "".getBytes(StandardCharsets.UTF_8)
+        );
+        MockMultipartFile file2 = new MockMultipartFile(
+                "files",
+                "image.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "".getBytes(StandardCharsets.UTF_8)
         );
 
         //when then
-        mockMvc.perform(post("/posts")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/posts")
+                        .file(description)
+                        .file(file1)
+                        .file(file2)
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                 .andExpect(status().isOk())
                 .andDo(restDocs.document(
                         requestHeaders(authorizationHeader()),
-                        requestFields(
-                                fieldWithPath("description")
-                                        .type(JsonFieldType.STRING)
+                        requestParts(
+                                partWithName("description")
                                         .description("설명")
+                                        .attributes(key("type").value("String"))
                                         .attributes(constraints("1~200자 사이")),
-                                fieldWithPath("votes")
-                                        .type(JsonFieldType.ARRAY)
-                                        .description("투표 후보")
-                                        .attributes(constraints("최소 2개")),
-                                fieldWithPath("votes[].imageUrl")
-                                        .type(JsonFieldType.STRING)
-                                        .description("투표 후보 이미지 URL")
-                        )));
+                                partWithName("files")
+                                        .description("투표 후보 이미지 파일")
+                                        .attributes(key("type").value("Array[File]"))
+                                        .attributes(constraints("최소 2개"))
+                        )
+                ));
     }
 
     @Test
@@ -77,12 +89,12 @@ class PostControllerTest extends RestDocsTest {
                 new AuthorDto(
                         1L,
                         "author",
-                        "https://image.com/profile-image"
+                        "https://image.photopic.site/imagePath/profile-image"
                 ),
                 "description",
                 List.of(
-                        new VoteResponseDto(1L, "https://image.com/1", 62.75, true),
-                        new VoteResponseDto(2L, "https://image.com/2", 37.25, false)
+                        new VoteResponseDto(1L, "https://image.photopic.site/imagePath/1", 62.75, true),
+                        new VoteResponseDto(2L, "https://image.photopic.site/imagePath/2", 37.25, false)
                 ),
                 "https://photopic.site/shareurl",
                 LocalDateTime.of(2025, 2, 13, 12, 0)
@@ -143,7 +155,7 @@ class PostControllerTest extends RestDocsTest {
                 List.of(
                         new SimplePostResponse(
                                 1L,
-                                "https://image.com/1",
+                                "https://image.photopic.site/imagePath/1",
                                 "https://photopic.site/shareurl",
                                 LocalDateTime.of(2025, 2, 13, 12, 0)
                         )
@@ -196,7 +208,7 @@ class PostControllerTest extends RestDocsTest {
                 List.of(
                         new SimplePostResponse(
                                 1L,
-                                "https://image.com/1",
+                                "https://image.photopic.site/imagePath/1",
                                 "https://photopic.site/shareurl",
                                 LocalDateTime.of(2025, 2, 13, 12, 0)
                         )

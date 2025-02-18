@@ -4,7 +4,7 @@
 [[게시글-작성]]
 === 게시글 작성
 
-operation::post-controller-test/create-post[snippets='http-request,curl-request,request-headers,request-fields,http-response']
+operation::post-controller-test/create-post[snippets='http-request,curl-request,request-headers,request-parts,http-response']
 
 [[게시글-상세-조회]]
 === 게시글 상세 조회
