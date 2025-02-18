@@ -1,0 +1,21 @@
+|===
+|필드명|타입|필수값|조건|설명
+
+{{#requestParts}}
+    |{{#tableCellContent}}`+{{name}}+`{{/tableCellContent}}
+    |{{#tableCellContent}}`+{{type}}+`{{/tableCellContent}}
+    |{{#tableCellContent}}{{^optional}}true{{/optional}}{{/tableCellContent}}
+    |{{#tableCellContent}}{{#constraints}}{{.}}{{/constraints}}{{/tableCellContent}}
+    |{{#tableCellContent}}{{description}}{{/tableCellContent}}
+{{/requestParts}}
+{{#requestPartFields}}
+    |{{#fields}}
+        |{{path}}
+        |{{description}}
+        |{{type}}
+        |{{optional}}
+        |{{#constraints}}{{.}}{{/constraints}}
+    {{/fields}}
+{{/requestPartFields}}
+
+|===
