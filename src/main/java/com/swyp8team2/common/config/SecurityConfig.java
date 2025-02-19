@@ -22,7 +22,6 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
@@ -59,7 +58,8 @@ public class SecurityConfig {
                         "/images/**",
                         "/js/**",
                         "/favicon.ico",
-                        "/docs/**"
+                        "/docs/**",
+                        "/actuator/health"
                 );
     }
 
@@ -90,23 +90,21 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 .requestMatchers(getWhiteList(introspect)).permitAll()
-                                .anyRequest().authenticated()
-                )
+                                .anyRequest().authenticated())
 
                 .addFilterBefore(
                         new JwtAuthFilter(jwtProvider, new HeaderTokenExtractor()),
-                        UsernamePasswordAuthenticationFilter.class
-                )
+                        UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception ->
                         exception.authenticationEntryPoint(
-                                new JwtAuthenticationEntryPoint(handlerExceptionResolver))
-                )
+                                new JwtAuthenticationEntryPoint(handlerExceptionResolver)))
 
                 .oauth2Login(oauth ->
-                        oauth.userInfoEndpoint(userInfo -> userInfo.userService(oAuthService))
+                        oauth.authorizationEndpoint(authorizationEndpointConfig ->
+                                        authorizationEndpointConfig.baseUri("/auth/oauth2"))
+                                .userInfoEndpoint(userInfo -> userInfo.userService(oAuthService))
                                 .successHandler(oAuthLoginSuccessHandler)
-                                .failureHandler(oAuthLoginFailureHandler)
-                );
+                                .failureHandler(oAuthLoginFailureHandler));
         return http.build();
     }
 
@@ -118,6 +116,7 @@ public class SecurityConfig {
                 mvc.pattern(HttpMethod.GET, "/posts/{sharedUrl}"),
                 mvc.pattern(HttpMethod.GET, "/posts/{postId}/comments"),
                 mvc.pattern("/posts/{postId}/votes/guest/**"),
+                mvc.pattern("/auth/oauth2")
         };
     }
 }

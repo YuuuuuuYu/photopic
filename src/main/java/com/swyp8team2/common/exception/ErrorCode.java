@@ -9,6 +9,8 @@ public enum ErrorCode {
     //400
     USER_NOT_FOUND("존재하지 않는 유저"),
     INVALID_ARGUMENT("잘못된 파라미터 요청"),
+    REFRESH_TOKEN_MISMATCHED("리프레시 토큰 불일치"),
+    REFRESH_TOKEN_NOT_FOUND("리프레시 토큰을 찾을 수 없음"),
 
     //401
     EXPIRED_TOKEN("토큰 만료"),
@@ -18,7 +20,7 @@ public enum ErrorCode {
 
     //500
     INTERNAL_SERVER_ERROR("서버 내부 오류"),
-    INVALID_INPUT_VALUE("잘못된 입력 값"), ;
+    INVALID_INPUT_VALUE("잘못된 입력 값"),;
 
     private final String message;
 }
