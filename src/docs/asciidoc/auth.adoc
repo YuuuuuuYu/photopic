@@ -1,9 +1,51 @@
 [[인증-API]]
 == 인증 API
 
+[[카카오-로그인]]
+=== 카카오 로그인
+
+==== HTTP request
+----
+GET /auth/oauth2/kakao HTTP/1.1
+----
+
+==== Curl request
+----
+$ curl 'http://localhost:8080/auth/oauth2/kakao' -i -X GET
+----
+
+==== HTTP response
+----
+HTTP/1.1 200 OK
+Set-Cookie: refreshToken=refreshToken; Path=/auth/reissue; Max-Age=1209600; Expires=Thu, 06 Mar 2025 01:33:19 GMT; Secure; HttpOnly
+Content-Type: application/json
+
+{
+  "accessToken" : "accessToken"
+}
+----
+
+==== Response cookies
+|===
+|Name|Description
+
+|`+refreshToken+`
+|리프레시 토큰
+
+|===
+
+==== Response fields
+|===
+|필드명|타입|필수값|설명
+
+  |`+accessToken+`
+  |`+String+`
+  |true
+  |액세스 토큰
+
+|===
+
 [[토큰-재발급]]
 === 토큰 재발급
 
-이 부분 프런트와 다시 고민해봐야 함
-
-operation::auth-controller-test/reissue[snippets='http-request,curl-request,request-headers,http-response,response-fields']
+operation::auth-controller-test/reissue[snippets='http-request,curl-request,request-cookies,http-response,response-cookies,response-fields']
