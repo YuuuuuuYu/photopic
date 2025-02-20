@@ -7,6 +7,7 @@ import com.swyp8team2.vote.presentation.dto.ChangeVoteRequest;
 import com.swyp8team2.vote.presentation.dto.VoteRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
@@ -23,6 +24,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@WebMvcTest(VoteController.class)
 class VoteControllerTest extends RestDocsTest {
 
     @Test

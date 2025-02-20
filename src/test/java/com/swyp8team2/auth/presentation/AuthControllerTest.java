@@ -1,25 +1,22 @@
 package com.swyp8team2.auth.presentation;
 
 import com.swyp8team2.auth.presentation.dto.TokenResponse;
-import com.swyp8team2.common.exception.ErrorCode;
-import com.swyp8team2.common.exception.ErrorResponse;
 import com.swyp8team2.common.presentation.CustomHeader;
 import com.swyp8team2.support.RestDocsTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpHeaders;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@WebMvcTest(AuthController.class)
 class AuthControllerTest extends RestDocsTest {
 
     @Test
