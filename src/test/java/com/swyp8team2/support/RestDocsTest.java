@@ -24,13 +24,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.paramete
 @AutoConfigureRestDocs
 @Import({RestDocsConfiguration.class, TestSecurityConfig.class})
 @ExtendWith(RestDocumentationExtension.class)
-public abstract class RestDocsTest {
-
-    @Autowired
-    protected MockMvc mockMvc;
-
-    @Autowired
-    protected ObjectMapper objectMapper;
+public abstract class RestDocsTest extends WebUnitTest {
 
     @Autowired
     protected RestDocumentationResultHandler restDocs;
