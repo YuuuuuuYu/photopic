@@ -41,7 +41,7 @@ class PostControllerTest extends RestDocsTest {
         //given
         CreatePostRequest request = new CreatePostRequest(
                 "제목",
-                List.of(new VoteRequestDto("https://image.com/1"), new VoteRequestDto("https://image.com/2"))
+                List.of(new VoteRequestDto(1L), new VoteRequestDto(2L))
         );
 
         //when then
@@ -61,9 +61,9 @@ class PostControllerTest extends RestDocsTest {
                                         .type(JsonFieldType.ARRAY)
                                         .description("투표 후보")
                                         .attributes(constraints("최소 2개")),
-                                fieldWithPath("votes[].imageUrl")
-                                        .type(JsonFieldType.STRING)
-                                        .description("투표 후보 이미지 URL")
+                                fieldWithPath("votes[].imageFileId")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("투표 후보 이미지 ID")
                         )));
     }
 
@@ -77,12 +77,12 @@ class PostControllerTest extends RestDocsTest {
                 new AuthorDto(
                         1L,
                         "author",
-                        "https://image.com/profile-image"
+                        "https://image.photopic.site/profile-image"
                 ),
                 "description",
                 List.of(
-                        new VoteResponseDto(1L, "https://image.com/1", 62.75, true),
-                        new VoteResponseDto(2L, "https://image.com/2", 37.25, false)
+                        new VoteResponseDto(1L, "https://image.photopic.site/1", 62.75, true),
+                        new VoteResponseDto(2L, "https://image.photopic.site/2", 37.25, false)
                 ),
                 "https://photopic.site/shareurl",
                 LocalDateTime.of(2025, 2, 13, 12, 0)
@@ -143,7 +143,7 @@ class PostControllerTest extends RestDocsTest {
                 List.of(
                         new SimplePostResponse(
                                 1L,
-                                "https://image.com/1",
+                                "https://image.photopic.site/1",
                                 "https://photopic.site/shareurl",
                                 LocalDateTime.of(2025, 2, 13, 12, 0)
                         )
@@ -196,7 +196,7 @@ class PostControllerTest extends RestDocsTest {
                 List.of(
                         new SimplePostResponse(
                                 1L,
-                                "https://image.com/1",
+                                "https://image.photopic.site/1",
                                 "https://photopic.site/shareurl",
                                 LocalDateTime.of(2025, 2, 13, 12, 0)
                         )
