@@ -52,12 +52,12 @@ public class ImageServiceTest {
         ImageFileDto dto = new ImageFileDto("test.jpg", "https://image.photopic.site/test.jpg", "https://image.photopic.site/thumb.jpg");
         ImageFile imageFile = ImageFile.create(dto);
 
-        // when: createImageFile 호출
+        // when
         ReflectionTestUtils.setField(imageFile, "id", 100L);
         when(imageFileRepository.save(any(ImageFile.class))).thenReturn(imageFile);
         Long id = imageService.createImageFile(dto);
 
-        // then: id가 100L인지 확인
+        // then
         assertEquals(100L, id);
     }
 
@@ -143,7 +143,7 @@ public class ImageServiceTest {
     @Test
     @DisplayName("파일 업로드 - IOException 발생")
     void uploadImageFile_IOException() {
-        // given: 두 개의 파일 생성
+        // given
         MockMultipartFile file1 = new MockMultipartFile(
                 "files",
                 "test1.jpg",
