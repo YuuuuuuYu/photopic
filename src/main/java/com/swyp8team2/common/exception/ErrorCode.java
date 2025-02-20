@@ -11,6 +11,7 @@ public enum ErrorCode {
     INVALID_ARGUMENT("잘못된 파라미터 요청"),
     REFRESH_TOKEN_MISMATCHED("리프레시 토큰 불일치"),
     REFRESH_TOKEN_NOT_FOUND("리프레시 토큰을 찾을 수 없음"),
+    INVALID_REFRESH_TOKEN_HEADER("잘못된 리프레시 토큰 헤더"),
 
     //401
     EXPIRED_TOKEN("토큰 만료"),

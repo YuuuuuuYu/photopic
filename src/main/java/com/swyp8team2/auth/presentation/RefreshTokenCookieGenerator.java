@@ -11,7 +11,8 @@ public class RefreshTokenCookieGenerator {
         Cookie cookie = new Cookie(CustomHeader.CustomCookie.REFRESH_TOKEN, refreshToken);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
-        cookie.setPath("/");
+        cookie.setAttribute("SameSite", "None");
+        cookie.setPath("/auth/reissue");
         cookie.setMaxAge(60 * 60 * 24 * 14);
         return cookie;
     }
