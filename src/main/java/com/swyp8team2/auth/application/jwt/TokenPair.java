@@ -1,4 +1,4 @@
-package com.swyp8team2.auth.application;
+package com.swyp8team2.auth.application.jwt;
 
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.common.exception.InternalServerException;

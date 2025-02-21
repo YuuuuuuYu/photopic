@@ -1,10 +1,9 @@
-package com.swyp8team2.auth.application;
+package com.swyp8team2.auth.application.jwt;
 
 import com.swyp8team2.auth.domain.RefreshToken;
 import com.swyp8team2.auth.domain.RefreshTokenRepository;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
-import com.swyp8team2.common.exception.UnauthorizedException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +20,7 @@ public class JwtService {
         TokenPair tokenPair = jwtProvider.createToken(new JwtClaim(userId));
         RefreshToken refreshToken = refreshTokenRepository.findByUserId(userId)
                 .orElseGet(() -> new RefreshToken(userId, tokenPair.refreshToken()));
+        refreshToken.setRefreshToken(tokenPair.refreshToken());
         refreshTokenRepository.save(refreshToken);
         return tokenPair;
     }
