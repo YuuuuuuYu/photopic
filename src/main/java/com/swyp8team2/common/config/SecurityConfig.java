@@ -67,14 +67,15 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             HandlerMappingIntrospector introspect,
-            JwtProvider jwtProvider
+            JwtProvider jwtProvider,
+            UrlBasedCorsConfigurationSource corsConfigurationSource
     ) throws Exception {
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSourceLocal()))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .headers(headers ->
                         headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .sessionManagement(session ->
@@ -92,30 +93,6 @@ public class SecurityConfig {
                         exception.authenticationEntryPoint(
                                 new JwtAuthenticationEntryPoint(handlerExceptionResolver)));
         return http.build();
-    }
-
-    @Profile({"prod", "dev"})
-    UrlBasedCorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("https://photopic.site"));
-        configuration.setAllowedMethods(List.of("GET","POST", "PUT", "DELETE", "PATCH"));
-        configuration.setAllowCredentials(true);
-        configuration.addAllowedHeader("*");
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
-
-    @Profile("local")
-    UrlBasedCorsConfigurationSource corsConfigurationSourceLocal() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-        configuration.setAllowedMethods(List.of("GET","POST", "PUT", "DELETE", "PATCH"));
-        configuration.setAllowCredentials(true);
-        configuration.addAllowedHeader("*");
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 
     public static MvcRequestMatcher[] getWhiteList(HandlerMappingIntrospector introspect) {
