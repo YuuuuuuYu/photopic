@@ -1,12 +1,9 @@
 package com.swyp8team2.common.config;
 
-import com.swyp8team2.auth.application.JwtProvider;
-import com.swyp8team2.auth.application.OAuthService;
+import com.swyp8team2.auth.application.jwt.JwtProvider;
 import com.swyp8team2.auth.presentation.filter.HeaderTokenExtractor;
 import com.swyp8team2.auth.presentation.filter.JwtAuthFilter;
 import com.swyp8team2.auth.presentation.filter.JwtAuthenticationEntryPoint;
-import com.swyp8team2.auth.presentation.filter.OAuthLoginFailureHandler;
-import com.swyp8team2.auth.presentation.filter.OAuthLoginSuccessHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -23,27 +20,22 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final OAuthService oAuthService;
-    private final OAuthLoginSuccessHandler oAuthLoginSuccessHandler;
-    private final OAuthLoginFailureHandler oAuthLoginFailureHandler;
     private final HandlerExceptionResolver handlerExceptionResolver;
 
     public SecurityConfig(
-            OAuthService oAuthService,
-            OAuthLoginSuccessHandler oAuthLoginSuccessHandler,
-            OAuthLoginFailureHandler oAuthLoginFailureHandler,
             @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver
     ) {
-        this.oAuthService = oAuthService;
-        this.oAuthLoginSuccessHandler = oAuthLoginSuccessHandler;
-        this.oAuthLoginFailureHandler = oAuthLoginFailureHandler;
         this.handlerExceptionResolver = handlerExceptionResolver;
     }
 
@@ -82,6 +74,7 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSourceLocal()))
                 .headers(headers ->
                         headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .sessionManagement(session ->
@@ -97,15 +90,32 @@ public class SecurityConfig {
                         UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception ->
                         exception.authenticationEntryPoint(
-                                new JwtAuthenticationEntryPoint(handlerExceptionResolver)))
-
-                .oauth2Login(oauth ->
-                        oauth.authorizationEndpoint(authorizationEndpointConfig ->
-                                        authorizationEndpointConfig.baseUri("/auth/oauth2"))
-                                .userInfoEndpoint(userInfo -> userInfo.userService(oAuthService))
-                                .successHandler(oAuthLoginSuccessHandler)
-                                .failureHandler(oAuthLoginFailureHandler));
+                                new JwtAuthenticationEntryPoint(handlerExceptionResolver)));
         return http.build();
+    }
+
+    @Profile({"prod", "dev"})
+    UrlBasedCorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("https://photopic.site"));
+        configuration.setAllowedMethods(List.of("GET","POST", "PUT", "DELETE", "PATCH"));
+        configuration.setAllowCredentials(true);
+        configuration.addAllowedHeader("*");
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Profile("local")
+    UrlBasedCorsConfigurationSource corsConfigurationSourceLocal() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedMethods(List.of("GET","POST", "PUT", "DELETE", "PATCH"));
+        configuration.setAllowCredentials(true);
+        configuration.addAllowedHeader("*");
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     public static MvcRequestMatcher[] getWhiteList(HandlerMappingIntrospector introspect) {
@@ -116,7 +126,7 @@ public class SecurityConfig {
                 mvc.pattern(HttpMethod.GET, "/posts/{sharedUrl}"),
                 mvc.pattern(HttpMethod.GET, "/posts/{postId}/comments"),
                 mvc.pattern("/posts/{postId}/votes/guest/**"),
-                mvc.pattern("/auth/oauth2")
+                mvc.pattern("/auth/oauth2/**")
         };
     }
 }

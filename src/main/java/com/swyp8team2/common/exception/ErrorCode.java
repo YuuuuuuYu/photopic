@@ -21,7 +21,9 @@ public enum ErrorCode {
 
     //500
     INTERNAL_SERVER_ERROR("서버 내부 오류"),
-    INVALID_INPUT_VALUE("잘못된 입력 값"),;
+    INVALID_INPUT_VALUE("잘못된 입력 값"),
+    SOCIAL_AUTHENTICATION_FAILED("소셜 로그인 실패"),
+    ;
 
     private final String message;
 }

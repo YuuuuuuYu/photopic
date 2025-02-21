@@ -1,7 +1,7 @@
 package com.swyp8team2.auth.presentation.filter;
 
-import com.swyp8team2.auth.application.JwtClaim;
-import com.swyp8team2.auth.application.JwtProvider;
+import com.swyp8team2.auth.application.jwt.JwtClaim;
+import com.swyp8team2.auth.application.jwt.JwtProvider;
 import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.common.exception.ApplicationException;
 import jakarta.servlet.FilterChain;

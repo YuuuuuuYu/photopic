@@ -35,7 +35,11 @@ public class RefreshToken {
         if (!this.token.equals(currentToken)) {
             throw new BadRequestException(ErrorCode.REFRESH_TOKEN_MISMATCHED);
         }
-        Validator.validateEmptyString(newToken);
-        this.token = newToken;
+        setRefreshToken(newToken);
+    }
+
+    public void setRefreshToken(String token) {
+        Validator.validateEmptyString(token);
+        this.token = token;
     }
 }
