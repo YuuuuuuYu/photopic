@@ -1,5 +1,6 @@
 package com.swyp8team2.auth.domain;
 
+import com.swyp8team2.auth.application.oauth.dto.OAuthUserInfo;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.common.exception.InternalServerException;
 import org.junit.jupiter.api.DisplayName;
@@ -17,17 +18,21 @@ class SocialAccountTest {
     void create() throws Exception {
         //given
         long givenUserId = 1L;
-        String givenSocialId = "socialId";
-        Provider givenProvider = Provider.KAKAO;
+        OAuthUserInfo oAuthUserInfo = new OAuthUserInfo(
+                "socialId",
+                "profileImageUrl",
+                "nickname",
+                Provider.KAKAO
+        );
 
         //when
-        SocialAccount socialAccount = SocialAccount.create(givenUserId, givenSocialId, givenProvider, "email");
+        SocialAccount socialAccount = SocialAccount.create(givenUserId, oAuthUserInfo);
 
         //then
         assertAll(
                 () -> assertThat(socialAccount.getUserId()).isEqualTo(givenUserId),
-                () -> assertThat(socialAccount.getSocialId()).isEqualTo(givenSocialId),
-                () -> assertThat(socialAccount.getProvider()).isEqualTo(givenProvider)
+                () -> assertThat(socialAccount.getSocialId()).isEqualTo(oAuthUserInfo.socialId()),
+                () -> assertThat(socialAccount.getProvider()).isEqualTo(oAuthUserInfo.provider())
         );
     }
 
@@ -38,23 +43,19 @@ class SocialAccountTest {
 
         //when then
         assertAll(
-                () -> assertThatThrownBy(() -> SocialAccount.create(1L, null, Provider.KAKAO, "email"))
+                () -> assertThatThrownBy(() -> SocialAccount.create(1L, null))
                         .isInstanceOf(InternalServerException.class)
                         .hasMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage()),
-                () -> assertThatThrownBy(() -> SocialAccount.create(1L, "socialId", null, "email"))
-                        .isInstanceOf(InternalServerException.class)
+                () -> assertThatThrownBy(() -> SocialAccount.create(
+                        1L,
+                        new OAuthUserInfo(null, "profileImageUrl", "nickname", Provider.KAKAO)
+                )).isInstanceOf(InternalServerException.class)
+                        .hasMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage()),
+                () -> assertThatThrownBy(() -> SocialAccount.create(
+                        1L,
+                        new OAuthUserInfo("socialId", "profileImageUrl", "nickname", null)
+                )).isInstanceOf(InternalServerException.class)
                         .hasMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage())
         );
-    }
-
-    @Test
-    @DisplayName("SocialAccount Entity 생성 - socialId가 빈 문자인 경우")
-    void create_emptyString() throws Exception {
-        //given
-
-        //when then
-        assertThatThrownBy(() -> SocialAccount.create(1L, "", Provider.KAKAO, "email"))
-                .isInstanceOf(InternalServerException.class)
-                .hasMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage());
     }
 }

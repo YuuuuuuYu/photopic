@@ -1,6 +1,7 @@
 package com.swyp8team2.auth.presentation;
 
-import com.swyp8team2.auth.application.TokenPair;
+import com.swyp8team2.auth.application.jwt.TokenPair;
+import com.swyp8team2.auth.presentation.dto.OAuthSignInRequest;
 import com.swyp8team2.auth.presentation.dto.TokenResponse;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
@@ -10,6 +11,8 @@ import com.swyp8team2.support.RestDocsTest;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 
 import static org.mockito.ArgumentMatchers.anyString;
@@ -17,14 +20,74 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.cookies.CookieDocumentation.cookieWithName;
 import static org.springframework.restdocs.cookies.CookieDocumentation.requestCookies;
 import static org.springframework.restdocs.cookies.CookieDocumentation.responseCookies;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class AuthControllerTest extends RestDocsTest {
+
+    @Test
+    @DisplayName("카카오 로그인 리다이렉트")
+    void kakaoOAuth() throws Exception {
+        //given
+        String redirectUri = "https://kakao.com/oauth2/authorize";
+        given(authService.getOAuthAuthorizationUrl()).willReturn(redirectUri);
+
+        //when then
+        mockMvc.perform(get("/auth/oauth2/kakao"))
+                .andExpect(status().isMovedPermanently())
+                .andExpect(header().string(HttpHeaders.LOCATION, redirectUri))
+                .andDo(restDocs.document(
+                        responseHeaders(
+                                headerWithName(HttpHeaders.LOCATION).description("카카오 로그인 페이지 주소")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("카카오 로그인 코드로 토큰 발급")
+    void kakaoOAuthSignIn() throws Exception {
+        //given
+        TokenPair expectedTokenPair = new TokenPair("accessToken", "refreshToken");
+        TokenResponse response = new TokenResponse(expectedTokenPair.accessToken());
+        given(authService.oauthSignIn(anyString()))
+                .willReturn(expectedTokenPair);
+        OAuthSignInRequest request = new OAuthSignInRequest("code");
+
+        //when then
+        mockMvc.perform(post("/auth/oauth2/code/kakao")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(response)))
+                .andExpect(cookie().value(CustomHeader.CustomCookie.REFRESH_TOKEN, expectedTokenPair.refreshToken()))
+                .andExpect(cookie().httpOnly(CustomHeader.CustomCookie.REFRESH_TOKEN, true))
+                .andExpect(cookie().path(CustomHeader.CustomCookie.REFRESH_TOKEN, "/"))
+                .andExpect(cookie().secure(CustomHeader.CustomCookie.REFRESH_TOKEN, true))
+                .andExpect(cookie().attribute(CustomHeader.CustomCookie.REFRESH_TOKEN, "SameSite", "None"))
+                .andExpect(cookie().maxAge(CustomHeader.CustomCookie.REFRESH_TOKEN, 60 * 60 * 24 * 14))
+                .andDo(restDocs.document(
+                        requestFields(
+                                fieldWithPath("code").description("카카오 인증 코드")
+                        ),
+                        responseFields(
+                                fieldWithPath("accessToken").description("액세스 토큰")
+                        ),
+                        responseCookies(
+                                cookieWithName(CustomHeader.CustomCookie.REFRESH_TOKEN).description("리프레시 토큰")
+                        )
+                ));
+    }
 
     @Test
     @WithAnonymousUser
@@ -43,7 +106,7 @@ class AuthControllerTest extends RestDocsTest {
                 .andExpect(content().json(objectMapper.writeValueAsString(response)))
                 .andExpect(cookie().value(CustomHeader.CustomCookie.REFRESH_TOKEN, newRefreshToken))
                 .andExpect(cookie().httpOnly(CustomHeader.CustomCookie.REFRESH_TOKEN, true))
-                .andExpect(cookie().path(CustomHeader.CustomCookie.REFRESH_TOKEN, "/auth/reissue"))
+                .andExpect(cookie().path(CustomHeader.CustomCookie.REFRESH_TOKEN, "/"))
                 .andExpect(cookie().secure(CustomHeader.CustomCookie.REFRESH_TOKEN, true))
                 .andExpect(cookie().attribute(CustomHeader.CustomCookie.REFRESH_TOKEN, "SameSite", "None"))
                 .andExpect(cookie().maxAge(CustomHeader.CustomCookie.REFRESH_TOKEN, 60 * 60 * 24 * 14))

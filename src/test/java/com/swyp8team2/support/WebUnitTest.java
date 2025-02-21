@@ -1,7 +1,8 @@
 package com.swyp8team2.support;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.swyp8team2.auth.application.JwtService;
+import com.swyp8team2.auth.application.AuthService;
+import com.swyp8team2.auth.application.jwt.JwtService;
 import com.swyp8team2.auth.presentation.RefreshTokenCookieGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
@@ -22,4 +23,7 @@ public abstract class WebUnitTest {
 
     @Autowired
     protected RefreshTokenCookieGenerator refreshTokenCookieGenerator;
+
+    @MockitoBean
+    protected AuthService authService;
 }
