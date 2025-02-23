@@ -39,7 +39,6 @@ public class AuthService {
     }
 
     public TokenPair reissue(String refreshToken) {
-        System.out.println("refreshToken = " + refreshToken);
         return jwtService.reissue(refreshToken);
     }
 }
