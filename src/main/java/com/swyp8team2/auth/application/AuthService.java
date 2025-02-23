@@ -10,6 +10,7 @@ import com.swyp8team2.auth.domain.SocialAccountRepository;
 import com.swyp8team2.user.application.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +25,7 @@ public class AuthService {
         return oAuthService.getOAuthAuthorizationUrl();
     }
 
+    @Transactional
     public TokenPair oauthSignIn(String code) {
         OAuthUserInfo oAuthUserInfo = oAuthService.getUserInfo(code);
         SocialAccount socialAccount = socialAccountRepository.findBySocialIdAndProvider(

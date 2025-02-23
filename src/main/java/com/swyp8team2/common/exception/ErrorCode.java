@@ -15,6 +15,9 @@ public enum ErrorCode {
     MISSING_FILE_EXTENSION("확장자가 누락됨"),
     UNSUPPORTED_FILE_EXTENSION("지원하지 않는 확장자"),
     EXCEED_MAX_FILE_SIZE("파일 크기 초과"),
+    POST_NOT_FOUND("존재하지 않는 게시글"),
+    DESCRIPTION_LENGTH_EXCEEDED("게시글 설명 길이 초과"),
+    INVALID_POST_IMAGE_COUNT("게시글 이미지 개수 오류"),
 
     //401
     EXPIRED_TOKEN("토큰 만료"),
@@ -26,9 +29,11 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR("서버 내부 오류"),
     INVALID_INPUT_VALUE("잘못된 입력 값"),
     SOCIAL_AUTHENTICATION_FAILED("소셜 로그인 실패"),
+    POST_IMAGE_NAME_GENERATOR_INDEX_OUT_OF_BOUND("이미지 이름 생성기 인덱스 초과"),
 
     //503
-    SERVICE_UNAVAILABLE("서비스 이용 불가");
+    SERVICE_UNAVAILABLE("서비스 이용 불가"),
+    ;
 
     private final String message;
 }
