@@ -43,12 +43,12 @@ public class PostController {
                 new AuthorDto(
                         1L,
                         "author",
-                        "https://image.com/profile-image"
+                        "https://image.photopic.site/profile-image"
                 ),
                 "description",
                 List.of(
-                        new VoteResponseDto(1L, "https://image.com/1", 62.75, true),
-                        new VoteResponseDto(2L, "https://image.com/2", 37.25, false)
+                        new VoteResponseDto(1L, "https://image.photopic.site/1", 62.75, true),
+                        new VoteResponseDto(2L, "https://image.photopic.site/2", 37.25, false)
                 ),
                 "https://photopic.site/shareurl",
                 LocalDateTime.of(2025, 2, 13, 12, 0)
@@ -75,7 +75,7 @@ public class PostController {
                 List.of(
                         new SimplePostResponse(
                                 1L,
-                                "https://image.com/1",
+                                "https://image.photopic.site/1",
                                 "https://photopic.site/shareurl",
                                 LocalDateTime.of(2025, 2, 13, 12, 0)
                         )
@@ -95,7 +95,7 @@ public class PostController {
                 List.of(
                         new SimplePostResponse(
                                 1L,
-                                "https://image.com/1",
+                                "https://image.photopic.site/1",
                                 "https://photopic.site/shareurl",
                                 LocalDateTime.of(2025, 2, 13, 12, 0)
                         )

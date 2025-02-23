@@ -1,9 +1,9 @@
 package com.swyp8team2.post.presentation.dto;
 
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 public record VoteRequestDto(
-        @NotEmpty
-        String imageUrl
+        @NotNull
+        Long imageFileId
 ) {
 }

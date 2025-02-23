@@ -12,6 +12,9 @@ public enum ErrorCode {
     REFRESH_TOKEN_MISMATCHED("리프레시 토큰 불일치"),
     REFRESH_TOKEN_NOT_FOUND("리프레시 토큰을 찾을 수 없음"),
     INVALID_REFRESH_TOKEN_HEADER("잘못된 리프레시 토큰 헤더"),
+    MISSING_FILE_EXTENSION("확장자가 누락됨"),
+    UNSUPPORTED_FILE_EXTENSION("지원하지 않는 확장자"),
+    EXCEED_MAX_FILE_SIZE("파일 크기 초과"),
 
     //401
     EXPIRED_TOKEN("토큰 만료"),
@@ -23,7 +26,9 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR("서버 내부 오류"),
     INVALID_INPUT_VALUE("잘못된 입력 값"),
     SOCIAL_AUTHENTICATION_FAILED("소셜 로그인 실패"),
-    ;
+
+    //503
+    SERVICE_UNAVAILABLE("서비스 이용 불가");
 
     private final String message;
 }
