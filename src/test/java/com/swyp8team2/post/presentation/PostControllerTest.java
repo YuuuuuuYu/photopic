@@ -81,8 +81,8 @@ class PostControllerTest extends RestDocsTest {
                 ),
                 "description",
                 List.of(
-                        new VoteResponseDto(1L, "https://image.photopic.site/1", 62.75, true),
-                        new VoteResponseDto(2L, "https://image.photopic.site/2", 37.25, false)
+                        new VoteResponseDto(1L, "https://image.photopic.site/1", 3, "60.0", true),
+                        new VoteResponseDto(2L, "https://image.photopic.site/2", 2, "40.0", false)
                 ),
                 "https://photopic.site/shareurl",
                 LocalDateTime.of(2025, 2, 13, 12, 0)
@@ -106,7 +106,8 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("votes[]").type(JsonFieldType.ARRAY).description("투표 선택지 목록"),
                                 fieldWithPath("votes[].id").type(JsonFieldType.NUMBER).description("투표 선택지 Id"),
                                 fieldWithPath("votes[].imageUrl").type(JsonFieldType.STRING).description("투표 이미지"),
-                                fieldWithPath("votes[].voteRatio").type(JsonFieldType.NUMBER).description("득표 비율"),
+                                fieldWithPath("votes[].voteRatio").type(JsonFieldType.STRING).description("득표 비율"),
+                                fieldWithPath("votes[].voteCount").type(JsonFieldType.NUMBER).description("득표 수"),
                                 fieldWithPath("votes[].voted").type(JsonFieldType.BOOLEAN).description("투표 여부"),
                                 fieldWithPath("shareUrl").type(JsonFieldType.STRING).description("게시글 공유 URL"),
                                 fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시글 생성 시간")

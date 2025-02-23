@@ -2,12 +2,19 @@ package com.swyp8team2.post.application;
 
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
+import com.swyp8team2.image.domain.ImageFile;
+import com.swyp8team2.image.domain.ImageFileRepository;
+import com.swyp8team2.image.presentation.dto.ImageFileDto;
 import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.PostImage;
 import com.swyp8team2.post.domain.PostRepository;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
+import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.VoteRequestDto;
+import com.swyp8team2.post.presentation.dto.VoteResponseDto;
 import com.swyp8team2.support.IntegrationTest;
+import com.swyp8team2.user.domain.User;
+import com.swyp8team2.user.domain.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +32,12 @@ class PostServiceTest extends IntegrationTest {
 
     @Autowired
     PostRepository postRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    ImageFileRepository imageFileRepository;
 
     @Test
     @DisplayName("게시글 작성")
@@ -84,5 +97,49 @@ class PostServiceTest extends IntegrationTest {
         assertThatThrownBy(() -> postService.create(userId, request))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.DESCRIPTION_LENGTH_EXCEEDED.getMessage());
+    }
+
+    @Test
+    @DisplayName("게시글 조회")
+    void find() throws Exception {
+        //given
+        User user = userRepository.save(User.create("nickname", "profileUrl"));
+        ImageFile imageFile1 = imageFileRepository.save(ImageFile.create(
+                new ImageFileDto("originalFileName1", "imageUrl1", "thumbnailUrl1"))
+        );
+        ImageFile imageFile2 = imageFileRepository.save(ImageFile.create(
+                new ImageFileDto("originalFileName2", "imageUrl2", "thumbnailUrl2"))
+        );
+        Post post = postRepository.save(Post.create(
+                user.getId(),
+                "description",
+                List.of(
+                        PostImage.create("뽀또A", imageFile1.getId()),
+                        PostImage.create("뽀또B", imageFile2.getId())
+                ),
+                "shareUrl"
+        ));
+
+        //when
+        PostResponse response = postService.find(post.getId());
+
+        //then
+        List<VoteResponseDto> votes = response.votes();
+        assertAll(
+                () -> assertThat(response.description()).isEqualTo("description"),
+                () -> assertThat(response.id()).isEqualTo(post.getId()),
+                () -> assertThat(response.author().nickname()).isEqualTo(user.getNickname()),
+                () -> assertThat(response.author().profileUrl()).isEqualTo(user.getProfileUrl()),
+                () -> assertThat(response.shareUrl()).isEqualTo("shareUrl"),
+                () -> assertThat(votes).hasSize(2),
+                () -> assertThat(votes.get(0).imageUrl()).isEqualTo(imageFile1.getImageUrl()),
+                () -> assertThat(votes.get(0).voteCount()).isEqualTo(0),
+                () -> assertThat(votes.get(0).voteRatio()).isEqualTo("0.0"),
+                () -> assertThat(votes.get(0).voted()).isFalse(),
+                () -> assertThat(votes.get(1).imageUrl()).isEqualTo(imageFile2.getImageUrl()),
+                () -> assertThat(votes.get(1).voteCount()).isEqualTo(0),
+                () -> assertThat(votes.get(1).voteRatio()).isEqualTo("0.0"),
+                () -> assertThat(votes.get(1).voted()).isFalse()
+        );
     }
 }
