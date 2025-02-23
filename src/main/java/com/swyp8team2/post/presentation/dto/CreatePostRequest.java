@@ -7,10 +7,10 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 public record CreatePostRequest(
-        @Size(min = 1, max = 200)
+        @NotNull
         String description,
 
-        @Valid @NotNull @Size(min = 2)
+        @Valid @NotNull
         List<VoteRequestDto> votes
 ) {
 }

@@ -2,6 +2,7 @@ package com.swyp8team2.post.presentation;
 
 import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
+import com.swyp8team2.post.application.PostService;
 import com.swyp8team2.post.presentation.dto.AuthorDto;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.PostResponse;
@@ -28,11 +29,14 @@ import java.util.List;
 @RequestMapping("/posts")
 public class PostController {
 
+    private final PostService postService;
+
     @PostMapping("")
     public ResponseEntity<Void> createPost(
             @Valid @RequestBody CreatePostRequest request,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
+        postService.create(userInfo.userId(), request);
         return ResponseEntity.ok().build();
     }
 
