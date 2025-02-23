@@ -1,5 +1,6 @@
 package com.swyp8team2.auth.presentation;
 
+import com.swyp8team2.auth.application.AuthService;
 import com.swyp8team2.auth.application.jwt.TokenPair;
 import com.swyp8team2.auth.presentation.dto.OAuthSignInRequest;
 import com.swyp8team2.auth.presentation.dto.TokenResponse;
@@ -11,6 +12,7 @@ import com.swyp8team2.support.RestDocsTest;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
@@ -20,7 +22,6 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.cookies.CookieDocumentation.cookieWithName;
 import static org.springframework.restdocs.cookies.CookieDocumentation.requestCookies;
 import static org.springframework.restdocs.cookies.CookieDocumentation.responseCookies;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders;
@@ -34,8 +35,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(AuthController.class)
 class AuthControllerTest extends RestDocsTest {
+
+    @Autowired
+    AuthService authService;
 
     @Test
     @DisplayName("카카오 로그인 리다이렉트")
@@ -96,7 +99,7 @@ class AuthControllerTest extends RestDocsTest {
     void reissue() throws Exception {
         //given
         String newRefreshToken = "newRefreshToken";
-        given(jwtService.reissue(anyString()))
+        given(authService.reissue(anyString()))
                 .willReturn(new TokenPair("accessToken", newRefreshToken));
         TokenResponse response = new TokenResponse("accessToken");
 
@@ -141,7 +144,7 @@ class AuthControllerTest extends RestDocsTest {
     void reissue_refreshTokenNotFound() throws Exception {
         //given
         ErrorResponse response = new ErrorResponse(ErrorCode.REFRESH_TOKEN_NOT_FOUND);
-        given(jwtService.reissue(anyString()))
+        given(authService.reissue(anyString()))
                 .willThrow(new BadRequestException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
 
         //when then
@@ -156,7 +159,7 @@ class AuthControllerTest extends RestDocsTest {
     void reissue_refreshTokenMismatched() throws Exception {
         //given
         ErrorResponse response = new ErrorResponse(ErrorCode.REFRESH_TOKEN_MISMATCHED);
-        given(jwtService.reissue(anyString()))
+        given(authService.reissue(anyString()))
                 .willThrow(new BadRequestException(ErrorCode.REFRESH_TOKEN_MISMATCHED));
 
         //when then
