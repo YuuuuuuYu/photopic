@@ -27,7 +27,7 @@ import java.util.Objects;
 public class JwtProvider {
 
     private static final long ACCESS_TOKEN_EXPIRATION_MINUTES = 30;
-    private static final long REFRESH_TOKEN_EXPIRATION_HOUR_MINUTES = 60 * 24 * 14;
+    private static final long REFRESH_TOKEN_EXPIRATION_MINUTES = 60 * 24 * 14;
 
     private final Key key;
     private final Clock clock;
@@ -51,7 +51,7 @@ public class JwtProvider {
     }
 
     public String createRefreshToken(JwtClaim claim) {
-        return createToken(claim, REFRESH_TOKEN_EXPIRATION_HOUR_MINUTES);
+        return createToken(claim, REFRESH_TOKEN_EXPIRATION_MINUTES);
     }
 
     private String createToken(JwtClaim claim, long expiration) {
