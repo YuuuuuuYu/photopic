@@ -21,13 +21,9 @@ public class AuthService {
     private final SocialAccountRepository socialAccountRepository;
     private final UserService userService;
 
-    public String getOAuthAuthorizationUrl() {
-        return oAuthService.getOAuthAuthorizationUrl();
-    }
-
     @Transactional
-    public TokenPair oauthSignIn(String code) {
-        OAuthUserInfo oAuthUserInfo = oAuthService.getUserInfo(code);
+    public TokenPair oauthSignIn(String code, String redirectUri) {
+        OAuthUserInfo oAuthUserInfo = oAuthService.getUserInfo(code, redirectUri);
         SocialAccount socialAccount = socialAccountRepository.findBySocialIdAndProvider(
                         oAuthUserInfo.socialId(),
                         Provider.KAKAO
