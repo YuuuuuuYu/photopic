@@ -7,7 +7,6 @@ public record KakaoOAuthConfig(
         String authorizationUri,
         String clientId,
         String clientSecret,
-        String redirectUri,
         String[] scope,
         String userInfoUri
 ) {

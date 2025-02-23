@@ -45,14 +45,14 @@ class AuthServiceTest extends IntegrationTest {
     void oAuthSignIn() throws Exception {
         //given
         OAuthUserInfo oAuthUserInfo = new OAuthUserInfo("socialId", "profileImageUrl", "nickname", Provider.KAKAO);
-        given(oAuthService.getUserInfo(anyString()))
+        given(oAuthService.getUserInfo(anyString(), anyString()))
                 .willReturn(oAuthUserInfo);
         TokenPair expectedTokenPair = new TokenPair("accessToken", "refreshToken");
         given(jwtProvider.createToken(any()))
                 .willReturn(expectedTokenPair);
 
         //when
-        TokenPair tokenPair = authService.oauthSignIn("code");
+        TokenPair tokenPair = authService.oauthSignIn("code", "https://dev.photopic.site");
 
         //then
         SocialAccount socialAccount = socialAccountRepository.findBySocialIdAndProvider(oAuthUserInfo.socialId(), Provider.KAKAO).get();
