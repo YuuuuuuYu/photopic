@@ -31,7 +31,6 @@ import java.util.Objects;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final JwtService jwtService;
     private final RefreshTokenCookieGenerator refreshTokenCookieGenerator;
     private final AuthService authService;
 
@@ -62,7 +61,7 @@ public class AuthController {
         if (Objects.isNull(refreshToken)) {
             throw new BadRequestException(ErrorCode.INVALID_REFRESH_TOKEN_HEADER);
         }
-        TokenPair tokenPair = jwtService.reissue(refreshToken);
+        TokenPair tokenPair = authService.reissue(refreshToken);
         Cookie cookie = refreshTokenCookieGenerator.createCookie(tokenPair.refreshToken());
         response.addCookie(cookie);
         return ResponseEntity.ok(new TokenResponse(tokenPair.accessToken()));

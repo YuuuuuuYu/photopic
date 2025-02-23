@@ -37,4 +37,9 @@ public class AuthService {
         Long userId = userService.createUser(oAuthUserInfo.nickname(), oAuthUserInfo.profileImageUrl());
         return socialAccountRepository.save(SocialAccount.create(userId, oAuthUserInfo));
     }
+
+    public TokenPair reissue(String refreshToken) {
+        System.out.println("refreshToken = " + refreshToken);
+        return jwtService.reissue(refreshToken);
+    }
 }
