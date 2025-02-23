@@ -18,7 +18,7 @@ public class Validator {
 
     public static void validateEmptyString(String... strings) {
         Arrays.stream(strings)
-                .filter(String::isEmpty)
+                .filter(s -> Objects.isNull(s) || s.isEmpty())
                 .forEach(s -> {
                     throw new InternalServerException(ErrorCode.INVALID_INPUT_VALUE);
                 });

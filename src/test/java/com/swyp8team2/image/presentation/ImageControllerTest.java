@@ -1,17 +1,10 @@
 package com.swyp8team2.image.presentation;
 
-import com.swyp8team2.image.application.ImageService;
 import com.swyp8team2.image.presentation.dto.ImageFileResponse;
 import com.swyp8team2.support.RestDocsTest;
 import com.swyp8team2.support.WithMockUserInfo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -31,20 +24,7 @@ import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(ImageController.class)
-@Import(ImageControllerTest.TestConfig.class)
 class ImageControllerTest extends RestDocsTest {
-
-    @Autowired
-    private ImageService imageService;
-
-    @TestConfiguration
-    static class TestConfig {
-        @Bean
-        public ImageService imageService() {
-            return Mockito.mock(ImageService.class);
-        }
-    }
 
     @Test
     @WithMockUserInfo

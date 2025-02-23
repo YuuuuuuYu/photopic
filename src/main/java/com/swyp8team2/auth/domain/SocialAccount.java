@@ -1,5 +1,6 @@
 package com.swyp8team2.auth.domain;
 
+import com.swyp8team2.auth.application.oauth.dto.OAuthUserInfo;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -23,24 +24,22 @@ public class SocialAccount {
 
     private Long userId;
 
-    private String email;
-
     private String socialId;
 
     @Enumerated(EnumType.STRING)
     private Provider provider;
 
-    public SocialAccount(Long id, Long userId, String socialId, Provider provider, String email) {
-        validateNull(userId, socialId, provider, email);
-        validateEmptyString(socialId, email);
+    public SocialAccount(Long id, Long userId, String socialId, Provider provider) {
+        validateNull(userId, provider);
+        validateEmptyString(socialId);
         this.id = id;
         this.userId = userId;
-        this.email = email;
         this.socialId = socialId;
         this.provider = provider;
     }
 
-    public static SocialAccount create(Long userId, String socialId, Provider provider, String email) {
-        return new SocialAccount(null, userId, socialId, provider, email);
+    public static SocialAccount create(Long userId, OAuthUserInfo oAuthUserInfo) {
+        validateNull(oAuthUserInfo);
+        return new SocialAccount(null, userId, oAuthUserInfo.socialId(), oAuthUserInfo.provider());
     }
 }

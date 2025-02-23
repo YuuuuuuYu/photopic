@@ -1,9 +1,19 @@
 [[인증-API]]
 == 인증 API
 
+[[카카오-로그인-리다이렉트]]
+=== 카카오 로그인 리다이렉트
+
+operation::auth-controller-test/kakao-o-auth[snippets='http-request,curl-request,http-response']
+
+[[카카오-로그인]]
+=== 카카오 로그인
+
+operation::auth-controller-test/kakao-o-auth-sign-in[snippets='http-request,curl-request,request-fields,http-response,response-cookies,response-fields']
+
+[[네이버-로그인]]
+
 [[토큰-재발급]]
 === 토큰 재발급
 
-이 부분 프런트와 다시 고민해봐야 함
-
-operation::auth-controller-test/reissue[snippets='http-request,curl-request,request-headers,http-response,response-fields']
+operation::auth-controller-test/reissue[snippets='http-request,curl-request,request-cookies,http-response,response-cookies,response-fields']

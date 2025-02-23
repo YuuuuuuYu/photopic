@@ -4,7 +4,6 @@ import com.swyp8team2.support.RestDocsTest;
 import com.swyp8team2.user.presentation.dto.UserInfoResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.security.test.context.support.WithMockUser;
 
@@ -17,7 +16,6 @@ import static org.springframework.restdocs.request.RequestDocumentation.pathPara
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(UserController.class)
 class UserControllerTest extends RestDocsTest {
 
     @Test

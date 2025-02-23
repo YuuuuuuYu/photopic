@@ -1,12 +1,9 @@
 package com.swyp8team2.common.config;
 
-import com.swyp8team2.auth.application.JwtProvider;
-import com.swyp8team2.auth.application.OAuthService;
+import com.swyp8team2.auth.application.jwt.JwtProvider;
 import com.swyp8team2.auth.presentation.filter.HeaderTokenExtractor;
 import com.swyp8team2.auth.presentation.filter.JwtAuthFilter;
 import com.swyp8team2.auth.presentation.filter.JwtAuthenticationEntryPoint;
-import com.swyp8team2.auth.presentation.filter.OAuthLoginFailureHandler;
-import com.swyp8team2.auth.presentation.filter.OAuthLoginSuccessHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -22,29 +19,23 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final OAuthService oAuthService;
-    private final OAuthLoginSuccessHandler oAuthLoginSuccessHandler;
-    private final OAuthLoginFailureHandler oAuthLoginFailureHandler;
     private final HandlerExceptionResolver handlerExceptionResolver;
 
     public SecurityConfig(
-            OAuthService oAuthService,
-            OAuthLoginSuccessHandler oAuthLoginSuccessHandler,
-            OAuthLoginFailureHandler oAuthLoginFailureHandler,
             @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver
     ) {
-        this.oAuthService = oAuthService;
-        this.oAuthLoginSuccessHandler = oAuthLoginSuccessHandler;
-        this.oAuthLoginFailureHandler = oAuthLoginFailureHandler;
         this.handlerExceptionResolver = handlerExceptionResolver;
     }
 
@@ -59,7 +50,8 @@ public class SecurityConfig {
                         "/images/**",
                         "/js/**",
                         "/favicon.ico",
-                        "/docs/**"
+                        "/docs/**",
+                        "/actuator/health"
                 );
     }
 
@@ -75,13 +67,15 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             HandlerMappingIntrospector introspect,
-            JwtProvider jwtProvider
+            JwtProvider jwtProvider,
+            UrlBasedCorsConfigurationSource corsConfigurationSource
     ) throws Exception {
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .headers(headers ->
                         headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .sessionManagement(session ->
@@ -90,23 +84,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 .requestMatchers(getWhiteList(introspect)).permitAll()
-                                .anyRequest().authenticated()
-                )
+                                .anyRequest().authenticated())
 
                 .addFilterBefore(
                         new JwtAuthFilter(jwtProvider, new HeaderTokenExtractor()),
-                        UsernamePasswordAuthenticationFilter.class
-                )
+                        UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception ->
                         exception.authenticationEntryPoint(
-                                new JwtAuthenticationEntryPoint(handlerExceptionResolver))
-                )
-
-                .oauth2Login(oauth ->
-                        oauth.userInfoEndpoint(userInfo -> userInfo.userService(oAuthService))
-                                .successHandler(oAuthLoginSuccessHandler)
-                                .failureHandler(oAuthLoginFailureHandler)
-                );
+                                new JwtAuthenticationEntryPoint(handlerExceptionResolver)));
         return http.build();
     }
 
@@ -118,6 +103,7 @@ public class SecurityConfig {
                 mvc.pattern(HttpMethod.GET, "/posts/{sharedUrl}"),
                 mvc.pattern(HttpMethod.GET, "/posts/{postId}/comments"),
                 mvc.pattern("/posts/{postId}/votes/guest/**"),
+                mvc.pattern("/auth/oauth2/**")
         };
     }
 }
