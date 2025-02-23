@@ -56,7 +56,7 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("description")
                                         .type(JsonFieldType.STRING)
                                         .description("설명")
-                                        .attributes(constraints("1~200자 사이")),
+                                        .attributes(constraints("0~100자 사이")),
                                 fieldWithPath("votes")
                                         .type(JsonFieldType.ARRAY)
                                         .description("투표 후보")
