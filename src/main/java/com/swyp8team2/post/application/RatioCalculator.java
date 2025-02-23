@@ -1,8 +1,11 @@
 package com.swyp8team2.post.application;
 
+import org.springframework.stereotype.Component;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+@Component
 public class RatioCalculator {
 
     public String calculateRatio(int totalVoteCount, int voteCount) {

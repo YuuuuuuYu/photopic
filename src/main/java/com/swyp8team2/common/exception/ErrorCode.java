@@ -30,6 +30,7 @@ public enum ErrorCode {
     INVALID_INPUT_VALUE("잘못된 입력 값"),
     SOCIAL_AUTHENTICATION_FAILED("소셜 로그인 실패"),
     POST_IMAGE_NAME_GENERATOR_INDEX_OUT_OF_BOUND("이미지 이름 생성기 인덱스 초과"),
+    IMAGE_FILE_NOT_FOUND("존재하지 않는 이미지"),
 
     //503
     SERVICE_UNAVAILABLE("서비스 이용 불가"),

@@ -51,8 +51,8 @@ public class PostController {
                 ),
                 "description",
                 List.of(
-                        new VoteResponseDto(1L, "https://image.photopic.site/1", 62.75, true),
-                        new VoteResponseDto(2L, "https://image.photopic.site/2", 37.25, false)
+                        new VoteResponseDto(1L, "https://image.photopic.site/1", 3, "60.0", true),
+                        new VoteResponseDto(2L, "https://image.photopic.site/2", 2, "40.0", false)
                 ),
                 "https://photopic.site/shareurl",
                 LocalDateTime.of(2025, 2, 13, 12, 0)
