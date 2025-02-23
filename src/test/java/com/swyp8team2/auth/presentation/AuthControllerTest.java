@@ -13,7 +13,6 @@ import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 
@@ -23,16 +22,12 @@ import static org.springframework.restdocs.cookies.CookieDocumentation.cookieWit
 import static org.springframework.restdocs.cookies.CookieDocumentation.requestCookies;
 import static org.springframework.restdocs.cookies.CookieDocumentation.responseCookies;
 
-import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
-import static org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class AuthControllerTest extends RestDocsTest {
@@ -41,32 +36,14 @@ class AuthControllerTest extends RestDocsTest {
     AuthService authService;
 
     @Test
-    @DisplayName("카카오 로그인 리다이렉트")
-    void kakaoOAuth() throws Exception {
-        //given
-        String redirectUri = "https://kakao.com/oauth2/authorize";
-        given(authService.getOAuthAuthorizationUrl()).willReturn(redirectUri);
-
-        //when then
-        mockMvc.perform(get("/auth/oauth2/kakao"))
-                .andExpect(status().isMovedPermanently())
-                .andExpect(header().string(HttpHeaders.LOCATION, redirectUri))
-                .andDo(restDocs.document(
-                        responseHeaders(
-                                headerWithName(HttpHeaders.LOCATION).description("카카오 로그인 페이지 주소")
-                        )
-                ));
-    }
-
-    @Test
     @DisplayName("카카오 로그인 코드로 토큰 발급")
     void kakaoOAuthSignIn() throws Exception {
         //given
         TokenPair expectedTokenPair = new TokenPair("accessToken", "refreshToken");
         TokenResponse response = new TokenResponse(expectedTokenPair.accessToken());
-        given(authService.oauthSignIn(anyString()))
+        given(authService.oauthSignIn(anyString(), anyString()))
                 .willReturn(expectedTokenPair);
-        OAuthSignInRequest request = new OAuthSignInRequest("code");
+        OAuthSignInRequest request = new OAuthSignInRequest("code", "https://dev.photopic.site");
 
         //when then
         mockMvc.perform(post("/auth/oauth2/code/kakao")
@@ -82,7 +59,8 @@ class AuthControllerTest extends RestDocsTest {
                 .andExpect(cookie().maxAge(CustomHeader.CustomCookie.REFRESH_TOKEN, 60 * 60 * 24 * 14))
                 .andDo(restDocs.document(
                         requestFields(
-                                fieldWithPath("code").description("카카오 인증 코드")
+                                fieldWithPath("code").description("카카오 인증 코드"),
+                                fieldWithPath("redirectUri").description("카카오 인증 redirect uri")
                         ),
                         responseFields(
                                 fieldWithPath("accessToken").description("액세스 토큰")
