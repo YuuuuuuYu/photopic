@@ -91,6 +91,8 @@ include::auth.adoc[]
 
 include::users.adoc[]
 
+include::images.adoc[]
+
 include::posts.adoc[]
 
 include::votes.adoc[]
