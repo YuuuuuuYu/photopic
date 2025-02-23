@@ -1,13 +1,11 @@
 package com.swyp8team2.support;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swyp8team2.common.presentation.CustomHeader;
 import com.swyp8team2.support.config.RestDocsConfiguration;
 import com.swyp8team2.support.config.TestSecurityConfig;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.restdocs.RestDocumentationExtension;
@@ -15,12 +13,10 @@ import org.springframework.restdocs.headers.HeaderDescriptor;
 import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
 import org.springframework.restdocs.request.ParameterDescriptor;
 import org.springframework.restdocs.snippet.Attributes;
-import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 
-@WebMvcTest
 @AutoConfigureRestDocs
 @Import({RestDocsConfiguration.class, TestSecurityConfig.class})
 @ExtendWith(RestDocumentationExtension.class)
