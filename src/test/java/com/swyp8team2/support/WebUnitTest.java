@@ -3,6 +3,7 @@ package com.swyp8team2.support;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swyp8team2.auth.application.AuthService;
 import com.swyp8team2.auth.presentation.RefreshTokenCookieGenerator;
+import com.swyp8team2.comment.application.CommentService;
 import com.swyp8team2.image.application.ImageService;
 import com.swyp8team2.post.application.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,4 +33,7 @@ public abstract class WebUnitTest {
 
     @MockitoBean
     protected PostService postService;
+
+    @MockitoBean
+    protected CommentService commentService;
 }
