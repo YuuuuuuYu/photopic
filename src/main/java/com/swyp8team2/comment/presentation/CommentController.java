@@ -46,7 +46,7 @@ public class CommentController {
             @RequestParam(value = "size", required = false, defaultValue = "10") int size,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
-        CursorBasePaginatedResponse<CommentResponse> response = commentService.selectComments(postId, cursor, size);
+        CursorBasePaginatedResponse<CommentResponse> response = commentService.findComments(postId, cursor, size);
         return ResponseEntity.ok(response);
     }
 

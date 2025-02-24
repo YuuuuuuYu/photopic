@@ -11,6 +11,7 @@ public record CommentResponse(
         Long commentId,
         String content,
         AuthorDto author,
+        Long voteId,
         LocalDateTime createdAt
 ) implements CursorDto {
 
@@ -24,6 +25,7 @@ public record CommentResponse(
         return new CommentResponse(comment.getId(),
                                     comment.getContent(),
                                     new AuthorDto(user.getId(), user.getNickname(), user.getProfileUrl()),
+                                    null,
                                     comment.getCreatedAt()
                 );
     }

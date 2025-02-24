@@ -6,6 +6,8 @@ import com.swyp8team2.comment.domain.CommentRepository;
 import com.swyp8team2.comment.presentation.dto.CommentResponse;
 import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
+import com.swyp8team2.common.exception.BadRequestException;
+import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +16,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -32,13 +32,14 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
-    public CursorBasePaginatedResponse<CommentResponse> selectComments(Long postId, Long cursor, int size) {
+    public CursorBasePaginatedResponse<CommentResponse> findComments(Long postId, Long cursor, int size) {
         Slice<Comment> commentSlice = commentRepository.findByPostId(postId, cursor, PageRequest.of(0, size));
         return CursorBasePaginatedResponse.of(commentSlice.map(this::createCommentResponse));
     }
 
     private CommentResponse createCommentResponse(Comment comment) {
-        Optional<User> user = userRepository.findById(comment.getUserNo());
-        return CommentResponse.of(comment, user.get());
+        User user = userRepository.findById(comment.getUserNo())
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
+        return CommentResponse.of(comment, user);
     }
 }
