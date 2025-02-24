@@ -1,6 +1,7 @@
 package com.swyp8team2.comment.presentation;
 
 import com.swyp8team2.auth.domain.UserInfo;
+import com.swyp8team2.comment.application.CommentService;
 import com.swyp8team2.comment.presentation.dto.AuthorDto;
 import com.swyp8team2.comment.presentation.dto.CommentResponse;
 import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
@@ -26,35 +27,26 @@ import java.util.List;
 @RequestMapping("/posts/{postId}/comments")
 public class CommentController {
 
+    private final CommentService commentService;
+
     @PostMapping("")
     public ResponseEntity<Void> createComment(
             @PathVariable("postId") Long postId,
             @Valid @RequestBody CreateCommentRequest request,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
+        commentService.createComment(postId, request, userInfo);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("")
-    public ResponseEntity<CursorBasePaginatedResponse<CommentResponse>> findComments(
+    public ResponseEntity<CursorBasePaginatedResponse<CommentResponse>> selectComments(
             @PathVariable("postId") Long postId,
             @RequestParam(value = "cursor", required = false) Long cursor,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
-        CursorBasePaginatedResponse<CommentResponse> response = new CursorBasePaginatedResponse<>(
-                1L,
-                false,
-                List.of(
-                        new CommentResponse(
-                                1L,
-                                "content",
-                                new AuthorDto(1L, "author", "https://image.com/profile-image"),
-                                1L,
-                                LocalDateTime.of(2025, 2, 13, 12, 0)
-                        )
-                )
-        );
+        CursorBasePaginatedResponse<CommentResponse> response = commentService.selectComments(postId, cursor, size);
         return ResponseEntity.ok(response);
     }
 
