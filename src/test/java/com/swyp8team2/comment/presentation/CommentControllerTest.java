@@ -62,7 +62,7 @@ class CommentControllerTest extends RestDocsTest {
     @Test
     @WithAnonymousUser
     @DisplayName("댓글 조회")
-    void selectComments() throws Exception {
+    void findComments() throws Exception {
         //given
         Long postId = 1L;
         Long cursor = null;
