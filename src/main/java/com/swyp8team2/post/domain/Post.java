@@ -15,6 +15,7 @@ import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -24,6 +25,7 @@ import static com.swyp8team2.common.util.Validator.*;
 
 @Getter
 @Entity
+@ToString(exclude = "images")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseEntity {
 
@@ -44,8 +46,6 @@ public class Post extends BaseEntity {
     private String shareUrl;
 
     public Post(Long id, Long userId, String description, State state, List<PostImage> images, String shareUrl) {
-        validateNull(userId, state, description, images);
-        validateEmptyString(shareUrl);
         validateDescription(description);
         validatePostImages(images);
         this.id = id;
@@ -76,6 +76,22 @@ public class Post extends BaseEntity {
     public PostImage getBestPickedImage() {
         return images.stream()
                 .max(Comparator.comparing(PostImage::getVoteCount))
-                .orElseThrow(() -> new InternalServerException(ErrorCode.INTERNAL_SERVER_ERROR));
+                .orElseThrow(() -> new InternalServerException(ErrorCode.POST_IMAGE_NOT_FOUND));
+    }
+
+    public void vote(Long imageId) {
+        PostImage image = images.stream()
+                .filter(postImage -> postImage.getId().equals(imageId))
+                .findFirst()
+                .orElseThrow(() -> new InternalServerException(ErrorCode.POST_IMAGE_NOT_FOUND));
+        image.increaseVoteCount();
+    }
+
+    public void cancelVote(Long imageId) {
+        PostImage image = images.stream()
+                .filter(postImage -> postImage.getId().equals(imageId))
+                .findFirst()
+                .orElseThrow(() -> new InternalServerException(ErrorCode.POST_IMAGE_NOT_FOUND));
+        image.decreaseVoteCount();
     }
 }

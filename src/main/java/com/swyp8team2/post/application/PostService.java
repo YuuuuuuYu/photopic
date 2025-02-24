@@ -15,6 +15,8 @@ import com.swyp8team2.post.presentation.dto.SimplePostResponse;
 import com.swyp8team2.post.presentation.dto.VoteResponseDto;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
+import com.swyp8team2.vote.domain.Vote;
+import com.swyp8team2.vote.domain.VoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +35,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final RatioCalculator ratioCalculator;
     private final ImageFileRepository imageFileRepository;
+    private final VoteRepository voteRepository;
 
     @Transactional
     public Long create(Long userId, CreatePostRequest request) {
@@ -84,7 +87,7 @@ public class PostService {
     }
 
     public CursorBasePaginatedResponse<SimplePostResponse> findMyPosts(Long userId, Long cursor, int size) {
-        Slice<Post> postSlice = postRepository.findByUserId(userId, cursor, PageRequest.of(0, size));
+        Slice<Post> postSlice = postRepository.findByUserId(userId, cursor, PageRequest.ofSize(size));
         return CursorBasePaginatedResponse.of(postSlice.map(this::createSimplePostResponse)
         );
     }
@@ -93,5 +96,15 @@ public class PostService {
         ImageFile bestPickedImage = imageFileRepository.findById(post.getBestPickedImage().getImageFileId())
                 .orElseThrow(() -> new InternalServerException(ErrorCode.IMAGE_FILE_NOT_FOUND));
         return SimplePostResponse.of(post, bestPickedImage.getThumbnailUrl());
+    }
+
+    public CursorBasePaginatedResponse<SimplePostResponse> findVotedPosts(Long userId, Long cursor, int size) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
+        List<Long> postIds = voteRepository.findByUserSeq(user.getSeq())
+                .map(Vote::getPostId)
+                .toList();
+        Slice<Post> postSlice = postRepository.findByIdIn(postIds, cursor, PageRequest.ofSize(size));
+        return CursorBasePaginatedResponse.of(postSlice.map(this::createSimplePostResponse));
     }
 }

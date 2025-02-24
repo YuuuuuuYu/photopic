@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
@@ -21,4 +21,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             """
     )
     Slice<Post> findByUserId(@Param("userId") Long userId, @Param("postId") Long postId, Pageable pageable);
+
+    @Query("""
+            SELECT p
+            FROM Post p
+            WHERE p.id IN :postIds
+            AND (:postId IS NULL OR p.id < :postId)
+            ORDER BY p.createdAt DESC
+            """
+    )
+    Slice<Post> findByIdIn(@Param("postIds") List<Long> postIds, @Param("postId") Long postId, Pageable pageable);
 }
