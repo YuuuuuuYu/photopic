@@ -20,6 +20,7 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -138,7 +139,7 @@ class PostControllerTest extends RestDocsTest {
     @DisplayName("내가 작성한 게시글 조회")
     void findMyPost() throws Exception {
         //given
-        CursorBasePaginatedResponse<SimplePostResponse> response = new CursorBasePaginatedResponse<>(
+        var response = new CursorBasePaginatedResponse<>(
                 1L,
                 false,
                 List.of(
@@ -150,6 +151,8 @@ class PostControllerTest extends RestDocsTest {
                         )
                 )
         );
+        given(postService.findMyPosts(1L, null, 10))
+                .willReturn(response);
 
         //when then
         mockMvc.perform(get("/posts/me")

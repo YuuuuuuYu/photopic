@@ -10,6 +10,7 @@ import com.swyp8team2.post.domain.PostImage;
 import com.swyp8team2.post.domain.PostRepository;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.PostResponse;
+import com.swyp8team2.post.presentation.dto.SimplePostResponse;
 import com.swyp8team2.post.presentation.dto.VoteRequestDto;
 import com.swyp8team2.post.presentation.dto.VoteResponseDto;
 import com.swyp8team2.support.IntegrationTest;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -101,36 +103,24 @@ class PostServiceTest extends IntegrationTest {
 
     @Test
     @DisplayName("게시글 조회")
-    void find() throws Exception {
+    void findById() throws Exception {
         //given
-        User user = userRepository.save(User.create("nickname", "profileUrl"));
-        ImageFile imageFile1 = imageFileRepository.save(ImageFile.create(
-                new ImageFileDto("originalFileName1", "imageUrl1", "thumbnailUrl1"))
-        );
-        ImageFile imageFile2 = imageFileRepository.save(ImageFile.create(
-                new ImageFileDto("originalFileName2", "imageUrl2", "thumbnailUrl2"))
-        );
-        Post post = postRepository.save(Post.create(
-                user.getId(),
-                "description",
-                List.of(
-                        PostImage.create("뽀또A", imageFile1.getId()),
-                        PostImage.create("뽀또B", imageFile2.getId())
-                ),
-                "shareUrl"
-        ));
+        User user = createUser(1);
+        ImageFile imageFile1 = createImageFile(1);
+        ImageFile imageFile2 = createImageFile(2);
+        Post post = createPost(user, imageFile1, imageFile2, 1);
 
         //when
-        PostResponse response = postService.find(post.getId());
+        PostResponse response = postService.findById(post.getId());
 
         //then
         List<VoteResponseDto> votes = response.votes();
         assertAll(
-                () -> assertThat(response.description()).isEqualTo("description"),
+                () -> assertThat(response.description()).isEqualTo(post.getDescription()),
                 () -> assertThat(response.id()).isEqualTo(post.getId()),
                 () -> assertThat(response.author().nickname()).isEqualTo(user.getNickname()),
                 () -> assertThat(response.author().profileUrl()).isEqualTo(user.getProfileUrl()),
-                () -> assertThat(response.shareUrl()).isEqualTo("shareUrl"),
+                () -> assertThat(response.shareUrl()).isEqualTo(post.getShareUrl()),
                 () -> assertThat(votes).hasSize(2),
                 () -> assertThat(votes.get(0).imageUrl()).isEqualTo(imageFile1.getImageUrl()),
                 () -> assertThat(votes.get(0).voteCount()).isEqualTo(0),
@@ -141,5 +131,80 @@ class PostServiceTest extends IntegrationTest {
                 () -> assertThat(votes.get(1).voteRatio()).isEqualTo("0.0"),
                 () -> assertThat(votes.get(1).voted()).isFalse()
         );
+    }
+
+    @Test
+    @DisplayName("내가 작성한 게시글 조회 - 커서 null인 경우")
+    void findMyPosts() throws Exception {
+        //given
+        User user = createUser(1);
+        List<Post> posts = new ArrayList<>();
+        for (int i = 0; i < 30; i += 2) {
+            ImageFile imageFile1 = createImageFile(i);
+            ImageFile imageFile2 = createImageFile(i + 1);
+            posts.add(createPost(user, imageFile1, imageFile2, i));
+        }
+        int size = 10;
+
+        //when
+        var response = postService.findMyPosts(user.getId(), null, size);
+
+        //then
+        assertAll(
+                () -> assertThat(response.data()).hasSize(size),
+                () -> assertThat(response.hasNext()).isTrue(),
+                () -> assertThat(response.nextCursor()).isEqualTo(posts.get(posts.size() - size).getId())
+        );
+    }
+
+    @Test
+    @DisplayName("내가 작성한 게시글 조회 - 커서 있는 경우")
+    void findMyPosts2() throws Exception {
+        //given
+        User user = createUser(1);
+        List<Post> posts = new ArrayList<>();
+        for (int i = 0; i < 30; i += 2) {
+            ImageFile imageFile1 = createImageFile(i);
+            ImageFile imageFile2 = createImageFile(i + 1);
+            posts.add(createPost(user, imageFile1, imageFile2, i));
+        }
+        int size = 10;
+
+        //when
+        var response = postService.findMyPosts(user.getId(), posts.get(3).getId(), size);
+
+        //then
+        assertAll(
+                () -> assertThat(response.data()).hasSize(3),
+                () -> assertThat(response.hasNext()).isFalse(),
+                () -> assertThat(response.nextCursor()).isEqualTo(posts.get(0).getId())
+        );
+    }
+
+    private Post createPost(User user, ImageFile imageFile1, ImageFile imageFile2, int index) {
+        Post post = postRepository.save(Post.create(
+                user.getId(),
+                "description" + index,
+                List.of(
+                        PostImage.create("뽀또A", imageFile1.getId()),
+                        PostImage.create("뽀또B", imageFile2.getId())
+                ),
+                "shareUrl" + index
+        ));
+        return post;
+    }
+
+    private User createUser(int index) {
+        return userRepository.save(User.create("nickname" + index, "profileUrl" + index));
+    }
+
+    private ImageFile createImageFile(int index) {
+        return imageFileRepository.save(ImageFile.create(
+                new ImageFileDto(
+                        "originalFileName" + index,
+                        "imageUrl" + index,
+                        "thumbnailUrl" + index
+                )
+        ));
     }
 }
