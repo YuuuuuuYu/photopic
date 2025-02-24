@@ -1,5 +1,6 @@
 package com.swyp8team2.comment.presentation;
 
+import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.comment.presentation.dto.AuthorDto;
 import com.swyp8team2.comment.presentation.dto.CommentResponse;
 import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
@@ -14,8 +15,12 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
@@ -25,13 +30,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class CommentControllerTest extends RestDocsTest {
 
-
     @Test
     @WithMockUserInfo
     @DisplayName("댓글 생성")
     void createComment() throws Exception {
         //given
+        Long postId = 1L;
         CreateCommentRequest request = new CreateCommentRequest("content");
+
+        doNothing().when(commentService).createComment(eq(postId), any(CreateCommentRequest.class), any(UserInfo.class));
 
         //when then
         mockMvc.perform(post("/posts/{postId}/comments", "1")
@@ -48,26 +55,31 @@ class CommentControllerTest extends RestDocsTest {
                                 fieldWithPath("content").type(JsonFieldType.STRING).description("댓글 내용").attributes(constraints("최대 ?글자"))
                         )
                 ));
+
+        verify(commentService, times(1)).createComment(eq(postId), any(CreateCommentRequest.class), any(UserInfo.class));
     }
 
     @Test
     @WithAnonymousUser
     @DisplayName("댓글 조회")
-    void findComments() throws Exception {
+    void selectComments() throws Exception {
         //given
-        CursorBasePaginatedResponse<CommentResponse> response = new CursorBasePaginatedResponse<>(
+        Long postId = 1L;
+        Long cursor = null;
+        int size = 10;
+        CommentResponse commentResponse = new CommentResponse(
                 1L,
-                false,
-                List.of(
-                        new CommentResponse(
-                                1L,
-                                "content",
-                                new AuthorDto(1L, "author", "https://image.com/profile-image"),
-                                1L,
-                                LocalDateTime.of(2025, 2, 13, 12, 0)
-                        )
-                )
+                "댓글 내용",
+                new AuthorDto(100L, "닉네임", "http://example.com/profile.png"),
+                null,
+                LocalDateTime.now()
         );
+        List<CommentResponse> commentList = Collections.singletonList(commentResponse);
+
+        CursorBasePaginatedResponse<CommentResponse> response =
+                new CursorBasePaginatedResponse<>(null, false, commentList);
+
+        when(commentService.findComments(eq(postId), eq(cursor), eq(size))).thenReturn(response);
 
         //when
         mockMvc.perform(get("/posts/{postId}/comments", "1"))
@@ -116,6 +128,8 @@ class CommentControllerTest extends RestDocsTest {
                                         .description("댓글 작성일")
                                 )
                 ));
+
+        verify(commentService, times(1)).findComments(eq(postId), eq(cursor), eq(size));
     }
 
     @Test
