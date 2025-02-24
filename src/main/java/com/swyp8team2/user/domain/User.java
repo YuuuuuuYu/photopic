@@ -8,6 +8,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 import static com.swyp8team2.common.util.Validator.validateEmptyString;
 import static com.swyp8team2.common.util.Validator.validateNull;
 
@@ -25,15 +27,18 @@ public class User {
 
     private String profileUrl;
 
-    public User(Long id, String nickname, String profileUrl) {
+    private String seq;
+
+    public User(Long id, String nickname, String profileUrl, String seq) {
         validateNull(nickname, profileUrl);
         validateEmptyString(nickname, profileUrl);
         this.id = id;
         this.nickname = nickname;
         this.profileUrl = profileUrl;
+        this.seq = seq;
     }
 
     public static User create(String nickname, String profileUrl) {
-        return new User(null, nickname, profileUrl);
+        return new User(null, nickname, profileUrl, UUID.randomUUID().toString());
     }
 }
