@@ -71,6 +71,7 @@ class CommentControllerTest extends RestDocsTest {
                 1L,
                 "댓글 내용",
                 new AuthorDto(100L, "닉네임", "http://example.com/profile.png"),
+                null,
                 LocalDateTime.now()
         );
         List<CommentResponse> commentList = Collections.singletonList(commentResponse);
@@ -78,7 +79,7 @@ class CommentControllerTest extends RestDocsTest {
         CursorBasePaginatedResponse<CommentResponse> response =
                 new CursorBasePaginatedResponse<>(null, false, commentList);
 
-        when(commentService.selectComments(eq(postId), eq(cursor), eq(size))).thenReturn(response);
+        when(commentService.findComments(eq(postId), eq(cursor), eq(size))).thenReturn(response);
 
         //when
         mockMvc.perform(get("/posts/{postId}/comments", "1"))
@@ -118,13 +119,17 @@ class CommentControllerTest extends RestDocsTest {
                                 fieldWithPath("data[].author.profileUrl")
                                         .type(JsonFieldType.STRING)
                                         .description("작성자 프로필 이미지 url"),
+                                fieldWithPath("data[].voteId")
+                                        .type(JsonFieldType.NUMBER)
+                                        .optional()
+                                        .description("작성자 투표 Id (투표 없을 시 null)"),
                                 fieldWithPath("data[].createdAt")
                                         .type(JsonFieldType.STRING)
                                         .description("댓글 작성일")
                                 )
                 ));
 
-        verify(commentService, times(1)).selectComments(eq(postId), eq(cursor), eq(size));
+        verify(commentService, times(1)).findComments(eq(postId), eq(cursor), eq(size));
     }
 
     @Test

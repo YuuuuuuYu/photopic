@@ -6,6 +6,8 @@ import com.swyp8team2.comment.domain.CommentRepository;
 import com.swyp8team2.comment.presentation.dto.CommentResponse;
 import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
+import com.swyp8team2.common.exception.BadRequestException;
+import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -57,7 +60,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 조회")
-    void selectComments() {
+    void findComments() {
         // given
         Long postId = 1L;
         Long cursor = null;
@@ -74,7 +77,7 @@ class CommentServiceTest {
         given(userRepository.findById(100L)).willReturn(Optional.of(user));
 
         // when
-        CursorBasePaginatedResponse<CommentResponse> response = commentService.selectComments(postId, cursor, size);
+        CursorBasePaginatedResponse<CommentResponse> response = commentService.findComments(postId, cursor, size);
 
         // then
         assertThat(response.data()).hasSize(2);
@@ -89,4 +92,28 @@ class CommentServiceTest {
         assertThat(cr2.content()).isEqualTo("두 번째 댓글");
     }
 
+    @Test
+    @DisplayName("댓글 조회 - 유저 정보 없는 경우")
+    void findComments_userNotFound() {
+        // given
+        Long postId = 1L;
+        Long cursor = null;
+        int size = 2;
+
+        Comment comment1 = new Comment(1L, postId, 100L, "첫 번째 댓글");
+        Comment comment2 = new Comment(2L, postId, 100L, "두 번째 댓글");
+        SliceImpl<Comment> commentSlice = new SliceImpl<>(
+                List.of(comment1, comment2),
+                PageRequest.of(0, size),
+                false
+        );
+
+        given(commentRepository.findByPostId(eq(postId), eq(cursor), any(PageRequest.class))).willReturn(commentSlice);
+        given(userRepository.findById(100L)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> commentService.findComments(postId, cursor, size))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage((ErrorCode.USER_NOT_FOUND.getMessage()));
+    }
 }
