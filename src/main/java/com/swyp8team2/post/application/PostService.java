@@ -1,5 +1,6 @@
 package com.swyp8team2.post.application;
 
+import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.common.exception.InternalServerException;
@@ -10,15 +11,17 @@ import com.swyp8team2.post.domain.PostImage;
 import com.swyp8team2.post.domain.PostRepository;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.PostResponse;
+import com.swyp8team2.post.presentation.dto.SimplePostResponse;
 import com.swyp8team2.post.presentation.dto.VoteResponseDto;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -48,7 +51,7 @@ public class PostService {
                 )).toList();
     }
 
-    public PostResponse find(Long postId) {
+    public PostResponse findById(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
         User user = userRepository.findById(post.getUserId())
@@ -78,5 +81,17 @@ public class PostService {
             totalVoteCount += image.getVoteCount();
         }
         return totalVoteCount;
+    }
+
+    public CursorBasePaginatedResponse<SimplePostResponse> findMyPosts(Long userId, Long cursor, int size) {
+        Slice<Post> postSlice = postRepository.findByUserId(userId, cursor, PageRequest.of(0, size));
+        return CursorBasePaginatedResponse.of(postSlice.map(this::createSimplePostResponse)
+        );
+    }
+
+    private SimplePostResponse createSimplePostResponse(Post post) {
+        ImageFile bestPickedImage = imageFileRepository.findById(post.getBestPickedImage().getImageFileId())
+                .orElseThrow(() -> new InternalServerException(ErrorCode.IMAGE_FILE_NOT_FOUND));
+        return SimplePostResponse.of(post, bestPickedImage.getThumbnailUrl());
     }
 }

@@ -73,18 +73,7 @@ public class PostController {
             @RequestParam(name = "size", required = false, defaultValue = "10") int size,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
-        return ResponseEntity.ok(new CursorBasePaginatedResponse<>(
-                1L,
-                false,
-                List.of(
-                        new SimplePostResponse(
-                                1L,
-                                "https://image.photopic.site/1",
-                                "https://photopic.site/shareurl",
-                                LocalDateTime.of(2025, 2, 13, 12, 0)
-                        )
-                )
-        ));
+        return ResponseEntity.ok(postService.findMyPosts(userInfo.userId(), cursor, size));
     }
 
     @GetMapping("/voted")

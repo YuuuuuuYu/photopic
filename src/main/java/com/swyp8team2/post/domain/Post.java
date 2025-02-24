@@ -3,6 +3,7 @@ package com.swyp8team2.post.domain;
 import com.swyp8team2.common.domain.BaseEntity;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
+import com.swyp8team2.common.exception.InternalServerException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.swyp8team2.common.util.Validator.*;
@@ -69,5 +71,11 @@ public class Post extends BaseEntity {
 
     public static Post create(Long userId, String description, List<PostImage> images, String shareUrl) {
         return new Post(null, userId, description, State.PROGRESS, images, shareUrl);
+    }
+
+    public PostImage getBestPickedImage() {
+        return images.stream()
+                .max(Comparator.comparing(PostImage::getVoteCount))
+                .orElseThrow(() -> new InternalServerException(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 }
