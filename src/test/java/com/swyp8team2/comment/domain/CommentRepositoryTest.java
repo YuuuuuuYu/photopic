@@ -23,15 +23,15 @@ class CommentRepositoryTest {
         // given
         Comment comment1 = new Comment(1L, 100L, "content1");
         Comment comment2 = new Comment(1L, 101L, "content2");
-        Comment comment3 = new Comment(2L, 102L, "content3");
-        Comment comment4 = new Comment(1L, 103L, "content4");
-        commentRepository.saveAll(List.of(comment1, comment2, comment3, comment4));
+        Comment comment3 = new Comment(1L, 102L, "content3");
+        commentRepository.saveAll(List.of(comment1, comment2, comment3));
 
         // when
         Slice<Comment> result1 = commentRepository.findByPostId(1L, null, PageRequest.of(0, 10));
 
         // then
         assertThat(result1.getContent()).hasSize(3);
+        assertThat(result1.getContent().getFirst().getUserNo()).isEqualTo(100L);
 
         // when2
         Slice<Comment> result2 = commentRepository.findByPostId(1L, 1L, PageRequest.of(0, 10));
