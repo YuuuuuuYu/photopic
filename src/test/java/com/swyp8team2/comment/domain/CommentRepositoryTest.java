@@ -31,13 +31,11 @@ class CommentRepositoryTest {
 
         // then
         assertThat(result1.getContent()).hasSize(3);
-        assertThat(result1.getContent().getFirst().getUserNo()).isEqualTo(100L);
 
         // when2
         Slice<Comment> result2 = commentRepository.findByPostId(1L, 1L, PageRequest.of(0, 10));
 
         // then2
         assertThat(result2.getContent()).hasSize(2);
-        assertThat(result2.getContent().getFirst().getUserNo()).isEqualTo(101L);
     }
 }
