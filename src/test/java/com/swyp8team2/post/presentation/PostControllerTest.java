@@ -194,7 +194,7 @@ class PostControllerTest extends RestDocsTest {
     @DisplayName("내가 참여한 게시글 조회")
     void findVotedPost() throws Exception {
         //given
-        CursorBasePaginatedResponse<SimplePostResponse> response = new CursorBasePaginatedResponse<>(
+        var response = new CursorBasePaginatedResponse<>(
                 1L,
                 false,
                 List.of(
@@ -206,6 +206,8 @@ class PostControllerTest extends RestDocsTest {
                         )
                 )
         );
+        given(postService.findVotedPosts(1L, null, 10))
+                .willReturn(response);
 
         //when then
         mockMvc.perform(get("/posts/voted")

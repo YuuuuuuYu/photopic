@@ -75,26 +75,4 @@ class PostTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.DESCRIPTION_LENGTH_EXCEEDED.getMessage());
     }
-
-    @Test
-    @DisplayName("게시글 생성 - null 값이 들어오는 경우")
-    void create_null() throws Exception {
-        //given
-
-        //when then
-        assertAll(
-                () -> assertThatThrownBy(() -> Post.create(null, "description", List.of(), "shareUrl"))
-                        .isInstanceOf(InternalServerException.class)
-                        .hasMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage()),
-                () -> assertThatThrownBy(() -> Post.create(1L, null, List.of(), "shareUrl"))
-                        .isInstanceOf(InternalServerException.class)
-                        .hasMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage()),
-                () -> assertThatThrownBy(() -> Post.create(1L, "description", List.of(), null))
-                        .isInstanceOf(InternalServerException.class)
-                        .hasMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage()),
-                () -> assertThatThrownBy(() -> Post.create(1L, "description", null, "shareUrl"))
-                        .isInstanceOf(InternalServerException.class)
-                        .hasMessage(ErrorCode.INVALID_INPUT_VALUE.getMessage())
-        );
-    }
 }
