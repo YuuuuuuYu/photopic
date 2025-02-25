@@ -69,7 +69,7 @@ class CommentServiceTest {
         Comment comment1 = new Comment(1L, postId, 100L, "첫 번째 댓글");
         Comment comment2 = new Comment(2L, postId, 100L, "두 번째 댓글");
         SliceImpl<Comment> commentSlice = new SliceImpl<>(List.of(comment1, comment2), PageRequest.of(0, size), false);
-        User user = new User(100L, "닉네임","http://example.com/profile.png");
+        User user = new User(100L, "닉네임","http://example.com/profile.png", "seq");
 
         // Mock 설정
         given(commentRepository.findByPostId(eq(postId), eq(cursor), any(PageRequest.class))).willReturn(commentSlice);

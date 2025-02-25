@@ -32,8 +32,6 @@ public class PostImage {
     private int voteCount;
 
     public PostImage(Long id, Post post, String name, Long imageFileId, int voteCount) {
-        validateNull(post, imageFileId);
-        validateEmptyString(name);
         this.id = id;
         this.post = post;
         this.name = name;
@@ -42,8 +40,6 @@ public class PostImage {
     }
 
     public PostImage(String name, Long imageFileId, int voteCount) {
-        validateNull(imageFileId);
-        validateEmptyString(name);
         this.name = name;
         this.imageFileId = imageFileId;
         this.voteCount = voteCount;
@@ -56,5 +52,13 @@ public class PostImage {
     public void setPost(Post post) {
         validateNull(post);
         this.post = post;
+    }
+
+    public void increaseVoteCount() {
+        this.voteCount++;
+    }
+
+    public void decreaseVoteCount() {
+        this.voteCount = this.voteCount == 0 ? 0 : this.voteCount - 1;
     }
 }

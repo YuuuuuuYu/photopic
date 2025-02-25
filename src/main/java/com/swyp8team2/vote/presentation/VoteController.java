@@ -2,6 +2,7 @@ package com.swyp8team2.vote.presentation;
 
 import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.common.presentation.CustomHeader;
+import com.swyp8team2.vote.application.VoteService;
 import com.swyp8team2.vote.presentation.dto.ChangeVoteRequest;
 import com.swyp8team2.vote.presentation.dto.GuestVoteRequest;
 import com.swyp8team2.vote.presentation.dto.VoteRequest;
@@ -24,12 +25,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/posts/{postId}/votes")
 public class VoteController {
 
+    private final VoteService voteService;
+
     @PostMapping("")
     public ResponseEntity<Void> vote(
             @PathVariable("postId") Long postId,
             @Valid @RequestBody VoteRequest request,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
+        voteService.vote(userInfo.userId(), postId, request.voteId());
         return ResponseEntity.ok().build();
     }
 

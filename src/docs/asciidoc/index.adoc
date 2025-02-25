@@ -63,6 +63,16 @@ Content-Type: application/json;charset=UTF-8
 Authorization: Bearer accessToken
 ```
 
+#### 테스트용 개발 토큰
+
+```
+user1
+eyJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEiLCJpYXQiOjE3NDAyOTQyMzEsImlzcyI6InN3eXA4dGVhbTIiLCJleHAiOjMzMjc2Mjk0MjMxfQ.gqA245tRiBQB9owKRWIpX1we1T362R-xDTt4YT9AhRY
+
+user2
+eyJhbGciOiJIUzI1NiJ9.eyJpZCI6IjIiLCJpYXQiOjE3NDA0NDM0ODIsImlzcyI6InN3eXA4dGVhbTIiLCJleHAiOjMzMjc2NDQzNDgyfQ.2sTlCtSHb4eGzhlL6WlRT6xvJLtvipnHp6EAmC4j1UQ
+```
+
 [[인증-예외]]
 === 인증 예외
 
