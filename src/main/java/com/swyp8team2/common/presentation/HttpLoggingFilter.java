@@ -51,7 +51,7 @@ public class HttpLoggingFilter extends OncePerRequestFilter {
         MDC.put("requestId", requestId);
 
         try {
-            log.info("""
+            log.debug("""
                             |
                             | [REQUEST] {} {} {} ({}s)
                             | Headers : {}
@@ -70,7 +70,7 @@ public class HttpLoggingFilter extends OncePerRequestFilter {
             );
             responseWrapper.copyBodyToResponse();
         } catch (Exception e) {
-            log.error("Logging Error", e);
+            log.debug("Logging Error", e);
         } finally {
             MDC.clear();
         }
