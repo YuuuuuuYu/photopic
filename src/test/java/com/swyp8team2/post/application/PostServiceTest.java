@@ -9,11 +9,12 @@ import com.swyp8team2.post.domain.PostImage;
 import com.swyp8team2.post.domain.PostRepository;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.PostResponse;
-import com.swyp8team2.post.presentation.dto.VoteRequestDto;
+import com.swyp8team2.post.presentation.dto.PostImageRequestDto;
 import com.swyp8team2.post.presentation.dto.PostImageResponse;
 import com.swyp8team2.support.IntegrationTest;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
+import com.swyp8team2.vote.application.VoteService;
 import com.swyp8team2.vote.domain.Vote;
 import com.swyp8team2.vote.domain.VoteRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -47,14 +48,17 @@ class PostServiceTest extends IntegrationTest {
     @Autowired
     VoteRepository voteRepository;
 
+    @Autowired
+    VoteService voteService;
+
     @Test
     @DisplayName("게시글 작성")
     void create() throws Exception {
         //given
         long userId = 1L;
         CreatePostRequest request = new CreatePostRequest("description", List.of(
-                new VoteRequestDto(1L),
-                new VoteRequestDto(2L)
+                new PostImageRequestDto(1L),
+                new PostImageRequestDto(2L)
         ));
 
         //when
@@ -82,7 +86,7 @@ class PostServiceTest extends IntegrationTest {
         //given
         long userId = 1L;
         CreatePostRequest request = new CreatePostRequest("description", List.of(
-                new VoteRequestDto(1L)
+                new PostImageRequestDto(1L)
         ));
 
         //when then
@@ -97,8 +101,8 @@ class PostServiceTest extends IntegrationTest {
         //given
         long userId = 1L;
         CreatePostRequest request = new CreatePostRequest("a".repeat(101), List.of(
-                new VoteRequestDto(1L),
-                new VoteRequestDto(2L)
+                new PostImageRequestDto(1L),
+                new PostImageRequestDto(2L)
         ));
 
         //when then
@@ -120,7 +124,7 @@ class PostServiceTest extends IntegrationTest {
         PostResponse response = postService.findById(user.getId(), post.getId());
 
         //then
-        List<PostImageResponse> votes = response.votes();
+        List<PostImageResponse> votes = response.images();
         assertAll(
                 () -> assertThat(response.description()).isEqualTo(post.getDescription()),
                 () -> assertThat(response.id()).isEqualTo(post.getId()),
@@ -204,6 +208,31 @@ class PostServiceTest extends IntegrationTest {
                 () -> assertThat(response.data()).hasSize(size),
                 () -> assertThat(response.hasNext()).isTrue(),
                 () -> assertThat(response.nextCursor()).isEqualTo(posts.get(전체_15개에서_맨_마지막_데이터_인덱스).getId())
+        );
+    }
+
+    @Test
+    @DisplayName("투표 현황 조회")
+    void findPostStatus() throws Exception {
+        //given
+        User user = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        voteService.vote(user.getId(), post.getId(), post.getImages().get(0).getId());
+
+        //when
+        var response = postService.findPostStatus(post.getId());
+
+        //then
+        assertAll(
+                () -> assertThat(response).hasSize(2),
+                () -> assertThat(response.get(0).imageName()).isEqualTo(post.getImages().get(0).getName()),
+                () -> assertThat(response.get(0).voteCount()).isEqualTo(1),
+                () -> assertThat(response.get(0).voteRatio()).isEqualTo("100.0"),
+                () -> assertThat(response.get(1).imageName()).isEqualTo(post.getImages().get(1).getName()),
+                () -> assertThat(response.get(1).voteCount()).isEqualTo(0),
+                () -> assertThat(response.get(1).voteRatio()).isEqualTo("0.0")
         );
     }
 }
