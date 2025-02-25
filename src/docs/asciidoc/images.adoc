@@ -2,6 +2,6 @@
 == 이미지 API
 
 [[이미지-업로드]]
-=== 이미지 업로드
+=== `POST` 이미지 업로드
 
 operation::image-controller-test/create-image-file[snippets='http-request,curl-request,request-headers,request-parts,http-response,response-fields']
