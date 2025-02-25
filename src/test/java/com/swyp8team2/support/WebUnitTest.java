@@ -3,6 +3,7 @@ package com.swyp8team2.support;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swyp8team2.auth.application.AuthService;
 import com.swyp8team2.auth.presentation.RefreshTokenCookieGenerator;
+import com.swyp8team2.comment.application.CommentService;
 import com.swyp8team2.image.application.ImageService;
 import com.swyp8team2.post.application.PostService;
 import com.swyp8team2.vote.application.VoteService;
@@ -36,4 +37,7 @@ public abstract class WebUnitTest {
 
     @MockitoBean
     protected VoteService voteService;
+
+    @MockitoBean
+    protected CommentService commentService;
 }

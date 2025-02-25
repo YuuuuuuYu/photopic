@@ -4,6 +4,9 @@ import jakarta.validation.constraints.NotNull;
 
 public record OAuthSignInRequest(
         @NotNull
-        String code
+        String code,
+
+        @NotNull
+        String redirectUri
 ) {
 }

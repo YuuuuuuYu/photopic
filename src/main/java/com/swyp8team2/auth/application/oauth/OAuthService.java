@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
 @Service
@@ -22,19 +21,9 @@ public class OAuthService {
     private final KakaoOAuthConfig kakaoOAuthConfig;
     private final KakaoOAuthClient kakaoOAuthClient;
 
-    public String getOAuthAuthorizationUrl() {
-        return UriComponentsBuilder
-                .fromUriString(kakaoOAuthConfig.authorizationUri())
-                .queryParam("client_id", kakaoOAuthConfig.clientId())
-                .queryParam("redirect_uri", kakaoOAuthConfig.redirectUri())
-                .queryParam("response_type", "code")
-                .queryParam("scope", String.join(",", kakaoOAuthConfig.scope()))
-                .toUriString();
-    }
-
-    public OAuthUserInfo getUserInfo(String code) {
+    public OAuthUserInfo getUserInfo(String code, String redirectUri) {
         try {
-            KakaoAuthResponse kakaoAuthResponse = kakaoOAuthClient.fetchToken(tokenRequestParams(code));
+            KakaoAuthResponse kakaoAuthResponse = kakaoOAuthClient.fetchToken(tokenRequestParams(code, redirectUri));
             return kakaoOAuthClient
                     .fetchUserInfo(BEARER + kakaoAuthResponse.accessToken())
                     .toOAuthUserInfo();
@@ -44,11 +33,11 @@ public class OAuthService {
         }
     }
 
-    private MultiValueMap<String, String> tokenRequestParams(String authCode) {
+    private MultiValueMap<String, String> tokenRequestParams(String authCode, String redirectUri) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", kakaoOAuthConfig.clientId());
-        params.add("redirect_uri", kakaoOAuthConfig.redirectUri());
+        params.add("redirect_uri", redirectUri);
         params.add("code", authCode);
         params.add("client_secret", kakaoOAuthConfig.clientSecret());
         return params;
