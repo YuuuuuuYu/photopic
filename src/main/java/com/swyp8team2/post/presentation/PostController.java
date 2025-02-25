@@ -9,6 +9,7 @@ import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.SimplePostResponse;
 import com.swyp8team2.post.presentation.dto.VoteResponseDto;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -69,8 +70,8 @@ public class PostController {
 
     @GetMapping("/me")
     public ResponseEntity<CursorBasePaginatedResponse<SimplePostResponse>> findMyPosts(
-            @RequestParam(name = "cursor", required = false) Long cursor,
-            @RequestParam(name = "size", required = false, defaultValue = "10") int size,
+            @RequestParam(name = "cursor", required = false) @Min(0) Long cursor,
+            @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
         return ResponseEntity.ok(postService.findMyPosts(userInfo.userId(), cursor, size));
@@ -78,8 +79,8 @@ public class PostController {
 
     @GetMapping("/voted")
     public ResponseEntity<CursorBasePaginatedResponse<SimplePostResponse>> findVotedPosts(
-            @RequestParam(name = "cursor", required = false) Long cursor,
-            @RequestParam(name = "size", required = false, defaultValue = "10") int size,
+            @RequestParam(name = "cursor", required = false) @Min(0) Long cursor,
+            @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
         return ResponseEntity.ok(postService.findVotedPosts(userInfo.userId(), cursor, size));
