@@ -35,6 +35,6 @@ operation::post-controller-test/close-post[snippets='http-request,curl-request,p
 [[게시글-수정]]
 
 [[게시글-삭제]]
-=== 게시글 삭제 (미구현)
+=== `DELETE` 게시글 삭제
 
 operation::post-controller-test/delete-post[snippets='http-request,curl-request,path-parameters,request-headers,http-response']
