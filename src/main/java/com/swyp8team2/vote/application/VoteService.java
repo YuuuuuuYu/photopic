@@ -2,6 +2,7 @@ package com.swyp8team2.vote.application;
 
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
+import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.PostRepository;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
@@ -22,33 +23,35 @@ public class VoteService {
     private final PostRepository postRepository;
 
     @Transactional
-    public Long vote(Long userId, Long postId, Long imageId) {
-        User user = userRepository.findById(userId)
+    public Long vote(Long voterId, Long postId, Long imageId) {
+        User voter = userRepository.findById(voterId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
-        voteRepository.findByUserSeqAndPostId(user.getSeq(), postId)
-                        .ifPresent(vote -> deleteExistingVote(postId, vote));
-        Vote vote = createVote(postId, imageId, user.getSeq());
+        deleteVoteIfExisting(postId, voter.getSeq());
+        Vote vote = createVote(postId, imageId, voter.getSeq());
         return vote.getId();
     }
 
+    private void deleteVoteIfExisting(Long postId, String userSeq) {
+        voteRepository.findByUserSeqAndPostId(userSeq, postId)
+                        .ifPresent(vote -> {
+                            voteRepository.delete(vote);
+                            postRepository.findById(postId)
+                                    .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND))
+                                    .cancelVote(vote.getPostImageId());
+                        });
+    }
+
     private Vote createVote(Long postId, Long imageId, String userSeq) {
-        Vote vote = voteRepository.save(Vote.of(postId, imageId, userSeq));
-        postRepository.findById(postId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND))
-                .vote(imageId);
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
+        post.validateProgress();
+        Vote vote = voteRepository.save(Vote.of(post.getId(), imageId, userSeq));
+        post.vote(imageId);
         return vote;
     }
 
-    private void deleteExistingVote(Long postId, Vote vote) {
-        voteRepository.delete(vote);
-        postRepository.findById(postId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND))
-                .cancelVote(vote.getPostImageId());
-    }
-
     public Long guestVote(String guestId, Long postId, Long imageId) {
-        voteRepository.findByUserSeqAndPostId(guestId, postId)
-                .ifPresent(vote -> deleteExistingVote(postId, vote));
+        deleteVoteIfExisting(postId, guestId);
         Vote vote = createVote(postId, imageId, guestId);
         return vote.getId();
     }

@@ -108,4 +108,10 @@ public class Post extends BaseEntity {
             throw new BadRequestException(ErrorCode.NOT_POST_AUTHOR);
         }
     }
+
+    public void validateProgress() {
+        if (!this.state.equals(State.PROGRESS)) {
+            throw new BadRequestException(ErrorCode.POST_ALREADY_CLOSED);
+        }
+    }
 }

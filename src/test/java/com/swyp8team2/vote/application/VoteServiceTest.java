@@ -1,9 +1,13 @@
 package com.swyp8team2.vote.application;
 
+import com.swyp8team2.common.exception.BadRequestException;
+import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
 import com.swyp8team2.post.domain.Post;
+import com.swyp8team2.post.domain.PostImage;
 import com.swyp8team2.post.domain.PostRepository;
+import com.swyp8team2.post.domain.State;
 import com.swyp8team2.support.IntegrationTest;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
@@ -13,10 +17,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 import static com.swyp8team2.support.fixture.FixtureGenerator.createImageFile;
 import static com.swyp8team2.support.fixture.FixtureGenerator.createPost;
 import static com.swyp8team2.support.fixture.FixtureGenerator.createUser;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 class VoteServiceTest extends IntegrationTest {
@@ -85,6 +92,31 @@ class VoteServiceTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("투표하기 - 투표 마감된 경우")
+    void vote_alreadyClosed() {
+        // given
+        User user = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post post = postRepository.save(new Post(
+                        null,
+                        user.getId(),
+                        "description",
+                        State.CLOSED,
+                        List.of(
+                                PostImage.create("뽀또A", imageFile1.getId()),
+                                PostImage.create("뽀또B", imageFile2.getId())
+                        ),
+                        "shareUrl"
+                ));
+
+        // when
+        assertThatThrownBy(() -> voteService.vote(user.getId(), post.getId(), post.getImages().get(0).getId()))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage(ErrorCode.POST_ALREADY_CLOSED.getMessage());
+    }
+
+    @Test
     @DisplayName("게스트 투표하기")
     void guestVote() {
         // given
@@ -132,5 +164,30 @@ class VoteServiceTest extends IntegrationTest {
                 () -> assertThat(findPost.getImages().get(0).getVoteCount()).isEqualTo(0),
                 () -> assertThat(findPost.getImages().get(1).getVoteCount()).isEqualTo(1)
         );
+    }
+
+    @Test
+    @DisplayName("게스트 투표하기 - 투표 마감된 경우")
+    void guestVote_alreadyClosed() {
+        // given
+        User user = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post post = postRepository.save(new Post(
+                null,
+                user.getId(),
+                "description",
+                State.CLOSED,
+                List.of(
+                        PostImage.create("뽀또A", imageFile1.getId()),
+                        PostImage.create("뽀또B", imageFile2.getId())
+                ),
+                "shareUrl"
+        ));
+
+        // when
+        assertThatThrownBy(() -> voteService.guestVote("guestId", post.getId(), post.getImages().get(0).getId()))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage(ErrorCode.POST_ALREADY_CLOSED.getMessage());
     }
 }
