@@ -34,7 +34,7 @@ public class HttpLoggingFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        if (request.getRequestURI().startsWith("/docs")) {
+        if (request.getRequestURI().startsWith("/docs") || request.getRequestURI().startsWith("/h2-console")) {
             chain.doFilter(request, response);
             return;
         }
