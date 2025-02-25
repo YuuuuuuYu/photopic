@@ -83,7 +83,7 @@ public class Post extends BaseEntity {
         PostImage image = images.stream()
                 .filter(postImage -> postImage.getId().equals(imageId))
                 .findFirst()
-                .orElseThrow(() -> new InternalServerException(ErrorCode.POST_IMAGE_NOT_FOUND));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.POST_IMAGE_NOT_FOUND));
         image.increaseVoteCount();
     }
 

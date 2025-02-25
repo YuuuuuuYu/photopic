@@ -5,9 +5,10 @@ import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.post.application.PostService;
 import com.swyp8team2.post.presentation.dto.AuthorDto;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
+import com.swyp8team2.post.presentation.dto.PostImageVoteStatusResponse;
 import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.SimplePostResponse;
-import com.swyp8team2.post.presentation.dto.VoteResponseDto;
+import com.swyp8team2.post.presentation.dto.PostImageResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,7 +43,25 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{shareUrl}")
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostResponse> findPost(
+            @PathVariable("postId") Long postId,
+            @AuthenticationPrincipal UserInfo userInfo
+    ) {
+        Long userId = Optional.ofNullable(userInfo)
+                .map(UserInfo::userId)
+                .orElse(null);
+        return ResponseEntity.ok(postService.findById(userId, postId));
+    }
+
+    @GetMapping("/{postId}/status")
+    public ResponseEntity<List<PostImageVoteStatusResponse>> findVoteStatus(
+            @PathVariable("postId") Long postId
+    ) {
+        return ResponseEntity.ok(postService.findPostStatus(postId));
+    }
+
+//    @GetMapping("/{shareUrl}")
     public ResponseEntity<PostResponse> findPost(@PathVariable("shareUrl") String shareUrl) {
         return ResponseEntity.ok(new PostResponse(
                 1L,
@@ -52,8 +72,8 @@ public class PostController {
                 ),
                 "description",
                 List.of(
-                        new VoteResponseDto(1L, "https://image.photopic.site/1", 3, "60.0", true),
-                        new VoteResponseDto(2L, "https://image.photopic.site/2", 2, "40.0", false)
+                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/1", true),
+                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/2", false)
                 ),
                 "https://photopic.site/shareurl",
                 LocalDateTime.of(2025, 2, 13, 12, 0)

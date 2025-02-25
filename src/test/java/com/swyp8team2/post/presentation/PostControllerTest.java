@@ -3,10 +3,11 @@ package com.swyp8team2.post.presentation;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.post.presentation.dto.AuthorDto;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
+import com.swyp8team2.post.presentation.dto.PostImageVoteStatusResponse;
 import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.SimplePostResponse;
-import com.swyp8team2.post.presentation.dto.VoteRequestDto;
-import com.swyp8team2.post.presentation.dto.VoteResponseDto;
+import com.swyp8team2.post.presentation.dto.PostImageRequestDto;
+import com.swyp8team2.post.presentation.dto.PostImageResponse;
 import com.swyp8team2.support.RestDocsTest;
 import com.swyp8team2.support.WithMockUserInfo;
 import org.junit.jupiter.api.DisplayName;
@@ -20,6 +21,7 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
@@ -42,7 +44,7 @@ class PostControllerTest extends RestDocsTest {
         //given
         CreatePostRequest request = new CreatePostRequest(
                 "제목",
-                List.of(new VoteRequestDto(1L), new VoteRequestDto(2L))
+                List.of(new PostImageRequestDto(1L), new PostImageRequestDto(2L))
         );
 
         //when then
@@ -58,11 +60,11 @@ class PostControllerTest extends RestDocsTest {
                                         .type(JsonFieldType.STRING)
                                         .description("설명")
                                         .attributes(constraints("0~100자 사이")),
-                                fieldWithPath("votes")
+                                fieldWithPath("images")
                                         .type(JsonFieldType.ARRAY)
                                         .description("투표 후보")
                                         .attributes(constraints("최소 2개")),
-                                fieldWithPath("votes[].imageFileId")
+                                fieldWithPath("images[].imageFileId")
                                         .type(JsonFieldType.NUMBER)
                                         .description("투표 후보 이미지 ID")
                         )));
@@ -82,20 +84,22 @@ class PostControllerTest extends RestDocsTest {
                 ),
                 "description",
                 List.of(
-                        new VoteResponseDto(1L, "https://image.photopic.site/1", 3, "60.0", true),
-                        new VoteResponseDto(2L, "https://image.photopic.site/2", 2, "40.0", false)
+                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/1", true),
+                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/2", false)
                 ),
                 "https://photopic.site/shareurl",
                 LocalDateTime.of(2025, 2, 13, 12, 0)
         );
+        given(postService.findById(any(), any()))
+                .willReturn(response);
 
         //when then
-        mockMvc.perform(RestDocumentationRequestBuilders.get("/posts/{shareUrl}", "shareUrl"))
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/posts/{postId}", 1))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(response)))
                 .andDo(restDocs.document(
                         pathParameters(
-                                parameterWithName("shareUrl").description("게시글 공유 URL")
+                                parameterWithName("postId").description("게시글 Id")
                         ),
                         responseFields(
                                 fieldWithPath("id").type(JsonFieldType.NUMBER).description("게시글 Id"),
@@ -104,14 +108,44 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("author.nickname").type(JsonFieldType.STRING).description("게시글 작성자 닉네임"),
                                 fieldWithPath("author.profileUrl").type(JsonFieldType.STRING).description("게시글 작성자 프로필 이미지"),
                                 fieldWithPath("description").type(JsonFieldType.STRING).description("설명"),
-                                fieldWithPath("votes[]").type(JsonFieldType.ARRAY).description("투표 선택지 목록"),
-                                fieldWithPath("votes[].id").type(JsonFieldType.NUMBER).description("투표 선택지 Id"),
-                                fieldWithPath("votes[].imageUrl").type(JsonFieldType.STRING).description("투표 이미지"),
-                                fieldWithPath("votes[].voteRatio").type(JsonFieldType.STRING).description("득표 비율"),
-                                fieldWithPath("votes[].voteCount").type(JsonFieldType.NUMBER).description("득표 수"),
-                                fieldWithPath("votes[].voted").type(JsonFieldType.BOOLEAN).description("투표 여부"),
+                                fieldWithPath("images[]").type(JsonFieldType.ARRAY).description("투표 선택지 목록"),
+                                fieldWithPath("images[].id").type(JsonFieldType.NUMBER).description("투표 선택지 Id"),
+                                fieldWithPath("images[].imageName").type(JsonFieldType.STRING).description("사진 이름"),
+                                fieldWithPath("images[].imageUrl").type(JsonFieldType.STRING).description("사진 이미지"),
+                                fieldWithPath("images[].voted").type(JsonFieldType.BOOLEAN).description("투표 여부"),
                                 fieldWithPath("shareUrl").type(JsonFieldType.STRING).description("게시글 공유 URL"),
                                 fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시글 생성 시간")
+                        )
+                ));
+    }
+
+    @Test
+    @WithMockUserInfo
+    @DisplayName("게시글 투표 상태 조회")
+    void findVoteStatus() throws Exception {
+        //given
+        var response = List.of(
+                new PostImageVoteStatusResponse("뽀또A", 2, "66.7"),
+                new PostImageVoteStatusResponse("뽀또B", 1, "33.3")
+        );
+        given(postService.findPostStatus(1L))
+                .willReturn(response);
+
+        //when then
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/posts/{postId}/status", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(response)))
+                .andDo(restDocs.document(
+                        requestHeaders(authorizationHeader()),
+                        pathParameters(
+                                parameterWithName("postId").description("게시글 Id")
+                        ),
+                        responseFields(
+                                fieldWithPath("[]").type(JsonFieldType.ARRAY).description("투표 선택지 목록"),
+                                fieldWithPath("[].imageName").type(JsonFieldType.STRING).description("사진 이름"),
+                                fieldWithPath("[].voteCount").type(JsonFieldType.NUMBER).description("투표 수"),
+                                fieldWithPath("[].voteRatio").type(JsonFieldType.STRING).description("투표 비율")
                         )
                 ));
     }
