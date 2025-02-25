@@ -2,6 +2,8 @@ package com.swyp8team2.user.application;
 
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
+import com.swyp8team2.user.domain.NicknameAdjective;
+import com.swyp8team2.user.domain.NicknameAdjectiveRepository;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import com.swyp8team2.user.presentation.dto.UserInfoResponse;
@@ -17,6 +19,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final NicknameAdjectiveRepository nicknameAdjectiveRepository;
 
     @Transactional
     public Long createUser(String nickname, String profileImageUrl) {
@@ -29,9 +32,14 @@ public class UserService {
                 .orElse("defailt_profile_image");
     }
 
-    private String getNickname(String email) {
-        return Optional.ofNullable(email)
-                .orElseGet(() -> "user_" + System.currentTimeMillis());
+    private String getNickname(String nickname) {
+        return Optional.ofNullable(nickname)
+                .orElseGet(() -> {
+                    long randomIndex = (long)(Math.random() * 500);
+                    Optional<NicknameAdjective> adjective = nicknameAdjectiveRepository.findNicknameAdjectiveById(randomIndex);
+                    return adjective.map(NicknameAdjective::getAdjective)
+                            .orElse("user_" + System.currentTimeMillis());
+                });
     }
 
     public UserInfoResponse findById(Long userId) {
