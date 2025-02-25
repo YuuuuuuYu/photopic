@@ -32,17 +32,20 @@ public class ApplicationControllerAdvice {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handle(MethodArgumentNotValidException e) {
+        log.debug("MethodArgumentNotValidException {}", e.getMessage());
         return ResponseEntity.badRequest()
                 .body(new ErrorResponse(ErrorCode.INVALID_ARGUMENT));
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<Void> handle(HttpRequestMethodNotSupportedException e) {
+        log.debug("HttpRequestMethodNotSupportedException {}", e.getMessage());
         return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> handle(NoResourceFoundException e) {
+        log.debug("NoResourceFoundException {}", e.getMessage());
         return ResponseEntity.notFound().build();
     }
 
