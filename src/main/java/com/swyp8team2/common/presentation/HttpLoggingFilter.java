@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -79,15 +80,16 @@ public class HttpLoggingFilter extends OncePerRequestFilter {
     private String getHeaders(HttpServletRequest request) {
         StringBuilder sb = new StringBuilder("{\n");
 
-        List<String> loggingHeaders = List.of(
-                HttpHeaders.USER_AGENT,
-                HttpHeaders.AUTHORIZATION,
-                HttpHeaders.COOKIE,
-                HttpHeaders.CONTENT_TYPE,
-                HttpHeaders.HOST,
-                HttpHeaders.REFERER,
-                HttpHeaders.ORIGIN
-        );
+        List<String> loggingHeaders = Stream.of(
+                        HttpHeaders.USER_AGENT.toLowerCase(),
+                        HttpHeaders.AUTHORIZATION.toLowerCase(),
+                        HttpHeaders.COOKIE.toLowerCase(),
+                        HttpHeaders.CONTENT_TYPE.toLowerCase(),
+                        HttpHeaders.HOST.toLowerCase(),
+                        HttpHeaders.REFERER.toLowerCase(),
+                        HttpHeaders.ORIGIN.toLowerCase()
+                ).map(String::toLowerCase)
+                .toList();
         Enumeration<String> headerArray = request.getHeaderNames();
         while (headerArray.hasMoreElements()) {
             String headerName = headerArray.nextElement();

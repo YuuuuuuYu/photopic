@@ -120,7 +120,7 @@ public class PostService {
         return post.getImages().stream()
                 .map(image -> {
                     String ratio = ratioCalculator.calculate(image.getVoteCount(), totalVoteCount);
-                    return new PostImageVoteStatusResponse(image.getName(), image.getVoteCount(), ratio);
+                    return new PostImageVoteStatusResponse(image.getId(), image.getName(), image.getVoteCount(), ratio);
                 }).toList();
     }
 
