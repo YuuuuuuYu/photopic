@@ -12,19 +12,19 @@ import com.swyp8team2.post.domain.PostRepository;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.SimplePostResponse;
-import com.swyp8team2.post.presentation.dto.VoteResponseDto;
+import com.swyp8team2.post.presentation.dto.PostImageResponse;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import com.swyp8team2.vote.domain.Vote;
 import com.swyp8team2.vote.domain.VoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -54,28 +54,39 @@ public class PostService {
                 )).toList();
     }
 
-    public PostResponse findById(Long postId) {
+    public PostResponse findById(Long userId, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
-        User user = userRepository.findById(post.getUserId())
+        User author = userRepository.findById(post.getUserId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
-        List<PostImage> images = post.getImages();
-        List<VoteResponseDto> votes = images.stream()
-                .map(image -> createVoteResponseDto(image, images))
-                .toList();
-        return PostResponse.of(post, user, votes);
+        List<PostImageResponse> votes = createPostImageResponse(userId, postId, post);
+        return PostResponse.of(post, author, votes);
     }
 
-    private VoteResponseDto createVoteResponseDto(PostImage image, List<PostImage> images) {
+    private List<PostImageResponse> createPostImageResponse(Long userId, Long postId, Post post) {
+        List<PostImage> images = post.getImages();
+        return images.stream()
+                .map(image -> createVoteResponseDto(image, userId, postId))
+                .toList();
+    }
+
+    private PostImageResponse createVoteResponseDto(PostImage image, Long userId, Long postId) {
         ImageFile imageFile = imageFileRepository.findById(image.getImageFileId())
                 .orElseThrow(() -> new InternalServerException(ErrorCode.IMAGE_FILE_NOT_FOUND));
-        return new VoteResponseDto(
+        boolean voted = Objects.nonNull(userId) && getVoted(image, userId, postId);
+        return new PostImageResponse(
                 image.getId(),
                 imageFile.getImageUrl(),
-                image.getVoteCount(),
-                ratioCalculator.calculateRatio(getTotalVoteCount(images), image.getVoteCount()),
-                false //TODO: implement
+                voted
         );
+    }
+
+    private Boolean getVoted(PostImage image, Long userId, Long postId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
+        return voteRepository.findByUserSeqAndPostId(user.getSeq(), postId)
+                .map(vote -> vote.getPostImageId().equals(image.getId()))
+                .orElse(false);
     }
 
     private int getTotalVoteCount(List<PostImage> images) {

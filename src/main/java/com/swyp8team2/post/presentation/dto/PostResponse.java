@@ -10,11 +10,11 @@ public record PostResponse(
         Long id,
         AuthorDto author,
         String description,
-        List<VoteResponseDto> votes,
+        List<PostImageResponse> votes,
         String shareUrl,
         LocalDateTime createdAt
 ) {
-    public static PostResponse of(Post post, User user, List<VoteResponseDto> votes) {
+    public static PostResponse of(Post post, User user, List<PostImageResponse> votes) {
         return new PostResponse(
                 post.getId(),
                 AuthorDto.of(user),
