@@ -23,6 +23,8 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -158,15 +160,16 @@ class PostControllerTest extends RestDocsTest {
         //given
 
         //when then
-        mockMvc.perform(RestDocumentationRequestBuilders.delete("/posts/{shareUrl}", "shareUrl")
+        mockMvc.perform(RestDocumentationRequestBuilders.delete("/posts/{postId}", 1)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                 .andExpect(status().isOk())
                 .andDo(restDocs.document(
                         requestHeaders(authorizationHeader()),
                         pathParameters(
-                                parameterWithName("shareUrl").description("게시글 공유 URL")
+                                parameterWithName("postId").description("게시글 Id")
                         )
                 ));
+        verify(postService, times(1)).delete(any(), any());
     }
 
     @Test
@@ -277,5 +280,24 @@ class PostControllerTest extends RestDocsTest {
                                         .description("게시글 생성 시간")
                         )
                 ));
+    }
+
+    @Test
+    @WithMockUserInfo
+    @DisplayName("게시글 마감")
+    void closePost() throws Exception {
+        //given
+
+        //when then
+        mockMvc.perform(RestDocumentationRequestBuilders.post("/posts/{postId}/close", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(authorizationHeader()),
+                        pathParameters(
+                                parameterWithName("postId").description("게시글 Id")
+                        )
+                ));
+        verify(postService, times(1)).close(any(), any());
     }
 }

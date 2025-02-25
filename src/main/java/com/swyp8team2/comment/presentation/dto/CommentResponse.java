@@ -11,7 +11,7 @@ public record CommentResponse(
         Long commentId,
         String content,
         AuthorDto author,
-        Long voteId,
+        Long imageId,
         LocalDateTime createdAt
 ) implements CursorDto {
 

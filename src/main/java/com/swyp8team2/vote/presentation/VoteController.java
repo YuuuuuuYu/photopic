@@ -4,14 +4,11 @@ import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.common.presentation.CustomHeader;
 import com.swyp8team2.vote.application.VoteService;
 import com.swyp8team2.vote.presentation.dto.ChangeVoteRequest;
-import com.swyp8team2.vote.presentation.dto.GuestVoteRequest;
 import com.swyp8team2.vote.presentation.dto.VoteRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +30,7 @@ public class VoteController {
             @Valid @RequestBody VoteRequest request,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
-        voteService.vote(userInfo.userId(), postId, request.voteId());
+        voteService.vote(userInfo.userId(), postId, request.imageId());
         return ResponseEntity.ok().build();
     }
 
@@ -43,6 +40,7 @@ public class VoteController {
             @RequestHeader(CustomHeader.GUEST_ID) String guestId,
             @Valid @RequestBody VoteRequest request
     ) {
+        voteService.guestVote(guestId, postId, request.imageId());
         return ResponseEntity.ok().build();
     }
 

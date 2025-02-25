@@ -119,10 +119,10 @@ class CommentControllerTest extends RestDocsTest {
                                 fieldWithPath("data[].author.profileUrl")
                                         .type(JsonFieldType.STRING)
                                         .description("작성자 프로필 이미지 url"),
-                                fieldWithPath("data[].voteId")
+                                fieldWithPath("data[].imageId")
                                         .type(JsonFieldType.NUMBER)
                                         .optional()
-                                        .description("작성자 투표 Id (투표 없을 시 null)"),
+                                        .description("작성자가 투표한 이미지 Id (투표 없을 시 null)"),
                                 fieldWithPath("data[].createdAt")
                                         .type(JsonFieldType.STRING)
                                         .description("댓글 작성일")

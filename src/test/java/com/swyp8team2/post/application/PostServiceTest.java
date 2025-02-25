@@ -7,6 +7,7 @@ import com.swyp8team2.image.domain.ImageFileRepository;
 import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.PostImage;
 import com.swyp8team2.post.domain.PostRepository;
+import com.swyp8team2.post.domain.State;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.PostImageRequestDto;
@@ -236,5 +237,80 @@ class PostServiceTest extends IntegrationTest {
                 () -> assertThat(response.get(1).voteCount()).isEqualTo(0),
                 () -> assertThat(response.get(1).voteRatio()).isEqualTo("0.0")
         );
+    }
+
+    @Test
+    @DisplayName("투표 마감")
+    void close() throws Exception {
+        //given
+        User user = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+
+        //when
+        post.close(user.getId());
+
+        //then
+        postRepository.findById(post.getId()).get();
+        assertThat(post.getState()).isEqualTo(State.CLOSED);
+    }
+
+    @Test
+    @DisplayName("투표 마감 - 게시글 작성자가 아닐 경우")
+    void close_notPostAuthor() throws Exception {
+        //given
+        User user = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+
+        //when then
+        assertThatThrownBy(() -> post.close(2L))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage(ErrorCode.NOT_POST_AUTHOR.getMessage());
+    }
+
+    @Test
+    @DisplayName("투표 마감 - 이미 마감된 게시글인 경우")
+    void close_alreadyClosed() throws Exception {
+        //given
+        User user = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        post.close(user.getId());
+
+        //when then
+        assertThatThrownBy(() -> post.close(user.getId()))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage(ErrorCode.POST_ALREADY_CLOSED.getMessage());
+    }
+
+    @Test
+    @DisplayName("투표 마감 - 존재하지 않는 게시글일 경우")
+    void close_notFoundPost() throws Exception {
+        //given
+
+        //when then
+        assertThatThrownBy(() -> postService.close(1L, 1L))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage(ErrorCode.POST_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("게시글 삭제")
+    void delete() throws Exception {
+        //given
+        User user = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+
+        //when
+        postService.delete(user.getId(), post.getId());
+
+        //then
+        assertThat(postRepository.findById(post.getId())).isEmpty();
     }
 }

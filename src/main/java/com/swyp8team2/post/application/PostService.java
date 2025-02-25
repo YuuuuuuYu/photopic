@@ -119,7 +119,7 @@ public class PostService {
         int totalVoteCount = getTotalVoteCount(post.getImages());
         return post.getImages().stream()
                 .map(image -> {
-                    String ratio = ratioCalculator.calculate(image.getVoteCount(), totalVoteCount);
+                    String ratio = ratioCalculator.calculate(totalVoteCount, image.getVoteCount());
                     return new PostImageVoteStatusResponse(image.getId(), image.getName(), image.getVoteCount(), ratio);
                 }).toList();
     }
@@ -130,5 +130,20 @@ public class PostService {
             totalVoteCount += image.getVoteCount();
         }
         return totalVoteCount;
+    }
+
+    @Transactional
+    public void delete(Long userId, Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
+        post.validateOwner(userId);
+        postRepository.delete(post);
+    }
+
+    @Transactional
+    public void close(Long userId, Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
+        post.close(userId);
     }
 }

@@ -5,9 +5,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import javax.naming.AuthenticationException;
@@ -66,6 +68,20 @@ public class ApplicationControllerAdvice {
     public ResponseEntity<ErrorResponse> handle(AccessDeniedException e) {
         log.info(e.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(ErrorCode.INVALID_TOKEN));
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<ErrorResponse> handle(MissingRequestHeaderException e) {
+        log.debug("MissingRequestHeaderException {}", e.getMessage());
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse(ErrorCode.INVALID_ARGUMENT));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handle(MethodArgumentTypeMismatchException e) {
+        log.debug("MethodArgumentTypeMismatchException {}", e.getMessage());
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse(ErrorCode.INVALID_ARGUMENT));
     }
 
     @ExceptionHandler(Exception.class)

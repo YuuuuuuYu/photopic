@@ -4,6 +4,6 @@ import jakarta.validation.constraints.NotNull;
 
 public record ChangeVoteRequest(
         @NotNull
-        Long voteId
+        Long imageId
 ) {
 }

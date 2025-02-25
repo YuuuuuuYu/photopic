@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.security.test.context.support.WithMockUser;
 
+import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
 import static org.springframework.restdocs.payload.JsonFieldType.STRING;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -24,6 +25,8 @@ class UserControllerTest extends RestDocsTest {
     void findUserInfo() throws Exception {
         //given
         UserInfoResponse response = new UserInfoResponse(1L, "nickname", "https://image.com/profile-image");
+        given(userService.findById(1L))
+                .willReturn(response);
 
         //when then
         mockMvc.perform(RestDocumentationRequestBuilders.get("/users/{userId}", "1"))

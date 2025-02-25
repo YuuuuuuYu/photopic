@@ -14,6 +14,11 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
@@ -44,11 +49,12 @@ class VoteControllerTest extends RestDocsTest {
                                 parameterWithName("postId").description("게시글 Id")
                         ),
                         requestFields(
-                                fieldWithPath("voteId")
+                                fieldWithPath("imageId")
                                         .type(JsonFieldType.NUMBER)
                                         .description("투표 후보 Id")
                         )
                 ));
+        verify(voteService, times(1)).vote(any(), any(), any());
     }
 
     @Test
@@ -70,11 +76,12 @@ class VoteControllerTest extends RestDocsTest {
                                 parameterWithName("postId").description("게시글 Id")
                         ),
                         requestFields(
-                                fieldWithPath("voteId")
+                                fieldWithPath("imageId")
                                         .type(JsonFieldType.NUMBER)
                                         .description("투표 후보 Id")
                         )
                 ));
+        verify(voteService, times(1)).guestVote(any(), any(), any());
     }
 
     @Test
@@ -96,9 +103,9 @@ class VoteControllerTest extends RestDocsTest {
                                 parameterWithName("postId").description("변경할 게시글 Id")
                         ),
                         requestFields(
-                                fieldWithPath("voteId")
+                                fieldWithPath("imageId")
                                         .type(JsonFieldType.NUMBER)
-                                        .description("변경할 투표 후보 Id")
+                                        .description("변경할 투표 이미지 Id")
                         )
                 ));
     }
@@ -122,9 +129,9 @@ class VoteControllerTest extends RestDocsTest {
                                 parameterWithName("postId").description("변경활 게시글 Id")
                         ),
                         requestFields(
-                                fieldWithPath("voteId")
+                                fieldWithPath("imageId")
                                         .type(JsonFieldType.NUMBER)
-                                        .description("변경할 투표 후보 Id")
+                                        .description("변경할 투표 이미지 Id")
                         )
                 ));
     }

@@ -94,4 +94,24 @@ public class Post extends BaseEntity {
                 .orElseThrow(() -> new InternalServerException(ErrorCode.POST_IMAGE_NOT_FOUND));
         image.decreaseVoteCount();
     }
+
+    public void close(Long userId) {
+        validateOwner(userId);
+        if (state == State.CLOSED) {
+            throw new BadRequestException(ErrorCode.POST_ALREADY_CLOSED);
+        }
+        this.state = State.CLOSED;
+    }
+
+    public void validateOwner(Long userId) {
+        if (!this.userId.equals(userId)) {
+            throw new BadRequestException(ErrorCode.NOT_POST_AUTHOR);
+        }
+    }
+
+    public void validateProgress() {
+        if (!this.state.equals(State.PROGRESS)) {
+            throw new BadRequestException(ErrorCode.POST_ALREADY_CLOSED);
+        }
+    }
 }

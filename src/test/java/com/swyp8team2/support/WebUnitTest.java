@@ -6,6 +6,7 @@ import com.swyp8team2.auth.presentation.RefreshTokenCookieGenerator;
 import com.swyp8team2.comment.application.CommentService;
 import com.swyp8team2.image.application.ImageService;
 import com.swyp8team2.post.application.PostService;
+import com.swyp8team2.user.application.UserService;
 import com.swyp8team2.vote.application.VoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -40,4 +41,7 @@ public abstract class WebUnitTest {
 
     @MockitoBean
     protected CommentService commentService;
+
+    @MockitoBean
+    protected UserService userService;
 }

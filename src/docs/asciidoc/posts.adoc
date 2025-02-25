@@ -27,7 +27,14 @@ operation::post-controller-test/find-my-post[snippets='http-request,curl-request
 
 operation::post-controller-test/find-voted-post[snippets='http-request,curl-request,query-parameters,request-headers,http-response,response-fields']
 
+[[게시글-투표-마감]]
+=== `POST` 게시글 투표 마감
+
+operation::post-controller-test/close-post[snippets='http-request,curl-request,path-parameters,request-headers,http-response']
+
+[[게시글-수정]]
+
 [[게시글-삭제]]
-=== 게시글 삭제 (미구현)
+=== `DELETE` 게시글 삭제
 
 operation::post-controller-test/delete-post[snippets='http-request,curl-request,path-parameters,request-headers,http-response']
