@@ -227,9 +227,11 @@ class PostServiceTest extends IntegrationTest {
         //then
         assertAll(
                 () -> assertThat(response).hasSize(2),
+                () -> assertThat(response.get(0).id()).isEqualTo(post.getImages().get(0).getId()),
                 () -> assertThat(response.get(0).imageName()).isEqualTo(post.getImages().get(0).getName()),
                 () -> assertThat(response.get(0).voteCount()).isEqualTo(1),
                 () -> assertThat(response.get(0).voteRatio()).isEqualTo("100.0"),
+                () -> assertThat(response.get(1).id()).isEqualTo(post.getImages().get(1).getId()),
                 () -> assertThat(response.get(1).imageName()).isEqualTo(post.getImages().get(1).getName()),
                 () -> assertThat(response.get(1).voteCount()).isEqualTo(0),
                 () -> assertThat(response.get(1).voteRatio()).isEqualTo("0.0")
