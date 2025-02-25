@@ -7,7 +7,7 @@
 operation::vote-controller-test/vote[snippets='http-request,curl-request,request-headers,request-fields,http-response']
 
 [[게스트-투표]]
-=== `POST` 게스트 투표 (미구현)
+=== `POST` 게스트 투표
 
 operation::vote-controller-test/guest-vote[snippets='http-request,curl-request,request-headers,request-fields,http-response']
 
