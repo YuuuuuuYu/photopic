@@ -11,6 +11,7 @@ import com.swyp8team2.post.domain.PostImage;
 import com.swyp8team2.post.domain.PostRepository;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.PostResponse;
+import com.swyp8team2.post.presentation.dto.PostImageVoteStatusResponse;
 import com.swyp8team2.post.presentation.dto.SimplePostResponse;
 import com.swyp8team2.post.presentation.dto.PostImageResponse;
 import com.swyp8team2.user.domain.User;
@@ -47,7 +48,7 @@ public class PostService {
 
     private List<PostImage> createPostImages(CreatePostRequest request) {
         PostImageNameGenerator nameGenerator = new PostImageNameGenerator();
-        return request.votes().stream()
+        return request.images().stream()
                 .map(voteRequestDto -> PostImage.create(
                         nameGenerator.generate(),
                         voteRequestDto.imageFileId()
@@ -76,6 +77,7 @@ public class PostService {
         boolean voted = Objects.nonNull(userId) && getVoted(image, userId, postId);
         return new PostImageResponse(
                 image.getId(),
+                image.getName(),
                 imageFile.getImageUrl(),
                 voted
         );
@@ -87,14 +89,6 @@ public class PostService {
         return voteRepository.findByUserSeqAndPostId(user.getSeq(), postId)
                 .map(vote -> vote.getPostImageId().equals(image.getId()))
                 .orElse(false);
-    }
-
-    private int getTotalVoteCount(List<PostImage> images) {
-        int totalVoteCount = 0;
-        for (PostImage image : images) {
-            totalVoteCount += image.getVoteCount();
-        }
-        return totalVoteCount;
     }
 
     public CursorBasePaginatedResponse<SimplePostResponse> findMyPosts(Long userId, Long cursor, int size) {
@@ -117,5 +111,24 @@ public class PostService {
                 .toList();
         Slice<Post> postSlice = postRepository.findByIdIn(postIds, cursor, PageRequest.ofSize(size));
         return CursorBasePaginatedResponse.of(postSlice.map(this::createSimplePostResponse));
+    }
+
+    public List<PostImageVoteStatusResponse> findPostStatus(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
+        int totalVoteCount = getTotalVoteCount(post.getImages());
+        return post.getImages().stream()
+                .map(image -> {
+                    String ratio = ratioCalculator.calculate(image.getVoteCount(), totalVoteCount);
+                    return new PostImageVoteStatusResponse(image.getName(), image.getVoteCount(), ratio);
+                }).toList();
+    }
+
+    private int getTotalVoteCount(List<PostImage> images) {
+        int totalVoteCount = 0;
+        for (PostImage image : images) {
+            totalVoteCount += image.getVoteCount();
+        }
+        return totalVoteCount;
     }
 }

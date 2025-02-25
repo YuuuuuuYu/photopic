@@ -8,7 +8,7 @@ import java.math.RoundingMode;
 @Component
 public class RatioCalculator {
 
-    public String calculateRatio(int totalVoteCount, int voteCount) {
+    public String calculate(int totalVoteCount, int voteCount) {
         if (totalVoteCount == 0) {
             return "0.0";
         }
