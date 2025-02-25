@@ -132,12 +132,10 @@ public class PostService {
         return totalVoteCount;
     }
 
-    public void delete(Long userId, String postId) {
-        Post post = postRepository.findById(Long.valueOf(postId))
+    @Transactional
+    public void delete(Long userId, Long postId) {
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
-        if (!post.getUserId().equals(userId)) {
-            throw new BadRequestException(ErrorCode.NOT_POST_AUTHOR);
-        }
         post.validateOwner(userId);
         postRepository.delete(post);
     }
