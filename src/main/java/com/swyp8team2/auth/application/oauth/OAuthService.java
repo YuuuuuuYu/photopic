@@ -24,6 +24,7 @@ public class OAuthService {
     public OAuthUserInfo getUserInfo(String code, String redirectUri) {
         try {
             KakaoAuthResponse kakaoAuthResponse = kakaoOAuthClient.fetchToken(tokenRequestParams(code, redirectUri));
+            log.info("getUserInfo kakaoAuthResponse: {}", kakaoAuthResponse);
             return kakaoOAuthClient
                     .fetchUserInfo(BEARER + kakaoAuthResponse.accessToken())
                     .toOAuthUserInfo();

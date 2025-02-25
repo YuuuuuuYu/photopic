@@ -63,6 +63,9 @@ public class R2Storage {
                 String imageUrl = imageDomainUrl + realFileName;
                 String resizeImageUrl = resizeImage(tempFile, realFileName, resizeHeight);
 
+                log.debug("uploadImageFile originFileName: {}, imageUrl: {}, resizeImageUrl: {}",
+                        originFileName, imageUrl, resizeImageUrl);
+
                 imageFiles.add(new ImageFileDto(originFileName, imageUrl, resizeImageUrl));
                 tempFiles.add(originFile);
             }
@@ -97,7 +100,6 @@ public class R2Storage {
             log.error("Failed to create temp file", e);
             throw new ServiceUnavailableException(ErrorCode.SERVICE_UNAVAILABLE);
         }
-
     }
 
     private BufferedImage highQualityResize(BufferedImage originalImage, int targetHeight) {
