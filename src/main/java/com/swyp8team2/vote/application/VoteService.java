@@ -7,6 +7,7 @@ import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import com.swyp8team2.vote.domain.Vote;
 import com.swyp8team2.vote.domain.VoteRepository;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,12 +27,12 @@ public class VoteService {
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         voteRepository.findByUserSeqAndPostId(user.getSeq(), postId)
                         .ifPresent(vote -> deleteExistingVote(postId, vote));
-        Vote vote = createVote(postId, imageId, user);
+        Vote vote = createVote(postId, imageId, user.getSeq());
         return vote.getId();
     }
 
-    private Vote createVote(Long postId, Long imageId, User user) {
-        Vote vote = voteRepository.save(Vote.of(postId, imageId, user.getSeq()));
+    private Vote createVote(Long postId, Long imageId, String userSeq) {
+        Vote vote = voteRepository.save(Vote.of(postId, imageId, userSeq));
         postRepository.findById(postId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND))
                 .vote(imageId);
@@ -43,5 +44,12 @@ public class VoteService {
         postRepository.findById(postId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND))
                 .cancelVote(vote.getPostImageId());
+    }
+
+    public Long guestVote(String guestId, Long postId, Long imageId) {
+        voteRepository.findByUserSeqAndPostId(guestId, postId)
+                .ifPresent(vote -> deleteExistingVote(postId, vote));
+        Vote vote = createVote(postId, imageId, guestId);
+        return vote.getId();
     }
 }
