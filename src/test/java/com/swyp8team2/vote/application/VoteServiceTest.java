@@ -83,4 +83,54 @@ class VoteServiceTest extends IntegrationTest {
                 () -> assertThat(findPost.getImages().get(1).getVoteCount()).isEqualTo(1)
         );
     }
+
+    @Test
+    @DisplayName("게스트 투표하기")
+    void guestVote() {
+        // given
+        String guestId = "guestId";
+        User user = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+
+        // when
+        Long voteId = voteService.guestVote(guestId, post.getId(), post.getImages().get(0).getId());
+
+        // then
+        Vote vote = voteRepository.findById(voteId).get();
+        Post findPost = postRepository.findById(post.getId()).get();
+        assertAll(
+                () -> assertThat(vote.getUserSeq()).isEqualTo(guestId),
+                () -> assertThat(vote.getPostId()).isEqualTo(post.getId()),
+                () -> assertThat(vote.getPostImageId()).isEqualTo(post.getImages().get(0).getId()),
+                () -> assertThat(findPost.getImages().get(0).getVoteCount()).isEqualTo(1)
+        );
+    }
+
+    @Test
+    @DisplayName("게스트 투표하기 - 다른 이미지로 투표 변경한 경우")
+    void guestVote_change() {
+        // given
+        String guestId = "guestId";
+        User user = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        voteService.guestVote(guestId, post.getId(), post.getImages().get(0).getId());
+
+        // when
+        Long voteId = voteService.guestVote(guestId, post.getId(), post.getImages().get(1).getId());
+
+        // then
+        Vote vote = voteRepository.findById(voteId).get();
+        Post findPost = postRepository.findById(post.getId()).get();
+        assertAll(
+                () -> assertThat(vote.getUserSeq()).isEqualTo(guestId),
+                () -> assertThat(vote.getPostId()).isEqualTo(post.getId()),
+                () -> assertThat(vote.getPostImageId()).isEqualTo(post.getImages().get(1).getId()),
+                () -> assertThat(findPost.getImages().get(0).getVoteCount()).isEqualTo(0),
+                () -> assertThat(findPost.getImages().get(1).getVoteCount()).isEqualTo(1)
+        );
+    }
 }

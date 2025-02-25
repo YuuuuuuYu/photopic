@@ -14,6 +14,11 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
@@ -49,6 +54,7 @@ class VoteControllerTest extends RestDocsTest {
                                         .description("투표 후보 Id")
                         )
                 ));
+        verify(voteService, times(1)).vote(any(), any(), any());
     }
 
     @Test
@@ -75,6 +81,7 @@ class VoteControllerTest extends RestDocsTest {
                                         .description("투표 후보 Id")
                         )
                 ));
+        verify(voteService, times(1)).guestVote(any(), any(), any());
     }
 
     @Test
