@@ -44,7 +44,7 @@ class VoteControllerTest extends RestDocsTest {
                                 parameterWithName("postId").description("게시글 Id")
                         ),
                         requestFields(
-                                fieldWithPath("voteId")
+                                fieldWithPath("imageId")
                                         .type(JsonFieldType.NUMBER)
                                         .description("투표 후보 Id")
                         )
@@ -70,7 +70,7 @@ class VoteControllerTest extends RestDocsTest {
                                 parameterWithName("postId").description("게시글 Id")
                         ),
                         requestFields(
-                                fieldWithPath("voteId")
+                                fieldWithPath("imageId")
                                         .type(JsonFieldType.NUMBER)
                                         .description("투표 후보 Id")
                         )
@@ -96,9 +96,9 @@ class VoteControllerTest extends RestDocsTest {
                                 parameterWithName("postId").description("변경할 게시글 Id")
                         ),
                         requestFields(
-                                fieldWithPath("voteId")
+                                fieldWithPath("imageId")
                                         .type(JsonFieldType.NUMBER)
-                                        .description("변경할 투표 후보 Id")
+                                        .description("변경할 투표 이미지 Id")
                         )
                 ));
     }
@@ -122,9 +122,9 @@ class VoteControllerTest extends RestDocsTest {
                                 parameterWithName("postId").description("변경활 게시글 Id")
                         ),
                         requestFields(
-                                fieldWithPath("voteId")
+                                fieldWithPath("imageId")
                                         .type(JsonFieldType.NUMBER)
-                                        .description("변경할 투표 후보 Id")
+                                        .description("변경할 투표 이미지 Id")
                         )
                 ));
     }

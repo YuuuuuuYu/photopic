@@ -17,7 +17,7 @@ class RatioCalculatorTest {
     }
 
     @ParameterizedTest(name = "{index}: totalVoteCount={0}, voteCount={1} => result={2}")
-    @CsvSource({"3, 2, 66.7", "3, 1, 33.3", "4, 2, 50.0", "4, 3, 75.0", "0, 0, 0.0", "1, 0, 0.0", "1, 1, 100.0"})
+    @CsvSource({"3, 2, 66.7", "3, 1, 33.3", "4, 2, 50.0", "4, 3, 75.0", "0, 0, 0.0", "1, 0, 0.0", "1, 1, 100.0", "10, 7, 70.0", "10, 3, 30.0"})
     @DisplayName("비율 계산")
     void calculate(int totalVoteCount, int voteCount, String result) throws Exception {
         //given
