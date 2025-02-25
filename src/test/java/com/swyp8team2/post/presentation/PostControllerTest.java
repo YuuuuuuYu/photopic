@@ -160,15 +160,16 @@ class PostControllerTest extends RestDocsTest {
         //given
 
         //when then
-        mockMvc.perform(RestDocumentationRequestBuilders.delete("/posts/{shareUrl}", "shareUrl")
+        mockMvc.perform(RestDocumentationRequestBuilders.delete("/posts/{postId}", 1)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                 .andExpect(status().isOk())
                 .andDo(restDocs.document(
                         requestHeaders(authorizationHeader()),
                         pathParameters(
-                                parameterWithName("shareUrl").description("게시글 공유 URL")
+                                parameterWithName("postId").description("게시글 Id")
                         )
                 ));
+        verify(postService, times(1)).delete(any(), any());
     }
 
     @Test

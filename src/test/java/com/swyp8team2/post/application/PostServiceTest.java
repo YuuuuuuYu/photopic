@@ -297,4 +297,20 @@ class PostServiceTest extends IntegrationTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.POST_NOT_FOUND.getMessage());
     }
+
+    @Test
+    @DisplayName("게시글 삭제")
+    void delete() throws Exception {
+        //given
+        User user = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+
+        //when
+        postService.delete(user.getId(), post.getId());
+
+        //then
+        assertThat(postRepository.findById(post.getId())).isEmpty();
+    }
 }
