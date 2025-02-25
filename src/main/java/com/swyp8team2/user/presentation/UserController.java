@@ -1,5 +1,6 @@
 package com.swyp8team2.user.presentation;
 
+import com.swyp8team2.user.application.UserService;
 import com.swyp8team2.user.presentation.dto.UserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/users")
 public class UserController {
 
+    private final UserService userService;
+
     @GetMapping("/{userId}")
     public ResponseEntity<UserInfoResponse> findUserInfo(@PathVariable("userId") Long userId) {
-        return ResponseEntity.ok(new UserInfoResponse(1L, "nickname", "https://image.com/profile-image"));
+        return ResponseEntity.ok(userService.findById(userId));
     }
 }
