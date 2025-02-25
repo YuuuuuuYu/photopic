@@ -30,8 +30,6 @@ public class User {
     private String seq;
 
     public User(Long id, String nickname, String profileUrl, String seq) {
-        validateNull(nickname, profileUrl);
-        validateEmptyString(nickname, profileUrl);
         this.id = id;
         this.nickname = nickname;
         this.profileUrl = profileUrl;
