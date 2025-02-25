@@ -18,6 +18,8 @@ public enum ErrorCode {
     POST_NOT_FOUND("존재하지 않는 게시글"),
     DESCRIPTION_LENGTH_EXCEEDED("게시글 설명 길이 초과"),
     INVALID_POST_IMAGE_COUNT("게시글 이미지 개수 오류"),
+    NOT_POST_AUTHOR("게시글 작성자가 아님"),
+    POST_ALREADY_CLOSED("이미 마감된 게시글"),
 
     //401
     EXPIRED_TOKEN("토큰 만료"),
