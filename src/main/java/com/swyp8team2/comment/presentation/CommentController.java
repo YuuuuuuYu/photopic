@@ -7,6 +7,7 @@ import com.swyp8team2.comment.presentation.dto.CommentResponse;
 import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,8 +43,8 @@ public class CommentController {
     @GetMapping("")
     public ResponseEntity<CursorBasePaginatedResponse<CommentResponse>> selectComments(
             @PathVariable("postId") Long postId,
-            @RequestParam(value = "cursor", required = false) Long cursor,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+            @RequestParam(value = "cursor", required = false) @Min(0) Long cursor,
+            @RequestParam(value = "size", required = false, defaultValue = "10") @Min(1) int size,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
         CursorBasePaginatedResponse<CommentResponse> response = commentService.findComments(postId, cursor, size);

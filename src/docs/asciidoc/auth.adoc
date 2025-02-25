@@ -2,13 +2,11 @@
 == 인증 API
 
 [[카카오-로그인]]
-=== 카카오 로그인
+=== `POST` 카카오 로그인
 
 operation::auth-controller-test/kakao-o-auth-sign-in[snippets='http-request,curl-request,request-fields,http-response,response-cookies,response-fields']
 
-[[네이버-로그인]]
-
 [[토큰-재발급]]
-=== 토큰 재발급
+=== `POST` 토큰 재발급
 
 operation::auth-controller-test/reissue[snippets='http-request,curl-request,request-cookies,http-response,response-cookies,response-fields']

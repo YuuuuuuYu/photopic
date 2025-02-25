@@ -7,6 +7,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import javax.naming.AuthenticationException;
@@ -47,6 +48,12 @@ public class ApplicationControllerAdvice {
     public ResponseEntity<ErrorResponse> handle(NoResourceFoundException e) {
         log.debug("NoResourceFoundException {}", e.getMessage());
         return ResponseEntity.notFound().build();
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ErrorResponse> handle(HandlerMethodValidationException e) {
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse(ErrorCode.INVALID_ARGUMENT));
     }
 
     @ExceptionHandler(AuthenticationException.class)
