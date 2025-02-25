@@ -4,15 +4,13 @@ import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
-import com.swyp8team2.image.presentation.dto.ImageFileDto;
 import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.PostImage;
 import com.swyp8team2.post.domain.PostRepository;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.PostResponse;
-import com.swyp8team2.post.presentation.dto.SimplePostResponse;
 import com.swyp8team2.post.presentation.dto.VoteRequestDto;
-import com.swyp8team2.post.presentation.dto.VoteResponseDto;
+import com.swyp8team2.post.presentation.dto.PostImageResponse;
 import com.swyp8team2.support.IntegrationTest;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
@@ -119,10 +117,10 @@ class PostServiceTest extends IntegrationTest {
         Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
 
         //when
-        PostResponse response = postService.findById(post.getId());
+        PostResponse response = postService.findById(user.getId(), post.getId());
 
         //then
-        List<VoteResponseDto> votes = response.votes();
+        List<PostImageResponse> votes = response.votes();
         assertAll(
                 () -> assertThat(response.description()).isEqualTo(post.getDescription()),
                 () -> assertThat(response.id()).isEqualTo(post.getId()),
@@ -131,12 +129,8 @@ class PostServiceTest extends IntegrationTest {
                 () -> assertThat(response.shareUrl()).isEqualTo(post.getShareUrl()),
                 () -> assertThat(votes).hasSize(2),
                 () -> assertThat(votes.get(0).imageUrl()).isEqualTo(imageFile1.getImageUrl()),
-                () -> assertThat(votes.get(0).voteCount()).isEqualTo(0),
-                () -> assertThat(votes.get(0).voteRatio()).isEqualTo("0.0"),
                 () -> assertThat(votes.get(0).voted()).isFalse(),
                 () -> assertThat(votes.get(1).imageUrl()).isEqualTo(imageFile2.getImageUrl()),
-                () -> assertThat(votes.get(1).voteCount()).isEqualTo(0),
-                () -> assertThat(votes.get(1).voteRatio()).isEqualTo("0.0"),
                 () -> assertThat(votes.get(1).voted()).isFalse()
         );
     }

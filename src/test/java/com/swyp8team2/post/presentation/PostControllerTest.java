@@ -6,7 +6,7 @@ import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.SimplePostResponse;
 import com.swyp8team2.post.presentation.dto.VoteRequestDto;
-import com.swyp8team2.post.presentation.dto.VoteResponseDto;
+import com.swyp8team2.post.presentation.dto.PostImageResponse;
 import com.swyp8team2.support.RestDocsTest;
 import com.swyp8team2.support.WithMockUserInfo;
 import org.junit.jupiter.api.DisplayName;
@@ -82,8 +82,8 @@ class PostControllerTest extends RestDocsTest {
                 ),
                 "description",
                 List.of(
-                        new VoteResponseDto(1L, "https://image.photopic.site/1", 3, "60.0", true),
-                        new VoteResponseDto(2L, "https://image.photopic.site/2", 2, "40.0", false)
+                        new PostImageResponse(1L, "https://image.photopic.site/1", true),
+                        new PostImageResponse(2L, "https://image.photopic.site/2", false)
                 ),
                 "https://photopic.site/shareurl",
                 LocalDateTime.of(2025, 2, 13, 12, 0)
