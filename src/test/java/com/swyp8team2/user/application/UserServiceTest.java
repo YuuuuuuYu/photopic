@@ -28,9 +28,11 @@ class UserServiceTest extends IntegrationTest {
     void createUser() {
         // given
         User user = User.create(null, "https://image.com/1");
-        // 메인 코드에서는 2개만 수정 후 테스트 진행
-        nicknameAdjectiveRepository.save(new NicknameAdjective("호기심 많은 뽀또"));
-        nicknameAdjectiveRepository.save(new NicknameAdjective("배려 깊은 뽀또"));
+
+        for (int i = 0; i < 250; i++) {
+            nicknameAdjectiveRepository.save(new NicknameAdjective("호기심 많은 뽀또"));
+            nicknameAdjectiveRepository.save(new NicknameAdjective("배려 깊은 뽀또"));
+        }
 
         // when
         Long userId = userService.createUser(user.getNickname(), user.getProfileUrl());
