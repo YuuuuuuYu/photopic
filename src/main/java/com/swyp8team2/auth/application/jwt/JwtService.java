@@ -6,8 +6,10 @@ import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class JwtService {
@@ -22,6 +24,9 @@ public class JwtService {
                 .orElseGet(() -> new RefreshToken(userId, tokenPair.refreshToken()));
         refreshToken.setRefreshToken(tokenPair.refreshToken());
         refreshTokenRepository.save(refreshToken);
+
+        log.debug("createToken userId: {} accessToken: {} refreshToken: {}",
+                userId, tokenPair.accessToken(), tokenPair.refreshToken());
         return tokenPair;
     }
 
@@ -33,6 +38,9 @@ public class JwtService {
 
         TokenPair tokenPair = jwtProvider.createToken(new JwtClaim(claim.idAsLong()));
         findRefreshToken.rotate(refreshToken, tokenPair.refreshToken());
+
+        log.debug("reissue userId: {} accessToken: {} refreshToken: {}",
+                claim.id(), tokenPair.accessToken(), tokenPair.refreshToken());
         return tokenPair;
     }
 }
