@@ -42,16 +42,16 @@ public class DataInitializer {
         System.out.println("accessToken = " + tokenPair.accessToken());
         System.out.println("refreshToken = " + tokenPair.refreshToken());
         List<User> users = new ArrayList<>();
+        List<Post> posts = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             User user = userRepository.save(User.create(adjectives.get(i).getAdjective(), "defailt_profile_image"));
             users.add(user);
             for (int j = 0; j < 30; j += 2) {
                 ImageFile imageFile1 = imageFileRepository.save(ImageFile.create(new ImageFileDto("202502240006030.png", "https://image.photopic.site/images-dev/202502240006030.png", "https://image.photopic.site/images-dev/resized_202502240006030.png")));
                 ImageFile imageFile2 = imageFileRepository.save(ImageFile.create(new ImageFileDto("202502240006030.png", "https://image.photopic.site/images-dev/202502240006030.png", "https://image.photopic.site/images-dev/resized_202502240006030.png")));
-                postRepository.save(Post.create(user.getId(), "description" + j, List.of(PostImage.create("뽀또A", imageFile1.getId()), PostImage.create("뽀또B", imageFile2.getId())), "https://photopic.site/shareurl"));
+                posts.add(postRepository.save(Post.create(user.getId(), "description" + j, List.of(PostImage.create("뽀또A", imageFile1.getId()), PostImage.create("뽀또B", imageFile2.getId())), "https://photopic.site/shareurl")));
             }
         }
-        List<Post> posts = postRepository.findAll();
         for (User user : users) {
             for (Post post : posts) {
                 Random random = new Random();
