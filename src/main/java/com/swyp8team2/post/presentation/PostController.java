@@ -73,8 +73,8 @@ public class PostController {
                 ),
                 "description",
                 List.of(
-                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/1", true),
-                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/2", false)
+                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/image/1", "https://image.photopic.site/image/resize/1",  true),
+                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/image/2", "https://image.photopic.site/image/resize/1", false)
                 ),
                 "https://photopic.site/shareurl",
                 LocalDateTime.of(2025, 2, 13, 12, 0)

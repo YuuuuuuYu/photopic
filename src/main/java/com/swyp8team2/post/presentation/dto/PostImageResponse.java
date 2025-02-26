@@ -4,6 +4,7 @@ public record PostImageResponse(
         Long id,
         String imageName,
         String imageUrl,
+        String thumbnailUrl,
         boolean voted
 ) {
 }
