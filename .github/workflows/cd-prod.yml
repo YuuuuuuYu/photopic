@@ -1,4 +1,4 @@
-name: cd dev
+name: cd prod
 
 on:
   pull_request:
