@@ -79,6 +79,7 @@ public class PostService {
                 image.getId(),
                 image.getName(),
                 imageFile.getImageUrl(),
+                imageFile.getThumbnailUrl(),
                 voted
         );
     }
