@@ -37,14 +37,15 @@ public class DataInitializer {
     @Transactional
     public void init() {
         List<NicknameAdjective> adjectives = nicknameAdjectiveRepository.findAll();
-        User testUser = userRepository.save(User.create("nickname", "defailt_profile_image"));
+        User testUser = userRepository.save(User.create("nickname", "https://t1.kakaocdn.net/account_images/default_profile.jpeg"));
         TokenPair tokenPair = jwtService.createToken(testUser.getId());
         System.out.println("accessToken = " + tokenPair.accessToken());
         System.out.println("refreshToken = " + tokenPair.refreshToken());
         List<User> users = new ArrayList<>();
         List<Post> posts = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            User user = userRepository.save(User.create(adjectives.get(i).getAdjective(), "defailt_profile_image"));
+            String userName = adjectives.size() < 10 ? "user" + i : adjectives.get(i).getAdjective();
+            User user = userRepository.save(User.create(userName, "https://t1.kakaocdn.net/account_images/default_profile.jpeg"));
             users.add(user);
             for (int j = 0; j < 30; j += 2) {
                 ImageFile imageFile1 = imageFileRepository.save(ImageFile.create(new ImageFileDto("202502240006030.png", "https://image.photopic.site/images-dev/202502240006030.png", "https://image.photopic.site/images-dev/resized_202502240006030.png")));

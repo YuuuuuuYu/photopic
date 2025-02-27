@@ -86,10 +86,11 @@ class PostControllerTest extends RestDocsTest {
                 ),
                 "description",
                 List.of(
-                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/1", true),
-                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/2", false)
+                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/image/1", "https://image.photopic.site/image/resize/1", true),
+                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/image/2", "https://image.photopic.site/image/resize/2", false)
                 ),
                 "https://photopic.site/shareurl",
+                 true,
                 LocalDateTime.of(2025, 2, 13, 12, 0)
         );
         given(postService.findById(any(), any()))
@@ -114,9 +115,11 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("images[].id").type(JsonFieldType.NUMBER).description("투표 선택지 Id"),
                                 fieldWithPath("images[].imageName").type(JsonFieldType.STRING).description("사진 이름"),
                                 fieldWithPath("images[].imageUrl").type(JsonFieldType.STRING).description("사진 이미지"),
+                                fieldWithPath("images[].thumbnailUrl").type(JsonFieldType.STRING).description("확대 사진 이미지"),
                                 fieldWithPath("images[].voted").type(JsonFieldType.BOOLEAN).description("투표 여부"),
                                 fieldWithPath("shareUrl").type(JsonFieldType.STRING).description("게시글 공유 URL"),
-                                fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시글 생성 시간")
+                                fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시글 생성 시간"),
+                                fieldWithPath("isAuthor").type(JsonFieldType.BOOLEAN).description("게시글 작성자 여부")
                         )
                 ));
     }
@@ -193,7 +196,7 @@ class PostControllerTest extends RestDocsTest {
                 .willReturn(response);
 
         //when then
-        mockMvc.perform(get("/posts/me")
+        mockMvc.perform(get("/posts/user")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(response)))
@@ -248,7 +251,7 @@ class PostControllerTest extends RestDocsTest {
                 .willReturn(response);
 
         //when then
-        mockMvc.perform(get("/posts/voted")
+        mockMvc.perform(get("/posts/user/voted")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(response)))

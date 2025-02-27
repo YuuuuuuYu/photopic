@@ -61,7 +61,8 @@ public class PostService {
         User author = userRepository.findById(post.getUserId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         List<PostImageResponse> votes = createPostImageResponse(userId, postId, post);
-        return PostResponse.of(post, author, votes);
+        boolean isAuthor = post.getUserId().equals(userId);
+        return PostResponse.of(post, author, votes, isAuthor);
     }
 
     private List<PostImageResponse> createPostImageResponse(Long userId, Long postId, Post post) {
@@ -79,6 +80,7 @@ public class PostService {
                 image.getId(),
                 image.getName(),
                 imageFile.getImageUrl(),
+                imageFile.getThumbnailUrl(),
                 voted
         );
     }
