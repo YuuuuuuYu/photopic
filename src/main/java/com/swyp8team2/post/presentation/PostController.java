@@ -77,6 +77,7 @@ public class PostController {
                         new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/image/2", "https://image.photopic.site/image/resize/1", false)
                 ),
                 "https://photopic.site/shareurl",
+                true,
                 LocalDateTime.of(2025, 2, 13, 12, 0)
         ));
     }
