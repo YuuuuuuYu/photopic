@@ -59,7 +59,7 @@ class VoteServiceTest extends IntegrationTest {
         Vote vote = voteRepository.findById(voteId).get();
         Post findPost = postRepository.findById(post.getId()).get();
         assertAll(
-                () -> assertThat(vote.getUserSeq()).isEqualTo(user.getSeq()),
+                () -> assertThat(vote.getUserId()).isEqualTo(user.getId()),
                 () -> assertThat(vote.getPostId()).isEqualTo(post.getId()),
                 () -> assertThat(vote.getPostImageId()).isEqualTo(post.getImages().get(0).getId()),
                 () -> assertThat(findPost.getImages().get(0).getVoteCount()).isEqualTo(1)
@@ -83,7 +83,7 @@ class VoteServiceTest extends IntegrationTest {
         Vote vote = voteRepository.findById(voteId).get();
         Post findPost = postRepository.findById(post.getId()).get();
         assertAll(
-                () -> assertThat(vote.getUserSeq()).isEqualTo(user.getSeq()),
+                () -> assertThat(vote.getUserId()).isEqualTo(user.getId()),
                 () -> assertThat(vote.getPostId()).isEqualTo(post.getId()),
                 () -> assertThat(vote.getPostImageId()).isEqualTo(post.getImages().get(1).getId()),
                 () -> assertThat(findPost.getImages().get(0).getVoteCount()).isEqualTo(0),
@@ -120,8 +120,8 @@ class VoteServiceTest extends IntegrationTest {
     @DisplayName("게스트 투표하기")
     void guestVote() {
         // given
-        String guestId = "guestId";
         User user = userRepository.save(createUser(1));
+        Long guestId = user.getId() + 1L;
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
         Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
@@ -133,7 +133,7 @@ class VoteServiceTest extends IntegrationTest {
         Vote vote = voteRepository.findById(voteId).get();
         Post findPost = postRepository.findById(post.getId()).get();
         assertAll(
-                () -> assertThat(vote.getUserSeq()).isEqualTo(guestId),
+                () -> assertThat(vote.getUserId()).isEqualTo(guestId),
                 () -> assertThat(vote.getPostId()).isEqualTo(post.getId()),
                 () -> assertThat(vote.getPostImageId()).isEqualTo(post.getImages().get(0).getId()),
                 () -> assertThat(findPost.getImages().get(0).getVoteCount()).isEqualTo(1)
@@ -144,8 +144,8 @@ class VoteServiceTest extends IntegrationTest {
     @DisplayName("게스트 투표하기 - 다른 이미지로 투표 변경한 경우")
     void guestVote_change() {
         // given
-        String guestId = "guestId";
         User user = userRepository.save(createUser(1));
+        Long guestId = user.getId() + 1L;
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
         Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
@@ -158,7 +158,7 @@ class VoteServiceTest extends IntegrationTest {
         Vote vote = voteRepository.findById(voteId).get();
         Post findPost = postRepository.findById(post.getId()).get();
         assertAll(
-                () -> assertThat(vote.getUserSeq()).isEqualTo(guestId),
+                () -> assertThat(vote.getUserId()).isEqualTo(guestId),
                 () -> assertThat(vote.getPostId()).isEqualTo(post.getId()),
                 () -> assertThat(vote.getPostImageId()).isEqualTo(post.getImages().get(1).getId()),
                 () -> assertThat(findPost.getImages().get(0).getVoteCount()).isEqualTo(0),
@@ -171,6 +171,7 @@ class VoteServiceTest extends IntegrationTest {
     void guestVote_alreadyClosed() {
         // given
         User user = userRepository.save(createUser(1));
+        Long guestId = user.getId() + 1L;
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
         Post post = postRepository.save(new Post(
@@ -186,7 +187,7 @@ class VoteServiceTest extends IntegrationTest {
         ));
 
         // when
-        assertThatThrownBy(() -> voteService.guestVote("guestId", post.getId(), post.getImages().get(0).getId()))
+        assertThatThrownBy(() -> voteService.guestVote(guestId, post.getId(), post.getImages().get(0).getId()))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.POST_ALREADY_CLOSED.getMessage());
     }

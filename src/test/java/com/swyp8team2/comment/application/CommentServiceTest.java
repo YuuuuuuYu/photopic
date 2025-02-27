@@ -8,6 +8,7 @@ import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
+import com.swyp8team2.user.domain.Role;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -48,7 +49,7 @@ class CommentServiceTest {
         // given
         Long postId = 1L;
         CreateCommentRequest request = new CreateCommentRequest("테스트 댓글");
-        UserInfo userInfo = new UserInfo(100L);
+        UserInfo userInfo = new UserInfo(100L, Role.USER);
         Comment comment = new Comment(postId, userInfo.userId(), request.content());
 
         // when
@@ -69,7 +70,7 @@ class CommentServiceTest {
         Comment comment1 = new Comment(1L, postId, 100L, "첫 번째 댓글");
         Comment comment2 = new Comment(2L, postId, 100L, "두 번째 댓글");
         SliceImpl<Comment> commentSlice = new SliceImpl<>(List.of(comment1, comment2), PageRequest.of(0, size), false);
-        User user = new User(100L, "닉네임","http://example.com/profile.png", "seq");
+        User user = new User(100L, "닉네임","http://example.com/profile.png", "seq", Role.USER);
 
         // Mock 설정
         given(commentRepository.findByPostId(eq(postId), eq(cursor), any(PageRequest.class))).willReturn(commentSlice);
