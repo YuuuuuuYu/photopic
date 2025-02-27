@@ -2,6 +2,7 @@ package com.swyp8team2.auth.domain;
 
 import com.swyp8team2.auth.application.oauth.dto.OAuthUserInfo;
 import com.swyp8team2.common.domain.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -25,6 +26,7 @@ public class SocialAccount extends BaseEntity {
 
     private Long userId;
 
+    @Column(nullable = false, unique = true)
     private String socialId;
 
     @Enumerated(EnumType.STRING)

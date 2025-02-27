@@ -13,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.NoSuchAlgorithmException;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -40,11 +38,13 @@ public class AuthService {
         return socialAccountRepository.save(SocialAccount.create(userId, oAuthUserInfo));
     }
 
+    @Transactional
     public TokenPair reissue(String refreshToken) {
         return jwtService.reissue(refreshToken);
     }
 
-    public String guestLogin() {
+    @Transactional
+    public String createGuestToken() {
         Long guestId = userService.createGuest();
         return cryptoService.encrypt(String.valueOf(guestId));
     }
