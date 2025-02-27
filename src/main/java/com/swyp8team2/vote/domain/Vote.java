@@ -23,16 +23,16 @@ public class Vote {
 
     private Long postImageId;
 
-    private String userSeq;
+    private Long userId;
 
-    public Vote(Long id, Long postId, Long postImageId, String userSeq) {
+    public Vote(Long id, Long postId, Long postImageId, Long userId) {
         this.id = id;
         this.postId = postId;
         this.postImageId = postImageId;
-        this.userSeq = userSeq;
+        this.userId = userId;
     }
 
-    public static Vote of(Long postId, Long postImageId, String userSeq) {
-        return new Vote(null, postId, postImageId, userSeq);
+    public static Vote of(Long postId, Long postImageId, Long userId) {
+        return new Vote(null, postId, postImageId, userId);
     }
 }

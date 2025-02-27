@@ -37,10 +37,10 @@ public class VoteController {
     @PostMapping("/guest")
     public ResponseEntity<Void> guestVote(
             @PathVariable("postId") Long postId,
-            @RequestHeader(CustomHeader.GUEST_ID) String guestId,
-            @Valid @RequestBody VoteRequest request
+            @Valid @RequestBody VoteRequest request,
+            @AuthenticationPrincipal UserInfo userInfo
     ) {
-        voteService.guestVote(guestId, postId, request.imageId());
+        voteService.guestVote(userInfo.userId(), postId, request.imageId());
         return ResponseEntity.ok().build();
     }
 

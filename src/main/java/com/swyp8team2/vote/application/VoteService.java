@@ -8,7 +8,6 @@ import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import com.swyp8team2.vote.domain.Vote;
 import com.swyp8team2.vote.domain.VoteRepository;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,13 +25,13 @@ public class VoteService {
     public Long vote(Long voterId, Long postId, Long imageId) {
         User voter = userRepository.findById(voterId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
-        deleteVoteIfExisting(postId, voter.getSeq());
-        Vote vote = createVote(postId, imageId, voter.getSeq());
+        deleteVoteIfExisting(postId, voter.getId());
+        Vote vote = createVote(postId, imageId, voter.getId());
         return vote.getId();
     }
 
-    private void deleteVoteIfExisting(Long postId, String userSeq) {
-        voteRepository.findByUserSeqAndPostId(userSeq, postId)
+    private void deleteVoteIfExisting(Long postId, Long userId) {
+        voteRepository.findByUserIdAndPostId(userId, postId)
                         .ifPresent(vote -> {
                             voteRepository.delete(vote);
                             postRepository.findById(postId)
@@ -41,18 +40,19 @@ public class VoteService {
                         });
     }
 
-    private Vote createVote(Long postId, Long imageId, String userSeq) {
+    private Vote createVote(Long postId, Long imageId, Long userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
         post.validateProgress();
-        Vote vote = voteRepository.save(Vote.of(post.getId(), imageId, userSeq));
+        Vote vote = voteRepository.save(Vote.of(post.getId(), imageId, userId));
         post.vote(imageId);
         return vote;
     }
 
-    public Long guestVote(String guestId, Long postId, Long imageId) {
-        deleteVoteIfExisting(postId, guestId);
-        Vote vote = createVote(postId, imageId, guestId);
+    @Transactional
+    public Long guestVote(Long userId, Long postId, Long imageId) {
+        deleteVoteIfExisting(postId, userId);
+        Vote vote = createVote(postId, imageId, userId);
         return vote.getId();
     }
 }
