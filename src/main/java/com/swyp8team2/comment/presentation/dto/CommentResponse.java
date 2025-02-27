@@ -22,11 +22,11 @@ public record CommentResponse(
         return commentId;
     }
 
-    public static CommentResponse of(Comment comment, User user, boolean isAuthor) {
+    public static CommentResponse of(Comment comment, User user, boolean isAuthor, Long voteImageId) {
         return new CommentResponse(comment.getId(),
                 comment.getContent(),
                 new AuthorDto(user.getId(), user.getNickname(), user.getProfileUrl()),
-                null,
+                voteImageId,
                 comment.getCreatedAt(),
                 isAuthor
         );

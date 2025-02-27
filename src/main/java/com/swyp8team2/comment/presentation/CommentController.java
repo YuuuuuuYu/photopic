@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,7 +48,8 @@ public class CommentController {
             @RequestParam(value = "size", required = false, defaultValue = "10") @Min(1) int size,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
-        return ResponseEntity.ok(commentService.findComments(userInfo.userId(), postId, cursor, size));
+        Long userId = Optional.ofNullable(userInfo).map(UserInfo::userId).orElse(null);
+        return ResponseEntity.ok(commentService.findComments(userId, postId, cursor, size));
     }
 
     @DeleteMapping("/{commentId}")
