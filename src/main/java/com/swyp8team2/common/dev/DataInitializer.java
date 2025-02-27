@@ -39,6 +39,9 @@ public class DataInitializer {
 
     @Transactional
     public void init() {
+        if (userRepository.count() > 0) {
+            return;
+        }
         List<NicknameAdjective> adjectives = nicknameAdjectiveRepository.findAll();
         User testUser = userRepository.save(User.create("nickname", "https://t1.kakaocdn.net/account_images/default_profile.jpeg"));
         TokenPair tokenPair = jwtService.createToken(testUser.getId());
