@@ -78,7 +78,7 @@ class CommentServiceTest {
         given(userRepository.findById(100L)).willReturn(Optional.of(user));
 
         // when
-        CursorBasePaginatedResponse<CommentResponse> response = commentService.findComments(postId, cursor, size);
+        CursorBasePaginatedResponse<CommentResponse> response = commentService.findComments(user.getId(), postId, cursor, size);
 
         // then
         assertThat(response.data()).hasSize(2);
@@ -113,7 +113,7 @@ class CommentServiceTest {
         given(userRepository.findById(100L)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> commentService.findComments(postId, cursor, size))
+        assertThatThrownBy(() -> commentService.findComments(1L, postId, cursor, size))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage((ErrorCode.USER_NOT_FOUND.getMessage()));
     }
