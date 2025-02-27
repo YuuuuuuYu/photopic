@@ -32,12 +32,12 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("")
-    public ResponseEntity<Void> createPost(
+    public ResponseEntity<CreatePostResponse> createPost(
             @Valid @RequestBody CreatePostRequest request,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
-        postService.create(userInfo.userId(), request);
-        return ResponseEntity.ok().build();
+
+        return ResponseEntity.ok(new CreatePostResponse(postService.create(userInfo.userId(), request)));
     }
 
     @GetMapping("/{postId}")
