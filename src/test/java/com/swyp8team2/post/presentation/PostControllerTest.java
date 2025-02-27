@@ -206,7 +206,7 @@ class PostControllerTest extends RestDocsTest {
                 .willReturn(response);
 
         //when then
-        mockMvc.perform(get("/posts/user")
+        mockMvc.perform(get("/posts/user/me")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(response)))
