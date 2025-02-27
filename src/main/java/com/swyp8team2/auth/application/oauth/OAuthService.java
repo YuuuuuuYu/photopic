@@ -3,6 +3,7 @@ package com.swyp8team2.auth.application.oauth;
 import com.swyp8team2.auth.application.oauth.dto.KakaoAuthResponse;
 import com.swyp8team2.auth.application.oauth.dto.OAuthUserInfo;
 import com.swyp8team2.common.config.KakaoOAuthConfig;
+import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.common.exception.InternalServerException;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +30,8 @@ public class OAuthService {
                     .fetchUserInfo(BEARER + kakaoAuthResponse.accessToken())
                     .toOAuthUserInfo();
         } catch (Exception e) {
-            log.error("소셜 로그인 실패", e);
-            throw new InternalServerException(ErrorCode.SOCIAL_AUTHENTICATION_FAILED);
+            log.debug("소셜 로그인 실패 {}", e.getMessage());
+            throw new BadRequestException(ErrorCode.SOCIAL_AUTHENTICATION_FAILED);
         }
     }
 
