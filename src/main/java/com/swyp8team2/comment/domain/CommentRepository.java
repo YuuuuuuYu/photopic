@@ -14,7 +14,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             SELECT c
             FROM Comment c
             WHERE c.postId = :postId
-                AND (:cursor is null or c.id > :cursor)
+                AND (:cursor is null or c.id < :cursor)
             ORDER BY c.createdAt DESC
             """)
     Slice<Comment> findByPostId(

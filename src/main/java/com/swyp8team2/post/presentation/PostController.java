@@ -76,7 +76,7 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/user")
+    @GetMapping("/user/me")
     public ResponseEntity<CursorBasePaginatedResponse<SimplePostResponse>> findMyPosts(
             @RequestParam(name = "cursor", required = false) @Min(0) Long cursor,
             @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size,

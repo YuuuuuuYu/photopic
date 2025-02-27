@@ -7,10 +7,13 @@ import com.swyp8team2.auth.application.oauth.dto.OAuthUserInfo;
 import com.swyp8team2.auth.domain.Provider;
 import com.swyp8team2.auth.domain.SocialAccount;
 import com.swyp8team2.auth.domain.SocialAccountRepository;
+import com.swyp8team2.crypto.application.CryptoService;
 import com.swyp8team2.user.application.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.security.NoSuchAlgorithmException;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +23,7 @@ public class AuthService {
     private final OAuthService oAuthService;
     private final SocialAccountRepository socialAccountRepository;
     private final UserService userService;
+    private final CryptoService cryptoService;
 
     @Transactional
     public TokenPair oauthSignIn(String code, String redirectUri) {
@@ -38,5 +42,10 @@ public class AuthService {
 
     public TokenPair reissue(String refreshToken) {
         return jwtService.reissue(refreshToken);
+    }
+
+    public String guestLogin() {
+        Long guestId = userService.createGuest();
+        return cryptoService.encrypt(String.valueOf(guestId));
     }
 }

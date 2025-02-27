@@ -1,5 +1,6 @@
 package com.swyp8team2.support.config;
 
+import com.swyp8team2.user.domain.Role;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -9,6 +10,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
+import static com.swyp8team2.common.config.SecurityConfig.getGuestTokenRequestList;
 import static com.swyp8team2.common.config.SecurityConfig.getWhiteList;
 
 @TestConfiguration
@@ -32,8 +34,10 @@ public class TestSecurityConfig {
 
                 .authorizeHttpRequests(authorize ->
                         authorize
-                                .requestMatchers(getWhiteList(introspect)).permitAll()
-                                .anyRequest().authenticated()
+//                                .requestMatchers(getWhiteList(introspect)).permitAll()
+//                                .requestMatchers(getGuestTokenRequestList(introspect))
+//                                .hasAnyRole(Role.USER.name(), Role.GUEST.name())
+                                .anyRequest().permitAll()
                 );
         return http.build();
     }

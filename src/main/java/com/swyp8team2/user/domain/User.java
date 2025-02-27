@@ -1,6 +1,8 @@
 package com.swyp8team2.user.domain;
 
+import com.swyp8team2.common.domain.BaseEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,7 +19,7 @@ import static com.swyp8team2.common.util.Validator.validateNull;
 @Entity
 @Table(name = "users")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,14 +31,28 @@ public class User {
 
     private String seq;
 
-    public User(Long id, String nickname, String profileUrl, String seq) {
+    @Enumerated(jakarta.persistence.EnumType.STRING)
+    public Role role;
+
+    public User(Long id, String nickname, String profileUrl, String seq, Role role) {
         this.id = id;
         this.nickname = nickname;
         this.profileUrl = profileUrl;
         this.seq = seq;
+        this.role = role;
     }
 
     public static User create(String nickname, String profileUrl) {
-        return new User(null, nickname, profileUrl, UUID.randomUUID().toString());
+        return new User(null, nickname, profileUrl, UUID.randomUUID().toString(), Role.USER);
+    }
+
+    public static User createGuest() {
+        return new User(
+                null,
+                "guest_" + System.currentTimeMillis(),
+                "https://image.photopic.site/images-dev/resized_202502240006030.png",
+                UUID.randomUUID().toString(),
+                Role.GUEST
+        );
     }
 }

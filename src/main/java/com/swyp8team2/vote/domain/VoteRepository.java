@@ -8,7 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface VoteRepository extends JpaRepository<Vote, Long> {
-    Optional<Vote> findByUserSeqAndPostId(String userSeq, Long postId);
+    Optional<Vote> findByUserIdAndPostId(Long userId, Long postId);
 
-    Slice<Vote> findByUserSeq(String seq);
+    Slice<Vote> findByUserId(Long userId);
 }

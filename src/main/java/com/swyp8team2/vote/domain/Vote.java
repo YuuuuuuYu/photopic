@@ -1,5 +1,6 @@
 package com.swyp8team2.vote.domain;
 
+import com.swyp8team2.common.domain.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "user_votes")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Vote {
+public class Vote extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,16 +24,16 @@ public class Vote {
 
     private Long postImageId;
 
-    private String userSeq;
+    private Long userId;
 
-    public Vote(Long id, Long postId, Long postImageId, String userSeq) {
+    public Vote(Long id, Long postId, Long postImageId, Long userId) {
         this.id = id;
         this.postId = postId;
         this.postImageId = postImageId;
-        this.userSeq = userSeq;
+        this.userId = userId;
     }
 
-    public static Vote of(Long postId, Long postImageId, String userSeq) {
-        return new Vote(null, postId, postImageId, userSeq);
+    public static Vote of(Long postId, Long postImageId, Long userId) {
+        return new Vote(null, postId, postImageId, userId);
     }
 }

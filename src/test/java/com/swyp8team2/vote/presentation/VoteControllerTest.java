@@ -3,6 +3,7 @@ package com.swyp8team2.vote.presentation;
 import com.swyp8team2.common.presentation.CustomHeader;
 import com.swyp8team2.support.RestDocsTest;
 import com.swyp8team2.support.WithMockUserInfo;
+import com.swyp8team2.user.domain.Role;
 import com.swyp8team2.vote.presentation.dto.ChangeVoteRequest;
 import com.swyp8team2.vote.presentation.dto.VoteRequest;
 import org.junit.jupiter.api.DisplayName;
@@ -58,7 +59,7 @@ class VoteControllerTest extends RestDocsTest {
     }
 
     @Test
-    @WithAnonymousUser
+    @WithMockUserInfo(role = Role.GUEST)
     @DisplayName("게스트 투표")
     void guestVote() throws Exception {
         //given
@@ -68,7 +69,7 @@ class VoteControllerTest extends RestDocsTest {
         mockMvc.perform(post("/posts/{postId}/votes/guest", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
-                        .header(CustomHeader.GUEST_ID, UUID.randomUUID().toString()))
+                        .header(CustomHeader.GUEST_ID, "guestToken"))
                 .andExpect(status().isOk())
                 .andDo(restDocs.document(
                         requestHeaders(guestHeader()),
@@ -111,7 +112,7 @@ class VoteControllerTest extends RestDocsTest {
     }
 
     @Test
-    @WithAnonymousUser
+    @WithMockUserInfo(role = Role.GUEST)
     @DisplayName("게스트 투표 변경")
     void guestChangeVote() throws Exception {
         //given
@@ -121,7 +122,7 @@ class VoteControllerTest extends RestDocsTest {
         mockMvc.perform(patch("/posts/{postId}/votes/guest", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
-                        .header(CustomHeader.GUEST_ID, UUID.randomUUID().toString()))
+                        .header(CustomHeader.GUEST_ID, "guestToken"))
                 .andExpect(status().isOk())
                 .andDo(restDocs.document(
                         requestHeaders(guestHeader()),

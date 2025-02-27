@@ -2,6 +2,8 @@ package com.swyp8team2.common.dev;
 
 import com.swyp8team2.auth.application.jwt.JwtService;
 import com.swyp8team2.auth.application.jwt.TokenPair;
+import com.swyp8team2.comment.domain.Comment;
+import com.swyp8team2.comment.domain.CommentRepository;
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
 import com.swyp8team2.image.presentation.dto.ImageFileDto;
@@ -33,6 +35,7 @@ public class DataInitializer {
     private final PostRepository postRepository;
     private final JwtService jwtService;
     private final VoteService voteService;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public void init() {
@@ -52,12 +55,14 @@ public class DataInitializer {
                 ImageFile imageFile2 = imageFileRepository.save(ImageFile.create(new ImageFileDto("202502240006030.png", "https://image.photopic.site/images-dev/202502240006030.png", "https://image.photopic.site/images-dev/resized_202502240006030.png")));
                 posts.add(postRepository.save(Post.create(user.getId(), "description" + j, List.of(PostImage.create("뽀또A", imageFile1.getId()), PostImage.create("뽀또B", imageFile2.getId())), "https://photopic.site/shareurl")));
             }
+
         }
         for (User user : users) {
             for (Post post : posts) {
                 Random random = new Random();
                 int num = random.nextInt(2);
                 voteService.vote(user.getId(), post.getId(), post.getImages().get(num).getId());
+                commentRepository.save(new Comment(post.getId(), user.getId(), "댓글 내용" + random.nextInt(100)));
             }
         }
     }
