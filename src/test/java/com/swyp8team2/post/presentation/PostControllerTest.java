@@ -90,6 +90,7 @@ class PostControllerTest extends RestDocsTest {
                         new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/image/2", "https://image.photopic.site/image/resize/2", false)
                 ),
                 "https://photopic.site/shareurl",
+                 true,
                 LocalDateTime.of(2025, 2, 13, 12, 0)
         );
         given(postService.findById(any(), any()))
@@ -117,7 +118,8 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("images[].thumbnailUrl").type(JsonFieldType.STRING).description("확대 사진 이미지"),
                                 fieldWithPath("images[].voted").type(JsonFieldType.BOOLEAN).description("투표 여부"),
                                 fieldWithPath("shareUrl").type(JsonFieldType.STRING).description("게시글 공유 URL"),
-                                fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시글 생성 시간")
+                                fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시글 생성 시간"),
+                                fieldWithPath("isAuthor").type(JsonFieldType.BOOLEAN).description("게시글 작성자 여부")
                         )
                 ));
     }
