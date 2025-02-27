@@ -32,14 +32,16 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
-    public CursorBasePaginatedResponse<CommentResponse> findComments(Long postId, Long cursor, int size) {
-        Slice<Comment> commentSlice = commentRepository.findByPostId(postId, cursor, PageRequest.of(0, size));
-        return CursorBasePaginatedResponse.of(commentSlice.map(this::createCommentResponse));
+    public CursorBasePaginatedResponse<CommentResponse> findComments(Long userId, Long postId, Long cursor, int size) {
+        Slice<Comment> commentSlice = commentRepository.findByPostId(postId, cursor, PageRequest.ofSize(size));
+        return CursorBasePaginatedResponse.of(
+                commentSlice.map(comment -> createCommentResponse(comment, userId))
+        );
     }
 
-    private CommentResponse createCommentResponse(Comment comment) {
-        User user = userRepository.findById(comment.getUserNo())
+    private CommentResponse createCommentResponse(Comment comment, Long userId) {
+        User author = userRepository.findById(comment.getUserNo())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
-        return CommentResponse.of(comment, user);
+        return CommentResponse.of(comment, author, author.getId().equals(userId));
     }
 }

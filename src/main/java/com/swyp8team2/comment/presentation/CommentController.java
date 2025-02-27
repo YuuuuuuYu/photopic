@@ -47,8 +47,7 @@ public class CommentController {
             @RequestParam(value = "size", required = false, defaultValue = "10") @Min(1) int size,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
-        CursorBasePaginatedResponse<CommentResponse> response = commentService.findComments(postId, cursor, size);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(commentService.findComments(userInfo.userId(), postId, cursor, size));
     }
 
     @DeleteMapping("/{commentId}")
