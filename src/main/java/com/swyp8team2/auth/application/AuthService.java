@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.NoSuchAlgorithmException;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
     private final JwtService jwtService;
@@ -23,19 +24,6 @@ public class AuthService {
     private final SocialAccountRepository socialAccountRepository;
     private final UserService userService;
     private final CryptoService cryptoService;
-
-    public AuthService(
-            JwtService jwtService,
-            OAuthService oAuthService,
-            SocialAccountRepository socialAccountRepository,
-            UserService userService
-    ) throws Exception {
-        this.jwtService = jwtService;
-        this.oAuthService = oAuthService;
-        this.socialAccountRepository = socialAccountRepository;
-        this.userService = userService;
-        this.cryptoService = new CryptoService();
-    }
 
     @Transactional
     public TokenPair oauthSignIn(String code, String redirectUri) {

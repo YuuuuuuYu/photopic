@@ -55,7 +55,7 @@ public class AuthController {
         return ResponseEntity.ok(new TokenResponse(tokenPair.accessToken()));
     }
 
-    @PostMapping("/guest/login")
+    @PostMapping("/guest/token")
     public ResponseEntity<GuestTokenResponse> guestLogin() {
         String guestToken = authService.guestLogin();
         return ResponseEntity.ok(new GuestTokenResponse(guestToken));
