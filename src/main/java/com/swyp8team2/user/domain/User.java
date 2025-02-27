@@ -1,6 +1,8 @@
 package com.swyp8team2.user.domain;
 
+import com.swyp8team2.common.domain.BaseEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,7 +19,7 @@ import static com.swyp8team2.common.util.Validator.validateNull;
 @Entity
 @Table(name = "users")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +31,7 @@ public class User {
 
     private String seq;
 
+    @Enumerated(jakarta.persistence.EnumType.STRING)
     public Role role;
 
     public User(Long id, String nickname, String profileUrl, String seq, Role role) {
