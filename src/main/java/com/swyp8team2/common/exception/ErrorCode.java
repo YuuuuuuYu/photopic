@@ -35,6 +35,7 @@ public enum ErrorCode {
     POST_IMAGE_NAME_GENERATOR_INDEX_OUT_OF_BOUND("이미지 이름 생성기 인덱스 초과"),
     IMAGE_FILE_NOT_FOUND("존재하지 않는 이미지"),
     POST_IMAGE_NOT_FOUND("게시글 이미지 없음"),
+    SHARE_URL_ALREADY_EXISTS("공유 URL이 이미 존재"),
 
     //503
     SERVICE_UNAVAILABLE("서비스 이용 불가"),

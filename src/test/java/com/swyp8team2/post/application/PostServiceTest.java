@@ -73,10 +73,10 @@ class PostServiceTest extends IntegrationTest {
                 () -> assertThat(post.getUserId()).isEqualTo(userId),
                 () -> assertThat(images).hasSize(2),
                 () -> assertThat(images.get(0).getImageFileId()).isEqualTo(1L),
-                () -> assertThat(images.get(0).getName()).isEqualTo("뽀또A"),
+                () -> assertThat(images.get(0).getName()).isEqualTo("뽀또 A"),
                 () -> assertThat(images.get(0).getVoteCount()).isEqualTo(0),
                 () -> assertThat(images.get(1).getImageFileId()).isEqualTo(2L),
-                () -> assertThat(images.get(1).getName()).isEqualTo("뽀또B"),
+                () -> assertThat(images.get(1).getName()).isEqualTo("뽀또 B"),
                 () -> assertThat(images.get(1).getVoteCount()).isEqualTo(0)
         );
     }

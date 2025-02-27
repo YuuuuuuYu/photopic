@@ -1,6 +1,7 @@
 package com.swyp8team2.auth.presentation.filter;
 
 import com.swyp8team2.auth.domain.UserInfo;
+import com.swyp8team2.common.annotation.GuestTokenCryptoService;
 import com.swyp8team2.common.exception.ApplicationException;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
@@ -27,10 +28,13 @@ import java.util.Objects;
 import static com.swyp8team2.auth.presentation.filter.JwtAuthenticationEntryPoint.EXCEPTION_KEY;
 
 @Slf4j
-@RequiredArgsConstructor
 public class GuestAuthFilter extends OncePerRequestFilter {
 
     private final CryptoService cryptoService;
+
+    public GuestAuthFilter(@GuestTokenCryptoService CryptoService cryptoService) {
+        this.cryptoService = cryptoService;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

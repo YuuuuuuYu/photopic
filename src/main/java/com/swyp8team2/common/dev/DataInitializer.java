@@ -4,9 +4,12 @@ import com.swyp8team2.auth.application.jwt.JwtService;
 import com.swyp8team2.auth.application.jwt.TokenPair;
 import com.swyp8team2.comment.domain.Comment;
 import com.swyp8team2.comment.domain.CommentRepository;
+import com.swyp8team2.common.annotation.ShareUrlCryptoService;
+import com.swyp8team2.crypto.application.CryptoService;
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
 import com.swyp8team2.image.presentation.dto.ImageFileDto;
+import com.swyp8team2.post.application.PostService;
 import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.PostImage;
 import com.swyp8team2.post.domain.PostRepository;
@@ -16,6 +19,7 @@ import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import com.swyp8team2.vote.application.VoteService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,16 +30,37 @@ import java.util.Random;
 
 @Profile({"dev", "local"})
 @Component
-@RequiredArgsConstructor
 public class DataInitializer {
 
     private final NicknameAdjectiveRepository nicknameAdjectiveRepository;
     private final UserRepository userRepository;
     private final ImageFileRepository imageFileRepository;
     private final PostRepository postRepository;
+    private final CryptoService shaereUrlCryptoService;
     private final JwtService jwtService;
     private final VoteService voteService;
     private final CommentRepository commentRepository;
+
+    public DataInitializer(
+            NicknameAdjectiveRepository nicknameAdjectiveRepository,
+            UserRepository userRepository,
+            ImageFileRepository imageFileRepository,
+            PostRepository postRepository,
+            @ShareUrlCryptoService CryptoService shaereUrlCryptoService,
+            JwtService jwtService,
+            VoteService voteService,
+            CommentRepository commentRepository
+    ) {
+        this.nicknameAdjectiveRepository = nicknameAdjectiveRepository;
+        this.userRepository = userRepository;
+        this.imageFileRepository = imageFileRepository;
+        this.postRepository = postRepository;
+        this.shaereUrlCryptoService = shaereUrlCryptoService;
+        this.jwtService = jwtService;
+        this.voteService = voteService;
+        this.commentRepository = commentRepository;
+    }
+
 
     @Transactional
     public void init() {
@@ -56,7 +81,9 @@ public class DataInitializer {
             for (int j = 0; j < 30; j += 2) {
                 ImageFile imageFile1 = imageFileRepository.save(ImageFile.create(new ImageFileDto("202502240006030.png", "https://image.photopic.site/images-dev/202502240006030.png", "https://image.photopic.site/images-dev/resized_202502240006030.png")));
                 ImageFile imageFile2 = imageFileRepository.save(ImageFile.create(new ImageFileDto("202502240006030.png", "https://image.photopic.site/images-dev/202502240006030.png", "https://image.photopic.site/images-dev/resized_202502240006030.png")));
-                posts.add(postRepository.save(Post.create(user.getId(), "description" + j, List.of(PostImage.create("뽀또A", imageFile1.getId()), PostImage.create("뽀또B", imageFile2.getId())), "https://photopic.site/shareurl")));
+                Post post = postRepository.save(Post.create(user.getId(), "description" + j, List.of(PostImage.create("뽀또A", imageFile1.getId()), PostImage.create("뽀또B", imageFile2.getId()))));
+                post.setShareUrl(shaereUrlCryptoService.encrypt(String.valueOf(post.getId())));
+                posts.add(post);
             }
 
         }
