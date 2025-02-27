@@ -150,10 +150,10 @@ class AuthControllerTest extends RestDocsTest {
 
     @Test
     @DisplayName("게스트 토큰 발급")
-    void guestLogin() throws Exception {
+    void guestToken() throws Exception {
         //given
         String guestToken = "guestToken";
-        given(authService.guestLogin())
+        given(authService.createGuestToken())
                 .willReturn(guestToken);
 
         //when then
