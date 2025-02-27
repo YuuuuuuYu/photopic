@@ -48,6 +48,9 @@ class PostControllerTest extends RestDocsTest {
                 "제목",
                 List.of(new PostImageRequestDto(1L), new PostImageRequestDto(2L))
         );
+        given(postService.create(any(), any()))
+                .willReturn(1L);
+        CreatePostResponse response = new CreatePostResponse(1L);
 
         //when then
         mockMvc.perform(post("/posts")
@@ -55,6 +58,7 @@ class PostControllerTest extends RestDocsTest {
                         .content(objectMapper.writeValueAsString(request))
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                 .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(response)))
                 .andDo(restDocs.document(
                         requestHeaders(authorizationHeader()),
                         requestFields(
@@ -69,7 +73,13 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("images[].imageFileId")
                                         .type(JsonFieldType.NUMBER)
                                         .description("투표 후보 이미지 ID")
-                        )));
+                        ),
+                        responseFields(
+                                fieldWithPath("postId")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("게시글 Id")
+                        )
+                ));
     }
 
     @Test
