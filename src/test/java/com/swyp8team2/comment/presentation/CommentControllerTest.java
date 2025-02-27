@@ -80,7 +80,7 @@ class CommentControllerTest extends RestDocsTest {
         CursorBasePaginatedResponse<CommentResponse> response =
                 new CursorBasePaginatedResponse<>(null, false, commentList);
 
-        when(commentService.findComments(null, eq(postId), eq(cursor), eq(size))).thenReturn(response);
+        when(commentService.findComments(eq(null), eq(postId), eq(cursor), eq(size))).thenReturn(response);
 
         //when
         mockMvc.perform(get("/posts/{postId}/comments", "1"))
@@ -133,7 +133,7 @@ class CommentControllerTest extends RestDocsTest {
                                 )
                 ));
 
-        verify(commentService, times(1)).findComments(null, eq(postId), eq(cursor), eq(size));
+        verify(commentService, times(1)).findComments(eq(null), eq(postId), eq(cursor), eq(size));
     }
 
     @Test

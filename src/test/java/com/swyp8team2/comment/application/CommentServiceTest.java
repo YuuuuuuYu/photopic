@@ -11,6 +11,7 @@ import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.user.domain.Role;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
+import com.swyp8team2.vote.domain.VoteRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +44,9 @@ class CommentServiceTest {
     @InjectMocks
     private CommentService commentService;
 
+    @Mock
+    private VoteRepository voteRepository;
+
     @Test
     @DisplayName("댓글 생성")
     void createComment() {
@@ -74,6 +78,7 @@ class CommentServiceTest {
 
         // Mock 설정
         given(commentRepository.findByPostId(eq(postId), eq(cursor), any(PageRequest.class))).willReturn(commentSlice);
+        given(voteRepository.findByUserIdAndPostId(eq(user.getId()), eq(postId))).willReturn(Optional.empty());
         // 각 댓글마다 user_no=100L 이므로, findById(100L)만 호출됨
         given(userRepository.findById(100L)).willReturn(Optional.of(user));
 
