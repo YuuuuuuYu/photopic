@@ -3,12 +3,10 @@ package com.swyp8team2.post.presentation;
 import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.post.application.PostService;
-import com.swyp8team2.post.presentation.dto.AuthorDto;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.PostImageVoteStatusResponse;
 import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.SimplePostResponse;
-import com.swyp8team2.post.presentation.dto.PostImageResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,26 +58,6 @@ public class PostController {
         return ResponseEntity.ok(postService.findPostStatus(postId));
     }
 
-//    @GetMapping("/{shareUrl}")
-    public ResponseEntity<PostResponse> findPost(@PathVariable("shareUrl") String shareUrl) {
-        return ResponseEntity.ok(new PostResponse(
-                1L,
-                new AuthorDto(
-                        1L,
-                        "author",
-                        "https://image.photopic.site/profile-image"
-                ),
-                "description",
-                List.of(
-                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/image/1", "https://image.photopic.site/image/resize/1",  true),
-                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/image/2", "https://image.photopic.site/image/resize/1", false)
-                ),
-                "https://photopic.site/shareurl",
-                true,
-                LocalDateTime.of(2025, 2, 13, 12, 0)
-        ));
-    }
-
     @PostMapping("/{postId}/close")
     public ResponseEntity<Void> closePost(
             @PathVariable("postId") Long postId,
@@ -100,7 +76,7 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/me")
+    @GetMapping("/user")
     public ResponseEntity<CursorBasePaginatedResponse<SimplePostResponse>> findMyPosts(
             @RequestParam(name = "cursor", required = false) @Min(0) Long cursor,
             @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size,
@@ -109,7 +85,7 @@ public class PostController {
         return ResponseEntity.ok(postService.findMyPosts(userInfo.userId(), cursor, size));
     }
 
-    @GetMapping("/voted")
+    @GetMapping("/user/voted")
     public ResponseEntity<CursorBasePaginatedResponse<SimplePostResponse>> findVotedPosts(
             @RequestParam(name = "cursor", required = false) @Min(0) Long cursor,
             @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size,
