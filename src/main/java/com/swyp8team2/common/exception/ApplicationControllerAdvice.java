@@ -3,6 +3,7 @@ package com.swyp8team2.common.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
@@ -33,16 +34,21 @@ public class ApplicationControllerAdvice {
                 .body(response);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handle(MethodArgumentNotValidException e) {
-        log.debug("MethodArgumentNotValidException {}", e.getMessage());
+    @ExceptionHandler({
+            MethodArgumentNotValidException.class,
+            HttpMessageNotReadableException.class,
+            MissingRequestHeaderException.class,
+            HandlerMethodValidationException.class
+    })
+    public ResponseEntity<ErrorResponse> invalidArgument(Exception e) {
+        log.debug("invalidArgument: {}", e.getMessage());
         return ResponseEntity.badRequest()
                 .body(new ErrorResponse(ErrorCode.INVALID_ARGUMENT));
     }
 
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<Void> handle(HttpRequestMethodNotSupportedException e) {
-        log.debug("HttpRequestMethodNotSupportedException {}", e.getMessage());
+    @ExceptionHandler({HttpRequestMethodNotSupportedException.class, MethodArgumentTypeMismatchException.class})
+    public ResponseEntity<Void> notFound(HttpRequestMethodNotSupportedException e) {
+        log.debug("notFound: {}", e.getMessage());
         return ResponseEntity.notFound().build();
     }
 
@@ -52,11 +58,6 @@ public class ApplicationControllerAdvice {
         return ResponseEntity.notFound().build();
     }
 
-    @ExceptionHandler(HandlerMethodValidationException.class)
-    public ResponseEntity<ErrorResponse> handle(HandlerMethodValidationException e) {
-        return ResponseEntity.badRequest()
-                .body(new ErrorResponse(ErrorCode.INVALID_ARGUMENT));
-    }
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handle(AuthenticationException e) {
@@ -68,20 +69,6 @@ public class ApplicationControllerAdvice {
     public ResponseEntity<ErrorResponse> handle(AccessDeniedException e) {
         log.info(e.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(ErrorCode.INVALID_TOKEN));
-    }
-
-    @ExceptionHandler(MissingRequestHeaderException.class)
-    public ResponseEntity<ErrorResponse> handle(MissingRequestHeaderException e) {
-        log.debug("MissingRequestHeaderException {}", e.getMessage());
-        return ResponseEntity.badRequest()
-                .body(new ErrorResponse(ErrorCode.INVALID_ARGUMENT));
-    }
-
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ErrorResponse> handle(MethodArgumentTypeMismatchException e) {
-        log.debug("MethodArgumentTypeMismatchException {}", e.getMessage());
-        return ResponseEntity.badRequest()
-                .body(new ErrorResponse(ErrorCode.INVALID_ARGUMENT));
     }
 
     @ExceptionHandler(Exception.class)

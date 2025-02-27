@@ -3,6 +3,7 @@ package com.swyp8team2.auth.presentation;
 
 import com.swyp8team2.auth.application.AuthService;
 import com.swyp8team2.auth.application.jwt.TokenPair;
+import com.swyp8team2.auth.presentation.dto.GuestTokenResponse;
 import com.swyp8team2.auth.presentation.dto.OAuthSignInRequest;
 import com.swyp8team2.auth.presentation.dto.TokenResponse;
 import com.swyp8team2.common.exception.BadRequestException;
@@ -52,5 +53,11 @@ public class AuthController {
         Cookie cookie = refreshTokenCookieGenerator.createCookie(tokenPair.refreshToken());
         response.addCookie(cookie);
         return ResponseEntity.ok(new TokenResponse(tokenPair.accessToken()));
+    }
+
+    @PostMapping("/guest/token")
+    public ResponseEntity<GuestTokenResponse> guestToken() {
+        String guestToken = authService.createGuestToken();
+        return ResponseEntity.ok(new GuestTokenResponse(guestToken));
     }
 }

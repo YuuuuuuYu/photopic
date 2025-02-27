@@ -8,8 +8,10 @@ import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
+import com.swyp8team2.user.domain.Role;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
+import com.swyp8team2.vote.domain.VoteRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,13 +44,16 @@ class CommentServiceTest {
     @InjectMocks
     private CommentService commentService;
 
+    @Mock
+    private VoteRepository voteRepository;
+
     @Test
     @DisplayName("댓글 생성")
     void createComment() {
         // given
         Long postId = 1L;
         CreateCommentRequest request = new CreateCommentRequest("테스트 댓글");
-        UserInfo userInfo = new UserInfo(100L);
+        UserInfo userInfo = new UserInfo(100L, Role.USER);
         Comment comment = new Comment(postId, userInfo.userId(), request.content());
 
         // when
@@ -69,15 +74,16 @@ class CommentServiceTest {
         Comment comment1 = new Comment(1L, postId, 100L, "첫 번째 댓글");
         Comment comment2 = new Comment(2L, postId, 100L, "두 번째 댓글");
         SliceImpl<Comment> commentSlice = new SliceImpl<>(List.of(comment1, comment2), PageRequest.of(0, size), false);
-        User user = new User(100L, "닉네임","http://example.com/profile.png", "seq");
+        User user = new User(100L, "닉네임","http://example.com/profile.png", "seq", Role.USER);
 
         // Mock 설정
         given(commentRepository.findByPostId(eq(postId), eq(cursor), any(PageRequest.class))).willReturn(commentSlice);
+        given(voteRepository.findByUserIdAndPostId(eq(user.getId()), eq(postId))).willReturn(Optional.empty());
         // 각 댓글마다 user_no=100L 이므로, findById(100L)만 호출됨
         given(userRepository.findById(100L)).willReturn(Optional.of(user));
 
         // when
-        CursorBasePaginatedResponse<CommentResponse> response = commentService.findComments(postId, cursor, size);
+        CursorBasePaginatedResponse<CommentResponse> response = commentService.findComments(user.getId(), postId, cursor, size);
 
         // then
         assertThat(response.data()).hasSize(2);
@@ -112,7 +118,7 @@ class CommentServiceTest {
         given(userRepository.findById(100L)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> commentService.findComments(postId, cursor, size))
+        assertThatThrownBy(() -> commentService.findComments(1L, postId, cursor, size))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage((ErrorCode.USER_NOT_FOUND.getMessage()));
     }

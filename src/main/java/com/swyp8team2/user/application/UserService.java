@@ -42,6 +42,12 @@ public class UserService {
                 });
     }
 
+    @Transactional
+    public Long createGuest() {
+        User user = userRepository.save(User.createGuest());
+        return user.getId();
+    }
+
     public UserInfoResponse findById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));

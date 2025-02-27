@@ -2,6 +2,7 @@ package com.swyp8team2.auth.presentation;
 
 import com.swyp8team2.auth.application.AuthService;
 import com.swyp8team2.auth.application.jwt.TokenPair;
+import com.swyp8team2.auth.presentation.dto.GuestTokenResponse;
 import com.swyp8team2.auth.presentation.dto.OAuthSignInRequest;
 import com.swyp8team2.auth.presentation.dto.TokenResponse;
 import com.swyp8team2.common.exception.BadRequestException;
@@ -145,5 +146,24 @@ class AuthControllerTest extends RestDocsTest {
                         .cookie(new Cookie(CustomHeader.CustomCookie.REFRESH_TOKEN, "refreshToken")))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(objectMapper.writeValueAsString(response)));
+    }
+
+    @Test
+    @DisplayName("게스트 토큰 발급")
+    void guestToken() throws Exception {
+        //given
+        String guestToken = "guestToken";
+        given(authService.createGuestToken())
+                .willReturn(guestToken);
+
+        //when then
+        mockMvc.perform(post("/auth/guest/token"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(new GuestTokenResponse(guestToken))))
+                .andDo(restDocs.document(
+                        responseFields(
+                                fieldWithPath("guestToken").description("게스트 토큰")
+                        )
+                ));
     }
 }

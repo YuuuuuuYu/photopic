@@ -11,8 +11,9 @@ public record CommentResponse(
         Long commentId,
         String content,
         AuthorDto author,
-        Long imageId,
-        LocalDateTime createdAt
+        Long voteImageId,
+        LocalDateTime createdAt,
+        boolean isAuthor
 ) implements CursorDto {
 
     @Override
@@ -21,12 +22,13 @@ public record CommentResponse(
         return commentId;
     }
 
-    public static CommentResponse of(Comment comment, User user) {
+    public static CommentResponse of(Comment comment, User user, boolean isAuthor, Long voteImageId) {
         return new CommentResponse(comment.getId(),
-                                    comment.getContent(),
-                                    new AuthorDto(user.getId(), user.getNickname(), user.getProfileUrl()),
-                                    null,
-                                    comment.getCreatedAt()
-                );
+                comment.getContent(),
+                new AuthorDto(user.getId(), user.getNickname(), user.getProfileUrl()),
+                voteImageId,
+                comment.getCreatedAt(),
+                isAuthor
+        );
     }
 }

@@ -1,6 +1,8 @@
 package com.swyp8team2.auth.domain;
 
 import com.swyp8team2.auth.application.oauth.dto.OAuthUserInfo;
+import com.swyp8team2.common.domain.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -16,7 +18,7 @@ import static com.swyp8team2.common.util.Validator.validateNull;
 @Getter
 @Entity
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-public class SocialAccount {
+public class SocialAccount extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +26,7 @@ public class SocialAccount {
 
     private Long userId;
 
+    @Column(nullable = false, unique = true)
     private String socialId;
 
     @Enumerated(EnumType.STRING)

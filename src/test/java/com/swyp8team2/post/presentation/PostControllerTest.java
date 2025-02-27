@@ -48,6 +48,9 @@ class PostControllerTest extends RestDocsTest {
                 "제목",
                 List.of(new PostImageRequestDto(1L), new PostImageRequestDto(2L))
         );
+        given(postService.create(any(), any()))
+                .willReturn(1L);
+        CreatePostResponse response = new CreatePostResponse(1L);
 
         //when then
         mockMvc.perform(post("/posts")
@@ -55,6 +58,7 @@ class PostControllerTest extends RestDocsTest {
                         .content(objectMapper.writeValueAsString(request))
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                 .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(response)))
                 .andDo(restDocs.document(
                         requestHeaders(authorizationHeader()),
                         requestFields(
@@ -69,7 +73,13 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("images[].imageFileId")
                                         .type(JsonFieldType.NUMBER)
                                         .description("투표 후보 이미지 ID")
-                        )));
+                        ),
+                        responseFields(
+                                fieldWithPath("postId")
+                                        .type(JsonFieldType.NUMBER)
+                                        .description("게시글 Id")
+                        )
+                ));
     }
 
     @Test
@@ -86,10 +96,11 @@ class PostControllerTest extends RestDocsTest {
                 ),
                 "description",
                 List.of(
-                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/1", true),
-                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/2", false)
+                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/image/1", "https://image.photopic.site/image/resize/1", true),
+                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/image/2", "https://image.photopic.site/image/resize/2", false)
                 ),
                 "https://photopic.site/shareurl",
+                 true,
                 LocalDateTime.of(2025, 2, 13, 12, 0)
         );
         given(postService.findById(any(), any()))
@@ -114,9 +125,11 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("images[].id").type(JsonFieldType.NUMBER).description("투표 선택지 Id"),
                                 fieldWithPath("images[].imageName").type(JsonFieldType.STRING).description("사진 이름"),
                                 fieldWithPath("images[].imageUrl").type(JsonFieldType.STRING).description("사진 이미지"),
+                                fieldWithPath("images[].thumbnailUrl").type(JsonFieldType.STRING).description("확대 사진 이미지"),
                                 fieldWithPath("images[].voted").type(JsonFieldType.BOOLEAN).description("투표 여부"),
                                 fieldWithPath("shareUrl").type(JsonFieldType.STRING).description("게시글 공유 URL"),
-                                fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시글 생성 시간")
+                                fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시글 생성 시간"),
+                                fieldWithPath("isAuthor").type(JsonFieldType.BOOLEAN).description("게시글 작성자 여부")
                         )
                 ));
     }
@@ -193,7 +206,7 @@ class PostControllerTest extends RestDocsTest {
                 .willReturn(response);
 
         //when then
-        mockMvc.perform(get("/posts/me")
+        mockMvc.perform(get("/posts/user/me")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(response)))
@@ -248,7 +261,7 @@ class PostControllerTest extends RestDocsTest {
                 .willReturn(response);
 
         //when then
-        mockMvc.perform(get("/posts/voted")
+        mockMvc.perform(get("/posts/user/voted")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(response)))

@@ -10,6 +10,8 @@ import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
+import com.swyp8team2.vote.domain.Vote;
+import com.swyp8team2.vote.domain.VoteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +27,7 @@ public class CommentService {
 
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final VoteRepository voteRepository;
 
     @Transactional
     public void createComment(Long postId, CreateCommentRequest request, UserInfo userInfo) {
@@ -32,14 +35,19 @@ public class CommentService {
         commentRepository.save(comment);
     }
 
-    public CursorBasePaginatedResponse<CommentResponse> findComments(Long postId, Long cursor, int size) {
-        Slice<Comment> commentSlice = commentRepository.findByPostId(postId, cursor, PageRequest.of(0, size));
-        return CursorBasePaginatedResponse.of(commentSlice.map(this::createCommentResponse));
+    public CursorBasePaginatedResponse<CommentResponse> findComments(Long userId, Long postId, Long cursor, int size) {
+        Slice<Comment> commentSlice = commentRepository.findByPostId(postId, cursor, PageRequest.ofSize(size));
+        return CursorBasePaginatedResponse.of(
+                commentSlice.map(comment -> createCommentResponse(comment, userId))
+        );
     }
 
-    private CommentResponse createCommentResponse(Comment comment) {
-        User user = userRepository.findById(comment.getUserNo())
+    private CommentResponse createCommentResponse(Comment comment, Long userId) {
+        User author = userRepository.findById(comment.getUserNo())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
-        return CommentResponse.of(comment, user);
+        Long voteImageId = voteRepository.findByUserIdAndPostId(userId, comment.getPostId())
+                .map(Vote::getPostImageId)
+                .orElse(null);
+        return CommentResponse.of(comment, author, author.getId().equals(userId), voteImageId);
     }
 }

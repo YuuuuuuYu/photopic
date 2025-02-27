@@ -61,7 +61,8 @@ public class PostService {
         User author = userRepository.findById(post.getUserId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         List<PostImageResponse> votes = createPostImageResponse(userId, postId, post);
-        return PostResponse.of(post, author, votes);
+        boolean isAuthor = post.getUserId().equals(userId);
+        return PostResponse.of(post, author, votes, isAuthor);
     }
 
     private List<PostImageResponse> createPostImageResponse(Long userId, Long postId, Post post) {
@@ -79,6 +80,7 @@ public class PostService {
                 image.getId(),
                 image.getName(),
                 imageFile.getImageUrl(),
+                imageFile.getThumbnailUrl(),
                 voted
         );
     }
@@ -86,7 +88,7 @@ public class PostService {
     private Boolean getVoted(PostImage image, Long userId, Long postId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
-        return voteRepository.findByUserSeqAndPostId(user.getSeq(), postId)
+        return voteRepository.findByUserIdAndPostId(user.getId(), postId)
                 .map(vote -> vote.getPostImageId().equals(image.getId()))
                 .orElse(false);
     }
@@ -106,7 +108,7 @@ public class PostService {
     public CursorBasePaginatedResponse<SimplePostResponse> findVotedPosts(Long userId, Long cursor, int size) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
-        List<Long> postIds = voteRepository.findByUserSeq(user.getSeq())
+        List<Long> postIds = voteRepository.findByUserId(user.getId())
                 .map(Vote::getPostId)
                 .toList();
         Slice<Post> postSlice = postRepository.findByIdIn(postIds, cursor, PageRequest.ofSize(size));

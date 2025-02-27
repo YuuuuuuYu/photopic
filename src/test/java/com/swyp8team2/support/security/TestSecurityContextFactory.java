@@ -2,6 +2,7 @@ package com.swyp8team2.support.security;
 
 import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.support.WithMockUserInfo;
+import com.swyp8team2.user.domain.Role;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -15,7 +16,7 @@ public class TestSecurityContextFactory implements WithSecurityContextFactory<Wi
     @Override
     public SecurityContext createSecurityContext(WithMockUserInfo annotation) {
         long userId = annotation.userId();
-        UserInfo userInfo = new UserInfo(userId);
+        UserInfo userInfo = new UserInfo(userId, Role.USER);
 
         Authentication auth = new UsernamePasswordAuthenticationToken(
                 userInfo,

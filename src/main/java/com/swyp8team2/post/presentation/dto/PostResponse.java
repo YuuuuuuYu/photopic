@@ -12,15 +12,17 @@ public record PostResponse(
         String description,
         List<PostImageResponse> images,
         String shareUrl,
+        boolean isAuthor,
         LocalDateTime createdAt
 ) {
-    public static PostResponse of(Post post, User user, List<PostImageResponse> images) {
+    public static PostResponse of(Post post, User user, List<PostImageResponse> images, boolean isAuthor) {
         return new PostResponse(
                 post.getId(),
                 AuthorDto.of(user),
                 post.getDescription(),
                 images,
                 post.getShareUrl(),
+                isAuthor,
                 post.getCreatedAt()
         );
     }

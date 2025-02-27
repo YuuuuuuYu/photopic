@@ -196,7 +196,7 @@ class PostServiceTest extends IntegrationTest {
         List<Post> posts = createPosts(user);
         for (int i = 0; i < 15; i++) {
             Post post = posts.get(i);
-            voteRepository.save(Vote.of(post.getId(), post.getImages().get(0).getId(), user.getSeq()));
+            voteRepository.save(Vote.of(post.getId(), post.getImages().get(0).getId(), user.getId()));
         }
         int size = 10;
 
