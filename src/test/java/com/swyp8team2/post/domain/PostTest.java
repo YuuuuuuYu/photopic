@@ -2,6 +2,8 @@ package com.swyp8team2.post.domain;
 
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
+import com.swyp8team2.common.exception.InternalServerException;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -23,15 +25,17 @@ class PostTest {
                 PostImage.create("뽀또A", 1L),
                 PostImage.create("뽀또B", 2L)
         );
+        String shareUrl = "shareUrl";
 
         //when
-        Post post = Post.create(userId, description, postImages);
+        Post post = Post.create(userId, description, postImages, shareUrl);
 
         //then
         List<PostImage> images = post.getImages();
         assertAll(
                 () -> assertThat(post.getUserId()).isEqualTo(userId),
                 () -> assertThat(post.getDescription()).isEqualTo(description),
+                () -> assertThat(post.getShareUrl()).isEqualTo(shareUrl),
                 () -> assertThat(post.getState()).isEqualTo(State.PROGRESS),
                 () -> assertThat(images).hasSize(2),
                 () -> assertThat(images.get(0).getName()).isEqualTo("뽀또A"),
@@ -52,7 +56,7 @@ class PostTest {
         );
 
         //when then
-        assertThatThrownBy(() -> Post.create(1L, "description", postImages))
+        assertThatThrownBy(() -> Post.create(1L, "description", postImages, "shareUrl"))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.INVALID_POST_IMAGE_COUNT.getMessage());
     }
@@ -68,7 +72,7 @@ class PostTest {
         );
 
         //when then
-        assertThatThrownBy(() -> Post.create(1L, description, postImages))
+        assertThatThrownBy(() -> Post.create(1L, description, postImages, "shareUrl"))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.DESCRIPTION_LENGTH_EXCEEDED.getMessage());
     }

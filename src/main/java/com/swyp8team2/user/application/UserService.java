@@ -29,7 +29,7 @@ public class UserService {
 
     private String getProfileImage(String profileImageUrl) {
         return Optional.ofNullable(profileImageUrl)
-                .orElse("https://t1.kakaocdn.net/account_images/default_profile.jpeg");
+                .orElse("defailt_profile_image");
     }
 
     private String getNickname(String nickname) {

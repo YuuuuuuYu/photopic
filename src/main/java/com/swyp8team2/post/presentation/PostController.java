@@ -4,7 +4,6 @@ import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.post.application.PostService;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
-import com.swyp8team2.post.presentation.dto.CreatePostResponse;
 import com.swyp8team2.post.presentation.dto.PostImageVoteStatusResponse;
 import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.SimplePostResponse;
@@ -50,17 +49,6 @@ public class PostController {
                 .map(UserInfo::userId)
                 .orElse(null);
         return ResponseEntity.ok(postService.findById(userId, postId));
-    }
-
-    @GetMapping("/shareUrl/{shareUrl}")
-    public ResponseEntity<PostResponse> findPostByShareUrl(
-            @PathVariable("shareUrl") String shareUrl,
-            @AuthenticationPrincipal UserInfo userInfo
-    ) {
-        Long userId = Optional.ofNullable(userInfo)
-                .map(UserInfo::userId)
-                .orElse(null);
-        return ResponseEntity.ok(postService.findByShareUrl(userId, shareUrl));
     }
 
     @GetMapping("/{postId}/status")

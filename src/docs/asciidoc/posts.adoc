@@ -11,13 +11,6 @@ operation::post-controller-test/create-post[snippets='http-request,curl-request,
 
 operation::post-controller-test/find-post[snippets='http-request,curl-request,path-parameters,http-response,response-fields']
 
-[[개사굴-공유-url-조회]]
-=== `GET` 게시글 공유 url 조회
-
-operation::post-controller-test/find-post_share-url[snippets='http-request,curl-request,path-parameters,http-response,response-fields']
-
-[[게시글-목록-조회]]
-
 [[사진-투표-현황-조회]]
 === `GET` 사진 투표 현황 조회
 
@@ -38,6 +31,8 @@ operation::post-controller-test/find-voted-post[snippets='http-request,curl-requ
 === `POST` 게시글 투표 마감
 
 operation::post-controller-test/close-post[snippets='http-request,curl-request,path-parameters,request-headers,http-response']
+
+[[게시글-수정]]
 
 [[게시글-삭제]]
 === `DELETE` 게시글 삭제

@@ -26,7 +26,7 @@ class PostImageNameGeneratorTest {
         String generate2 = postImageNameGenerator.generate();
 
         //then
-        assertThat(generate1).isEqualTo("뽀또 A");
-        assertThat(generate2).isEqualTo("뽀또 B");
+        assertThat(generate1).isEqualTo("뽀또A");
+        assertThat(generate2).isEqualTo("뽀또B");
     }
 }

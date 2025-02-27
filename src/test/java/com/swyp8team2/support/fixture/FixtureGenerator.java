@@ -17,7 +17,8 @@ public abstract class FixtureGenerator {
                 List.of(
                         PostImage.create("뽀또A", imageFile1.getId()),
                         PostImage.create("뽀또B", imageFile2.getId())
-                )
+                ),
+                "shareUrl" + key
         );
     }
 

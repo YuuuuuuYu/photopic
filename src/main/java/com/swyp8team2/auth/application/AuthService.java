@@ -7,7 +7,6 @@ import com.swyp8team2.auth.application.oauth.dto.OAuthUserInfo;
 import com.swyp8team2.auth.domain.Provider;
 import com.swyp8team2.auth.domain.SocialAccount;
 import com.swyp8team2.auth.domain.SocialAccountRepository;
-import com.swyp8team2.common.annotation.GuestTokenCryptoService;
 import com.swyp8team2.crypto.application.CryptoService;
 import com.swyp8team2.user.application.UserService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
     private final JwtService jwtService;
@@ -22,19 +22,6 @@ public class AuthService {
     private final SocialAccountRepository socialAccountRepository;
     private final UserService userService;
     private final CryptoService cryptoService;
-
-    public AuthService(
-            JwtService jwtService,
-            OAuthService oAuthService,
-            SocialAccountRepository socialAccountRepository,
-            UserService userService,
-            @GuestTokenCryptoService CryptoService cryptoService) {
-        this.jwtService = jwtService;
-        this.oAuthService = oAuthService;
-        this.socialAccountRepository = socialAccountRepository;
-        this.userService = userService;
-        this.cryptoService = cryptoService;
-    }
 
     @Transactional
     public TokenPair oauthSignIn(String code, String redirectUri) {

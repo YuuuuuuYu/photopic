@@ -20,7 +20,8 @@ import lombok.ToString;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
+
+import static com.swyp8team2.common.util.Validator.*;
 
 @Getter
 @Entity
@@ -68,8 +69,8 @@ public class Post extends BaseEntity {
         }
     }
 
-    public static Post create(Long userId, String description, List<PostImage> images) {
-        return new Post(null, userId, description, State.PROGRESS, images, null);
+    public static Post create(Long userId, String description, List<PostImage> images, String shareUrl) {
+        return new Post(null, userId, description, State.PROGRESS, images, shareUrl);
     }
 
     public PostImage getBestPickedImage() {
@@ -112,12 +113,5 @@ public class Post extends BaseEntity {
         if (!this.state.equals(State.PROGRESS)) {
             throw new BadRequestException(ErrorCode.POST_ALREADY_CLOSED);
         }
-    }
-
-    public void setShareUrl(String shareUrl) {
-        if (Objects.nonNull(this.shareUrl)) {
-            throw new InternalServerException(ErrorCode.SHARE_URL_ALREADY_EXISTS);
-        }
-        this.shareUrl = shareUrl;
     }
 }
