@@ -56,7 +56,7 @@ public class VoteController {
     @PatchMapping("/guest")
     public ResponseEntity<Void> changeGuestVote(
             @PathVariable("postId") Long postId,
-            @RequestHeader(CustomHeader.GUEST_ID) String guestId,
+            @RequestHeader(CustomHeader.GUEST_TOKEN) String guestId,
             @Valid @RequestBody ChangeVoteRequest request
     ) {
         return ResponseEntity.ok().build();

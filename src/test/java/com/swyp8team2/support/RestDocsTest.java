@@ -34,7 +34,7 @@ public abstract class RestDocsTest extends WebUnitTest {
     }
 
     protected static HeaderDescriptor guestHeader() {
-        return headerWithName(CustomHeader.GUEST_ID).description("게스트 Id (UUID 형식)");
+        return headerWithName(CustomHeader.GUEST_TOKEN).description("게스트 토큰");
     }
 
     protected static ParameterDescriptor[] cursorQueryParams() {
