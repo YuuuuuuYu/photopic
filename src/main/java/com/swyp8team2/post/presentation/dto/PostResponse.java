@@ -1,6 +1,7 @@
 package com.swyp8team2.post.presentation.dto;
 
 import com.swyp8team2.post.domain.Post;
+import com.swyp8team2.post.domain.Status;
 import com.swyp8team2.user.domain.User;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ public record PostResponse(
         List<PostImageResponse> images,
         String shareUrl,
         boolean isAuthor,
+        Status status,
         LocalDateTime createdAt
 ) {
     public static PostResponse of(Post post, User user, List<PostImageResponse> images, boolean isAuthor) {
@@ -23,6 +25,7 @@ public record PostResponse(
                 images,
                 post.getShareUrl(),
                 isAuthor,
+                post.getStatus(),
                 post.getCreatedAt()
         );
     }

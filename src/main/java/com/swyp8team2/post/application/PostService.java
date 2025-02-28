@@ -12,6 +12,7 @@ import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.PostImage;
 import com.swyp8team2.post.domain.PostRepository;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
+import com.swyp8team2.post.presentation.dto.CreatePostResponse;
 import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.PostImageVoteStatusResponse;
 import com.swyp8team2.post.presentation.dto.SimplePostResponse;
@@ -57,12 +58,12 @@ public class PostService {
     }
 
     @Transactional
-    public Long create(Long userId, CreatePostRequest request) {
+    public CreatePostResponse create(Long userId, CreatePostRequest request) {
         List<PostImage> postImages = createPostImages(request);
         Post post = Post.create(userId, request.description(), postImages);
         Post save = postRepository.save(post);
         save.setShareUrl(shareUrlCryptoService.encrypt(String.valueOf(save.getId())));
-        return save.getId();
+        return new CreatePostResponse(save.getId(), save.getShareUrl());
     }
 
     private List<PostImage> createPostImages(CreatePostRequest request) {

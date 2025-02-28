@@ -37,20 +37,20 @@ public class Post extends BaseEntity {
     private Long userId;
 
     @Enumerated(EnumType.STRING)
-    private State state;
+    private Status status;
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<PostImage> images = new ArrayList<>();
 
     private String shareUrl;
 
-    public Post(Long id, Long userId, String description, State state, List<PostImage> images, String shareUrl) {
+    public Post(Long id, Long userId, String description, Status status, List<PostImage> images, String shareUrl) {
         validateDescription(description);
         validatePostImages(images);
         this.id = id;
         this.description = description;
         this.userId = userId;
-        this.state = state;
+        this.status = status;
         this.images = images;
         images.forEach(image -> image.setPost(this));
         this.shareUrl = shareUrl;
@@ -69,7 +69,7 @@ public class Post extends BaseEntity {
     }
 
     public static Post create(Long userId, String description, List<PostImage> images) {
-        return new Post(null, userId, description, State.PROGRESS, images, null);
+        return new Post(null, userId, description, Status.PROGRESS, images, null);
     }
 
     public PostImage getBestPickedImage() {
@@ -96,10 +96,10 @@ public class Post extends BaseEntity {
 
     public void close(Long userId) {
         validateOwner(userId);
-        if (state == State.CLOSED) {
+        if (status == Status.CLOSED) {
             throw new BadRequestException(ErrorCode.POST_ALREADY_CLOSED);
         }
-        this.state = State.CLOSED;
+        this.status = Status.CLOSED;
     }
 
     public void validateOwner(Long userId) {
@@ -109,7 +109,7 @@ public class Post extends BaseEntity {
     }
 
     public void validateProgress() {
-        if (!this.state.equals(State.PROGRESS)) {
+        if (!this.status.equals(Status.PROGRESS)) {
             throw new BadRequestException(ErrorCode.POST_ALREADY_CLOSED);
         }
     }

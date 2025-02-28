@@ -1,14 +1,17 @@
 package com.swyp8team2.post.application;
 
+import com.swyp8team2.common.annotation.ShareUrlCryptoService;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
+import com.swyp8team2.crypto.application.CryptoService;
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
 import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.PostImage;
 import com.swyp8team2.post.domain.PostRepository;
-import com.swyp8team2.post.domain.State;
+import com.swyp8team2.post.domain.Status;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
+import com.swyp8team2.post.presentation.dto.CreatePostResponse;
 import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.PostImageRequestDto;
 import com.swyp8team2.post.presentation.dto.PostImageResponse;
@@ -21,6 +24,8 @@ import com.swyp8team2.vote.domain.VoteRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +36,8 @@ import static com.swyp8team2.support.fixture.FixtureGenerator.createUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 class PostServiceTest extends IntegrationTest {
 
@@ -52,6 +59,10 @@ class PostServiceTest extends IntegrationTest {
     @Autowired
     VoteService voteService;
 
+    @MockitoBean
+    @ShareUrlCryptoService
+    CryptoService shareUrlCryptoService;
+
     @Test
     @DisplayName("게시글 작성")
     void create() throws Exception {
@@ -61,16 +72,20 @@ class PostServiceTest extends IntegrationTest {
                 new PostImageRequestDto(1L),
                 new PostImageRequestDto(2L)
         ));
+        String shareUrl = "shareUrl";
+        given(shareUrlCryptoService.encrypt(any()))
+                .willReturn(shareUrl);
 
         //when
-        Long postId = postService.create(userId, request);
+        CreatePostResponse response = postService.create(userId, request);
 
         //then
-        Post post = postRepository.findById(postId).get();
+        Post post = postRepository.findById(response.postId()).get();
         List<PostImage> images = post.getImages();
         assertAll(
                 () -> assertThat(post.getDescription()).isEqualTo("description"),
                 () -> assertThat(post.getUserId()).isEqualTo(userId),
+                () -> assertThat(post.getShareUrl()).isEqualTo(shareUrl),
                 () -> assertThat(images).hasSize(2),
                 () -> assertThat(images.get(0).getImageFileId()).isEqualTo(1L),
                 () -> assertThat(images.get(0).getName()).isEqualTo("뽀또 A"),
@@ -253,7 +268,7 @@ class PostServiceTest extends IntegrationTest {
 
         //then
         postRepository.findById(post.getId()).get();
-        assertThat(post.getState()).isEqualTo(State.CLOSED);
+        assertThat(post.getStatus()).isEqualTo(Status.CLOSED);
     }
 
     @Test

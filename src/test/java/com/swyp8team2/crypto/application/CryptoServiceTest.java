@@ -17,17 +17,18 @@ class CryptoServiceTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        cryptoService = new CryptoService(new AesBytesEncryptor("test", "123456"));
+        cryptoService = new CryptoService(new AesBytesEncryptor("asdfd", "1541235432"));
     }
 
     @Test
     @DisplayName("암호화 및 복호화")
     void encryptAndDecrypt() {
         // given
-        String plainText = "Hello, World!";
+        String plainText = "15411";
 
         // when
         String encryptedText = cryptoService.encrypt(plainText);
+        System.out.println("encryptedText = " + encryptedText);
         String decryptedText = cryptoService.decrypt(encryptedText);
 
         // then

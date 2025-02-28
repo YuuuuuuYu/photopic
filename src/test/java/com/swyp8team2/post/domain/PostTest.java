@@ -32,7 +32,7 @@ class PostTest {
         assertAll(
                 () -> assertThat(post.getUserId()).isEqualTo(userId),
                 () -> assertThat(post.getDescription()).isEqualTo(description),
-                () -> assertThat(post.getState()).isEqualTo(State.PROGRESS),
+                () -> assertThat(post.getStatus()).isEqualTo(Status.PROGRESS),
                 () -> assertThat(images).hasSize(2),
                 () -> assertThat(images.get(0).getName()).isEqualTo("뽀또A"),
                 () -> assertThat(images.get(0).getImageFileId()).isEqualTo(1L),
@@ -82,13 +82,13 @@ class PostTest {
                 PostImage.create("뽀또A", 1L),
                 PostImage.create("뽀또B", 2L)
         );
-        Post post = new Post(null, userId, "description", State.PROGRESS, postImages, "shareUrl");
+        Post post = new Post(null, userId, "description", Status.PROGRESS, postImages, "shareUrl");
 
         //when
         post.close(userId);
 
         //then
-        assertThat(post.getState()).isEqualTo(State.CLOSED);
+        assertThat(post.getStatus()).isEqualTo(Status.CLOSED);
     }
 
     @Test
@@ -100,7 +100,7 @@ class PostTest {
                 PostImage.create("뽀또A", 1L),
                 PostImage.create("뽀또B", 2L)
         );
-        Post post = new Post(null, userId, "description", State.CLOSED, postImages, "shareUrl");
+        Post post = new Post(null, userId, "description", Status.CLOSED, postImages, "shareUrl");
 
         //when then
         assertThatThrownBy(() -> post.close(userId))
@@ -117,7 +117,7 @@ class PostTest {
                 PostImage.create("뽀또A", 1L),
                 PostImage.create("뽀또B", 2L)
         );
-        Post post = new Post(null, userId, "description", State.PROGRESS, postImages, "shareUrl");
+        Post post = new Post(null, userId, "description", Status.PROGRESS, postImages, "shareUrl");
 
         //when then
         assertThatThrownBy(() -> post.close(2L))
