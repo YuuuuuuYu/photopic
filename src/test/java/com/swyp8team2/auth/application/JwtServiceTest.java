@@ -6,6 +6,7 @@ import com.swyp8team2.auth.application.jwt.JwtService;
 import com.swyp8team2.auth.application.jwt.TokenPair;
 import com.swyp8team2.auth.domain.RefreshToken;
 import com.swyp8team2.auth.domain.RefreshTokenRepository;
+import com.swyp8team2.auth.presentation.dto.TokenResponse;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.support.IntegrationTest;
@@ -39,9 +40,10 @@ class JwtServiceTest extends IntegrationTest {
                 .willReturn(expectedTokenPair);
 
         //when
-        TokenPair tokenPair = jwtService.createToken(givenUserId);
+        TokenResponse tokenResponse = jwtService.createToken(givenUserId);
 
         //then
+        TokenPair tokenPair = tokenResponse.tokenPair();
         RefreshToken findRefreshToken = refreshTokenRepository.findByUserId(givenUserId).get();
         assertThat(tokenPair).isEqualTo(expectedTokenPair);
         assertThat(findRefreshToken.getToken()).isEqualTo(expectedTokenPair.refreshToken());
@@ -62,9 +64,10 @@ class JwtServiceTest extends IntegrationTest {
         refreshTokenRepository.save(new RefreshToken(givenUserId, givenRefreshToken));
 
         //when
-        TokenPair tokenPair = jwtService.reissue(givenRefreshToken);
+        TokenResponse tokenResponse = jwtService.reissue(givenRefreshToken);
 
         //then
+        TokenPair tokenPair = tokenResponse.tokenPair();
         RefreshToken findRefreshToken = refreshTokenRepository.findByUserId(givenUserId).get();
         assertThat(tokenPair).isEqualTo(expectedTokenPair);
         assertThat(findRefreshToken.getToken()).isEqualTo(newRefreshToken);

@@ -7,6 +7,7 @@ import com.swyp8team2.auth.application.oauth.dto.OAuthUserInfo;
 import com.swyp8team2.auth.domain.Provider;
 import com.swyp8team2.auth.domain.SocialAccount;
 import com.swyp8team2.auth.domain.SocialAccountRepository;
+import com.swyp8team2.auth.presentation.dto.TokenResponse;
 import com.swyp8team2.support.IntegrationTest;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
@@ -52,9 +53,10 @@ class AuthServiceTest extends IntegrationTest {
                 .willReturn(expectedTokenPair);
 
         //when
-        TokenPair tokenPair = authService.oauthSignIn("code", "https://dev.photopic.site");
+        TokenResponse tokenResponse = authService.oauthSignIn("code", "https://dev.photopic.site");
 
         //then
+        TokenPair tokenPair = tokenResponse.tokenPair();
         SocialAccount socialAccount = socialAccountRepository.findBySocialIdAndProvider(oAuthUserInfo.socialId(), Provider.KAKAO).get();
         User user = userRepository.findById(socialAccount.getId()).get();
         assertAll(

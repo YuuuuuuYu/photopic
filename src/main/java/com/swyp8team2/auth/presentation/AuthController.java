@@ -6,6 +6,7 @@ import com.swyp8team2.auth.application.jwt.TokenPair;
 import com.swyp8team2.auth.presentation.dto.GuestTokenResponse;
 import com.swyp8team2.auth.presentation.dto.OAuthSignInRequest;
 import com.swyp8team2.auth.presentation.dto.TokenResponse;
+import com.swyp8team2.auth.presentation.dto.AuthResponse;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.common.presentation.CustomHeader;
@@ -31,28 +32,30 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/oauth2/code/kakao")
-    public ResponseEntity<TokenResponse> kakaoOAuthSignIn(
+    public ResponseEntity<AuthResponse> kakaoOAuthSignIn(
             @Valid @RequestBody OAuthSignInRequest request,
             HttpServletResponse response
     ) {
-        TokenPair tokenPair = authService.oauthSignIn(request.code(), request.redirectUri());
+        TokenResponse tokenResponse = authService.oauthSignIn(request.code(), request.redirectUri());
+        TokenPair tokenPair = tokenResponse.tokenPair();
         Cookie cookie = refreshTokenCookieGenerator.createCookie(tokenPair.refreshToken());
         response.addCookie(cookie);
-        return ResponseEntity.ok(new TokenResponse(tokenPair.accessToken()));
+        return ResponseEntity.ok(new AuthResponse(tokenPair.accessToken(), tokenResponse.userId()));
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<TokenResponse> reissue(
+    public ResponseEntity<AuthResponse> reissue(
             @CookieValue(name = CustomHeader.CustomCookie.REFRESH_TOKEN, required = false) String refreshToken,
             HttpServletResponse response
     ) {
         if (Objects.isNull(refreshToken)) {
             throw new BadRequestException(ErrorCode.INVALID_REFRESH_TOKEN_HEADER);
         }
-        TokenPair tokenPair = authService.reissue(refreshToken);
+        TokenResponse tokenResponse = authService.reissue(refreshToken);
+        TokenPair tokenPair = tokenResponse.tokenPair();
         Cookie cookie = refreshTokenCookieGenerator.createCookie(tokenPair.refreshToken());
         response.addCookie(cookie);
-        return ResponseEntity.ok(new TokenResponse(tokenPair.accessToken()));
+        return ResponseEntity.ok(new AuthResponse(tokenPair.accessToken(), tokenResponse.userId()));
     }
 
     @PostMapping("/guest/token")
