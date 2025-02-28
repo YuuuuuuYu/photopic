@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swyp8team2.auth.application.AuthService;
 import com.swyp8team2.auth.presentation.RefreshTokenCookieGenerator;
 import com.swyp8team2.comment.application.CommentService;
+import com.swyp8team2.common.exception.DiscordMessageSender;
 import com.swyp8team2.image.application.ImageService;
 import com.swyp8team2.post.application.PostService;
 import com.swyp8team2.user.application.UserService;
@@ -44,4 +45,7 @@ public abstract class WebUnitTest {
 
     @MockitoBean
     protected UserService userService;
+
+    @MockitoBean
+    protected DiscordMessageSender discordMessageSender;
 }

@@ -11,13 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
-import org.springframework.security.test.context.support.WithAnonymousUser;
-
-import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
@@ -69,7 +64,7 @@ class VoteControllerTest extends RestDocsTest {
         mockMvc.perform(post("/posts/{postId}/votes/guest", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
-                        .header(CustomHeader.GUEST_ID, "guestToken"))
+                        .header(CustomHeader.GUEST_TOKEN, "guestToken"))
                 .andExpect(status().isOk())
                 .andDo(restDocs.document(
                         requestHeaders(guestHeader()),
@@ -122,7 +117,7 @@ class VoteControllerTest extends RestDocsTest {
         mockMvc.perform(patch("/posts/{postId}/votes/guest", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
-                        .header(CustomHeader.GUEST_ID, "guestToken"))
+                        .header(CustomHeader.GUEST_TOKEN, "guestToken"))
                 .andExpect(status().isOk())
                 .andDo(restDocs.document(
                         requestHeaders(guestHeader()),

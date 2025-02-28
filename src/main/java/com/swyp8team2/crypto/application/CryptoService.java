@@ -3,6 +3,7 @@ package com.swyp8team2.crypto.application;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.common.exception.InternalServerException;
+import io.seruco.encoding.base62.Base62;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
@@ -18,7 +19,7 @@ public class CryptoService {
     public String encrypt(String data) {
         try {
             byte[] encrypt = encryptor.encrypt(data.getBytes(StandardCharsets.UTF_8));
-            return Base62.encode(encrypt);
+            return new String(Base62.createInstance().encode(encrypt), StandardCharsets.UTF_8);
         } catch (Exception e) {
             log.debug("encrypt error {}", e.getMessage());
             throw new BadRequestException(ErrorCode.INVALID_TOKEN);
@@ -27,7 +28,7 @@ public class CryptoService {
 
     public String decrypt(String encryptedData) {
         try {
-            byte[] decryptBytes = Base62.decode(encryptedData);
+            byte[] decryptBytes = Base62.createInstance().decode(encryptedData.getBytes(StandardCharsets.UTF_8));
             byte[] decrypt = encryptor.decrypt(decryptBytes);
             return new String(decrypt, StandardCharsets.UTF_8);
         } catch (Exception e) {

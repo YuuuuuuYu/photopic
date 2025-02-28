@@ -1,6 +1,7 @@
 package com.swyp8team2.post.presentation;
 
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
+import com.swyp8team2.post.domain.Status;
 import com.swyp8team2.post.presentation.dto.AuthorDto;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.CreatePostResponse;
@@ -49,9 +50,9 @@ class PostControllerTest extends RestDocsTest {
                 "제목",
                 List.of(new PostImageRequestDto(1L), new PostImageRequestDto(2L))
         );
+        CreatePostResponse response = new CreatePostResponse(1L, "shareUrl");
         given(postService.create(any(), any()))
-                .willReturn(1L);
-        CreatePostResponse response = new CreatePostResponse(1L);
+                .willReturn(response);
 
         //when then
         mockMvc.perform(post("/posts")
@@ -78,7 +79,10 @@ class PostControllerTest extends RestDocsTest {
                         responseFields(
                                 fieldWithPath("postId")
                                         .type(JsonFieldType.NUMBER)
-                                        .description("게시글 Id")
+                                        .description("게시글 Id"),
+                                fieldWithPath("shareUrl")
+                                        .type(JsonFieldType.STRING)
+                                        .description("게시글 공유 url")
                         )
                 ));
     }
@@ -102,6 +106,7 @@ class PostControllerTest extends RestDocsTest {
                 ),
                 "https://photopic.site/shareurl",
                  true,
+                Status.PROGRESS,
                 LocalDateTime.of(2025, 2, 13, 12, 0)
         );
         given(postService.findById(any(), any()))
@@ -130,6 +135,7 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("images[].voted").type(JsonFieldType.BOOLEAN).description("투표 여부"),
                                 fieldWithPath("shareUrl").type(JsonFieldType.STRING).description("게시글 공유 URL"),
                                 fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시글 생성 시간"),
+                                fieldWithPath("status").type(JsonFieldType.STRING).description("게시글 마감 여부 (PROGRESS, CLOSED)"),
                                 fieldWithPath("isAuthor").type(JsonFieldType.BOOLEAN).description("게시글 작성자 여부")
                         )
                 ));
@@ -154,6 +160,7 @@ class PostControllerTest extends RestDocsTest {
                 ),
                 "https://photopic.site/shareurl",
                 true,
+                Status.PROGRESS,
                 LocalDateTime.of(2025, 2, 13, 12, 0)
         );
         given(postService.findByShareUrl(any(), any()))
@@ -182,6 +189,7 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("images[].voted").type(JsonFieldType.BOOLEAN).description("투표 여부"),
                                 fieldWithPath("shareUrl").type(JsonFieldType.STRING).description("게시글 공유 URL"),
                                 fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시글 생성 시간"),
+                                fieldWithPath("status").type(JsonFieldType.STRING).description("게시글 마감 여부 (PROGRESS, CLOSED)"),
                                 fieldWithPath("isAuthor").type(JsonFieldType.BOOLEAN).description("게시글 작성자 여부")
                         )
                 ));

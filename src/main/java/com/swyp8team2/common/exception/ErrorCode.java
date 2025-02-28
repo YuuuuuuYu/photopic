@@ -21,6 +21,7 @@ public enum ErrorCode {
     NOT_POST_AUTHOR("게시글 작성자가 아님"),
     POST_ALREADY_CLOSED("이미 마감된 게시글"),
     INVALID_GUEST_HEADER("잘못된 게스트 토큰 헤더"),
+    FILE_NAME_TOO_LONG("파일 이름이 너무 김"),
 
     //401
     EXPIRED_TOKEN("토큰 만료"),

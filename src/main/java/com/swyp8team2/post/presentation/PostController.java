@@ -38,7 +38,7 @@ public class PostController {
             @AuthenticationPrincipal UserInfo userInfo
     ) {
 
-        return ResponseEntity.ok(new CreatePostResponse(postService.create(userInfo.userId(), request)));
+        return ResponseEntity.ok(postService.create(userInfo.userId(), request));
     }
 
     @GetMapping("/{postId}")
