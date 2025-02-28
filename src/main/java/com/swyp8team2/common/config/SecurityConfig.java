@@ -5,6 +5,7 @@ import com.swyp8team2.auth.presentation.filter.GuestAuthFilter;
 import com.swyp8team2.auth.presentation.filter.HeaderTokenExtractor;
 import com.swyp8team2.auth.presentation.filter.JwtAuthFilter;
 import com.swyp8team2.auth.presentation.filter.JwtAuthenticationEntryPoint;
+import com.swyp8team2.common.annotation.GuestTokenCryptoService;
 import com.swyp8team2.crypto.application.CryptoService;
 import com.swyp8team2.user.domain.Role;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,12 +24,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
-
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -39,7 +37,7 @@ public class SecurityConfig {
 
     public SecurityConfig(
             @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver,
-            CryptoService cryptoService
+            @GuestTokenCryptoService CryptoService cryptoService
     ) {
         this.handlerExceptionResolver = handlerExceptionResolver;
         this.cryptoService = cryptoService;
@@ -112,7 +110,8 @@ public class SecurityConfig {
         return new MvcRequestMatcher[]{
                 mvc.pattern("/auth/reissue"),
                 mvc.pattern("/auth/guest/token"),
-                mvc.pattern(HttpMethod.GET, "/posts/{sharedUrl}"),
+                mvc.pattern(HttpMethod.GET, "/posts/shareUrl/{shareUrl}"),
+                mvc.pattern(HttpMethod.GET, "/posts/{postId}"),
                 mvc.pattern(HttpMethod.GET, "/posts/{postId}/comments"),
 //                mvc.pattern("/posts/{postId}/votes/guest/**"),
                 mvc.pattern("/auth/oauth2/**")
