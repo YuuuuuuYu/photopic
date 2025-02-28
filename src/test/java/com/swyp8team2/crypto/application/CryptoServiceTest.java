@@ -6,6 +6,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,7 +17,7 @@ class CryptoServiceTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        cryptoService = new CryptoService();
+        cryptoService = new CryptoService(new AesBytesEncryptor("test", "123456"));
     }
 
     @Test
@@ -38,7 +39,7 @@ class CryptoServiceTest {
     void encryptAndDecrypt_differentKey() throws Exception {
         // given
         String plainText = "Hello, World!";
-        CryptoService differentCryptoService = new CryptoService();
+        CryptoService differentCryptoService = new CryptoService(new AesBytesEncryptor("different", "234562"));
         String encryptedText = differentCryptoService.encrypt(plainText);
 
         // when then
