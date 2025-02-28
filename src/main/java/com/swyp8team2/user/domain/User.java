@@ -29,21 +29,18 @@ public class User extends BaseEntity {
 
     private String profileUrl;
 
-    private String seq;
-
     @Enumerated(jakarta.persistence.EnumType.STRING)
     public Role role;
 
-    public User(Long id, String nickname, String profileUrl, String seq, Role role) {
+    public User(Long id, String nickname, String profileUrl, Role role) {
         this.id = id;
         this.nickname = nickname;
         this.profileUrl = profileUrl;
-        this.seq = seq;
         this.role = role;
     }
 
     public static User create(String nickname, String profileUrl) {
-        return new User(null, nickname, profileUrl, UUID.randomUUID().toString(), Role.USER);
+        return new User(null, nickname, profileUrl, Role.USER);
     }
 
     public static User createGuest() {
@@ -51,7 +48,6 @@ public class User extends BaseEntity {
                 null,
                 "guest_" + System.currentTimeMillis(),
                 "https://image.photopic.site/images-dev/resized_202502240006030.png",
-                UUID.randomUUID().toString(),
                 Role.GUEST
         );
     }
