@@ -4,6 +4,7 @@ import com.swyp8team2.auth.application.AuthService;
 import com.swyp8team2.auth.application.jwt.TokenPair;
 import com.swyp8team2.auth.presentation.dto.GuestTokenResponse;
 import com.swyp8team2.auth.presentation.dto.OAuthSignInRequest;
+import com.swyp8team2.auth.presentation.dto.AuthResponse;
 import com.swyp8team2.auth.presentation.dto.TokenResponse;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
@@ -41,9 +42,9 @@ class AuthControllerTest extends RestDocsTest {
     void kakaoOAuthSignIn() throws Exception {
         //given
         TokenPair expectedTokenPair = new TokenPair("accessToken", "refreshToken");
-        TokenResponse response = new TokenResponse(expectedTokenPair.accessToken());
+        AuthResponse response = new AuthResponse(expectedTokenPair.accessToken(), 1L);
         given(authService.oauthSignIn(anyString(), anyString()))
-                .willReturn(expectedTokenPair);
+                .willReturn(new TokenResponse(expectedTokenPair, 1L));
         OAuthSignInRequest request = new OAuthSignInRequest("code", "https://dev.photopic.site");
 
         //when then
@@ -64,7 +65,8 @@ class AuthControllerTest extends RestDocsTest {
                                 fieldWithPath("redirectUri").description("카카오 인증 redirect uri")
                         ),
                         responseFields(
-                                fieldWithPath("accessToken").description("액세스 토큰")
+                                fieldWithPath("accessToken").description("액세스 토큰"),
+                                fieldWithPath("userId").description("유저 Id")
                         ),
                         responseCookies(
                                 cookieWithName(CustomHeader.CustomCookie.REFRESH_TOKEN).description("리프레시 토큰")
@@ -78,9 +80,10 @@ class AuthControllerTest extends RestDocsTest {
     void reissue() throws Exception {
         //given
         String newRefreshToken = "newRefreshToken";
+        TokenPair tokenPair = new TokenPair("accessToken", newRefreshToken);
         given(authService.reissue(anyString()))
-                .willReturn(new TokenPair("accessToken", newRefreshToken));
-        TokenResponse response = new TokenResponse("accessToken");
+                .willReturn(new TokenResponse(tokenPair, 1L));
+        AuthResponse response = new AuthResponse(tokenPair.accessToken(), 1L);
 
         //when then
         mockMvc.perform(post("/auth/reissue")
@@ -101,7 +104,8 @@ class AuthControllerTest extends RestDocsTest {
                                 cookieWithName(CustomHeader.CustomCookie.REFRESH_TOKEN).description("새 리프레시 토큰")
                         ),
                         responseFields(
-                                fieldWithPath("accessToken").description("새 액세스 토큰")
+                                fieldWithPath("accessToken").description("새 액세스 토큰"),
+                                fieldWithPath("userId").description("유저 Id")
                         )
                 ));
     }

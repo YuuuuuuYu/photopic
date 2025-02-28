@@ -2,6 +2,7 @@ package com.swyp8team2.auth.application.jwt;
 
 import com.swyp8team2.auth.domain.RefreshToken;
 import com.swyp8team2.auth.domain.RefreshTokenRepository;
+import com.swyp8team2.auth.presentation.dto.TokenResponse;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
 import jakarta.transaction.Transactional;
@@ -18,7 +19,7 @@ public class JwtService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
-    public TokenPair createToken(long userId) {
+    public TokenResponse createToken(long userId) {
         TokenPair tokenPair = jwtProvider.createToken(new JwtClaim(userId));
         RefreshToken refreshToken = refreshTokenRepository.findByUserId(userId)
                 .orElseGet(() -> new RefreshToken(userId, tokenPair.refreshToken()));
@@ -27,11 +28,11 @@ public class JwtService {
 
         log.debug("createToken userId: {} accessToken: {} refreshToken: {}",
                 userId, tokenPair.accessToken(), tokenPair.refreshToken());
-        return tokenPair;
+        return new TokenResponse(tokenPair, userId);
     }
 
     @Transactional
-    public TokenPair reissue(String refreshToken) {
+    public TokenResponse reissue(String refreshToken) {
         JwtClaim claim = jwtProvider.parseToken(refreshToken);
         RefreshToken findRefreshToken = refreshTokenRepository.findByUserId(claim.idAsLong())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
@@ -41,6 +42,6 @@ public class JwtService {
 
         log.debug("reissue userId: {} accessToken: {} refreshToken: {}",
                 claim.id(), tokenPair.accessToken(), tokenPair.refreshToken());
-        return tokenPair;
+        return new TokenResponse(tokenPair, claim.idAsLong());
     }
 }

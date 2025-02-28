@@ -2,6 +2,7 @@ package com.swyp8team2.common.dev;
 
 import com.swyp8team2.auth.application.jwt.JwtService;
 import com.swyp8team2.auth.application.jwt.TokenPair;
+import com.swyp8team2.auth.presentation.dto.TokenResponse;
 import com.swyp8team2.comment.domain.Comment;
 import com.swyp8team2.comment.domain.CommentRepository;
 import com.swyp8team2.common.annotation.ShareUrlCryptoService;
@@ -69,7 +70,8 @@ public class DataInitializer {
         }
         List<NicknameAdjective> adjectives = nicknameAdjectiveRepository.findAll();
         User testUser = userRepository.save(User.create("nickname", "https://t1.kakaocdn.net/account_images/default_profile.jpeg"));
-        TokenPair tokenPair = jwtService.createToken(testUser.getId());
+        TokenResponse tokenResponse = jwtService.createToken(testUser.getId());
+        TokenPair tokenPair = tokenResponse.tokenPair();
         System.out.println("accessToken = " + tokenPair.accessToken());
         System.out.println("refreshToken = " + tokenPair.refreshToken());
         List<User> users = new ArrayList<>();
