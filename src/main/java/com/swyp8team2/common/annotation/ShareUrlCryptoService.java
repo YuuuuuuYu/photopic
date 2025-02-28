@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 @Qualifier(ShareUrlCryptoService.QUALIFIER)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.PARAMETER, ElementType.METHOD})
+@Target({ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD})
 public @interface ShareUrlCryptoService {
 
     String QUALIFIER = "shareUrlCryptoService";

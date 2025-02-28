@@ -1,5 +1,7 @@
 package com.swyp8team2.image.application;
 
+import com.sksamuel.scrimage.ImmutableImage;
+import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.common.exception.ServiceUnavailableException;
 import com.swyp8team2.common.util.DateTime;
@@ -13,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -22,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @Slf4j
@@ -52,6 +56,9 @@ public class R2Storage {
             for (int i = 0; i < files.length; i++) {
                 MultipartFile file = files[i];
                 String originFileName = file.getOriginalFilename();
+                if (originFileName.length() > 100) {
+                    throw new BadRequestException(ErrorCode.FILE_NAME_TOO_LONG);
+                }
                 String realFileName = getRealFileName(originFileName, filePath, i);
                 File tempFile = File.createTempFile("upload_", "_" + originFileName);
                 file.transferTo(tempFile);
@@ -81,7 +88,18 @@ public class R2Storage {
 
     private String resizeImage(File file, String realFileName, int targetHeight) {
         try {
-            BufferedImage srcImage = ImageIO.read(file);
+            String ext = Optional.of(realFileName)
+                    .filter(name -> name.contains("."))
+                    .map(name -> name.substring(name.lastIndexOf('.') + 1))
+                    .orElseThrow(() -> new BadRequestException(ErrorCode.MISSING_FILE_EXTENSION))
+                    .toLowerCase();
+
+            BufferedImage srcImage;
+            if ("webp".equals(ext)) {
+                srcImage = ImmutableImage.loader().fromFile(file).awt();
+            } else {
+                srcImage = ImageIO.read(file);
+            }
             BufferedImage resizedImage = highQualityResize(srcImage, targetHeight);
 
             int splitIndex = realFileName.lastIndexOf("/") + 1;
@@ -120,7 +138,7 @@ public class R2Storage {
                 .key(realFileName)
                 .build();
 
-        s3Client.putObject(objectRequest, RequestBody.fromFile(file));
+        PutObjectResponse putObjectResponse = s3Client.putObject(objectRequest, RequestBody.fromFile(file));
         return file;
     }
 
