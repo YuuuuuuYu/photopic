@@ -111,14 +111,26 @@ class JwtServiceTest extends IntegrationTest {
         //given
         long givenUserId = 1L;
         String givenRefreshToken = "refreshToken";
-        given(jwtProvider.parseToken(eq(givenRefreshToken)))
-                .willReturn(new JwtClaim(givenUserId));
         refreshTokenRepository.save(new RefreshToken(givenUserId, givenRefreshToken));
 
         //when
-        jwtService.signOut(givenRefreshToken);
+        jwtService.signOut(givenUserId, givenRefreshToken);
 
         //then
         assertThat(refreshTokenRepository.findByUserId(givenUserId)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("로그아웃 - 유저의 refresh token이 아닌 경우")
+    void signOut_invalidRefreshToken() throws Exception {
+        //given
+        long givenUserId = 1L;
+        String givenRefreshToken = "refreshToken";
+        refreshTokenRepository.save(new RefreshToken(givenUserId, givenRefreshToken));
+
+        //when then
+        assertThatThrownBy(() -> jwtService.signOut(givenUserId, "differentToken"))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage(ErrorCode.REFRESH_TOKEN_MISMATCHED.getMessage());
     }
 }
