@@ -24,13 +24,13 @@ operation::post-controller-test/find-post_share-url[snippets='http-request,curl-
 operation::post-controller-test/find-vote-status[snippets='http-request,curl-request,request-headers,path-parameters,http-response,response-fields']
 
 
-[[내가-작성한-게시글-조회]]
-=== `GET` 내가 작성한 게시글 조회
+[[유저가-작성한-게시글-조회]]
+=== `GET` 유저가 작성한 게시글 조회
 
 operation::post-controller-test/find-my-post[snippets='http-request,curl-request,query-parameters,request-headers,http-response,response-fields']
 
-[[내가-참여한-게시글-조회]]
-=== `GET` 내가 참여한 게시글 조회
+[[유저가-참여한-게시글-조회]]
+=== `GET` 유저가 참여한 게시글 조회
 
 operation::post-controller-test/find-voted-post[snippets='http-request,curl-request,query-parameters,request-headers,http-response,response-fields']
 
