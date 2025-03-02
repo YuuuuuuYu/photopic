@@ -19,6 +19,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.cookies.CookieDocumentation.cookieWithName;
 import static org.springframework.restdocs.cookies.CookieDocumentation.requestCookies;
@@ -167,6 +169,30 @@ class AuthControllerTest extends RestDocsTest {
                 .andDo(restDocs.document(
                         responseFields(
                                 fieldWithPath("guestToken").description("게스트 토큰")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("로그아웃")
+    void signOut() throws Exception {
+        //given
+
+        //when then
+        mockMvc.perform(post("/auth/sign-out")
+                        .cookie(new Cookie(CustomHeader.CustomCookie.REFRESH_TOKEN, "refreshToken")))
+                .andExpect(status().isOk())
+                .andExpect(cookie().httpOnly(CustomHeader.CustomCookie.REFRESH_TOKEN, true))
+                .andExpect(cookie().path(CustomHeader.CustomCookie.REFRESH_TOKEN, "/"))
+                .andExpect(cookie().secure(CustomHeader.CustomCookie.REFRESH_TOKEN, true))
+                .andExpect(cookie().attribute(CustomHeader.CustomCookie.REFRESH_TOKEN, "SameSite", "None"))
+                .andExpect(cookie().maxAge(CustomHeader.CustomCookie.REFRESH_TOKEN, 0))
+                .andDo(restDocs.document(
+                        requestCookies(
+                                cookieWithName(CustomHeader.CustomCookie.REFRESH_TOKEN).description("리프레시 토큰")
+                        ),
+                        responseCookies(
+                                cookieWithName(CustomHeader.CustomCookie.REFRESH_TOKEN).description("리프레시 토큰")
                         )
                 ));
     }
