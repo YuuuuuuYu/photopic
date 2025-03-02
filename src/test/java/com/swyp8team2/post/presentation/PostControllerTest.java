@@ -248,7 +248,7 @@ class PostControllerTest extends RestDocsTest {
 
     @Test
     @WithMockUserInfo
-    @DisplayName("내가 작성한 게시글 조회")
+    @DisplayName("유저가 작성한 게시글 조회")
     void findMyPost() throws Exception {
         //given
         var response = new CursorBasePaginatedResponse<>(
@@ -263,15 +263,16 @@ class PostControllerTest extends RestDocsTest {
                         )
                 )
         );
-        given(postService.findMyPosts(1L, null, 10))
+        given(postService.findUserPosts(1L, null, 10))
                 .willReturn(response);
 
         //when then
-        mockMvc.perform(get("/posts/user/me")
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/posts/users/{userId}", 1)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(response)))
                 .andDo(restDocs.document(
+                        pathParameters(parameterWithName("userId").description("유저 Id")),
                         requestHeaders(authorizationHeader()),
                         queryParameters(cursorQueryParams()),
                         responseFields(
@@ -303,7 +304,7 @@ class PostControllerTest extends RestDocsTest {
 
     @Test
     @WithMockUserInfo
-    @DisplayName("내가 참여한 게시글 조회")
+    @DisplayName("유저가 참여한 게시글 조회")
     void findVotedPost() throws Exception {
         //given
         var response = new CursorBasePaginatedResponse<>(
@@ -322,11 +323,12 @@ class PostControllerTest extends RestDocsTest {
                 .willReturn(response);
 
         //when then
-        mockMvc.perform(get("/posts/user/voted")
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/posts/users/{userId}/voted", 1)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(response)))
                 .andDo(restDocs.document(
+                        pathParameters(parameterWithName("userId").description("유저 Id")),
                         requestHeaders(authorizationHeader()),
                         queryParameters(cursorQueryParams()),
                         responseFields(
