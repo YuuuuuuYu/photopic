@@ -41,21 +41,15 @@ dependencies {
     // image
     implementation 'software.amazon.awssdk:s3:2.30.18'
     implementation 'org.imgscalr:imgscalr-lib:4.2'
-<<<<<<< HEAD
     implementation 'com.sksamuel.scrimage:scrimage-core:4.3.0'
     implementation 'com.sksamuel.scrimage:scrimage-webp:4.3.0'
-=======
->>>>>>> origin/main
 
     // gson
     implementation 'com.google.code.gson:gson:2.8.6'
 
-<<<<<<< HEAD
     // base64
     implementation 'io.seruco.encoding:base62:0.1.3'
 
-=======
->>>>>>> origin/main
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'com.mysql:mysql-connector-j'
