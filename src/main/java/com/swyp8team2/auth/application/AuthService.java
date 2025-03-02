@@ -1,7 +1,6 @@
 package com.swyp8team2.auth.application;
 
 import com.swyp8team2.auth.application.jwt.JwtService;
-import com.swyp8team2.auth.application.jwt.TokenPair;
 import com.swyp8team2.auth.application.oauth.OAuthService;
 import com.swyp8team2.auth.application.oauth.dto.OAuthUserInfo;
 import com.swyp8team2.auth.domain.Provider;
@@ -63,7 +62,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void signOut(String refreshToken) {
-        jwtService.signOut(refreshToken);
+    public void signOut(Long userId, String refreshToken) {
+        jwtService.signOut(userId, refreshToken);
     }
 }
