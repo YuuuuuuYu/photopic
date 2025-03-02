@@ -38,7 +38,8 @@ public class GuestAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             AntPathMatcher matcher = new AntPathMatcher();
-            if (!matcher.match("/posts/{postId}/votes/guest", request.getRequestURI())) {
+            if (!matcher.match("/posts/{postId}/votes/guest", request.getRequestURI()) &&
+                    !matcher.match("/posts/shareUrl/{shareUrl}", request.getRequestURI())) {
                 return;
             }
             String token = request.getHeader(CustomHeader.GUEST_TOKEN);
