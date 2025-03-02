@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>멀티 파일 업로드 테스트</title>
+</head>
+<body>
+<h1>여러 파일 업로드 테스트</h1>
+
+<input type="file" id="fileInput" multiple />
+<button id="uploadBtn">업로드</button>
+
+<script>
+    document.getElementById("uploadBtn").addEventListener("click", async function () {
+        const fileInput = document.getElementById("fileInput");
+        const files = fileInput.files;
+
+        if (!files || files.length === 0) {
+            alert("업로드할 파일을 선택해주세요.");
+            return;
+        }
+
+        const formData = new FormData();
+        Array.from(files).forEach(file => {
+            formData.append("files", file);
+        });
+
+        const url = "https://devapi.photopic.site";
+        try {
+            const response = await fetch("/image/upload", {
+                method: "POST",
+                headers: {
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEiLCJpYXQiOjE3NDAyOTQyMzEsImlzcyI6InN3eXA4dGVhbTIiLCJleHAiOjMzMjc2Mjk0MjMxfQ.gqA245tRiBQB9owKRWIpX1we1T362R-xDTt4YT9AhRY'
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`서버 에러 발생: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            console.log(result);
+
+        } catch (error) {
+            alert("업로드 실패: " + error.message);
+            console.dir(error);
+        }
+    });
+</script>
+</body>
+</html>

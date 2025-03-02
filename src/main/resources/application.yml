@@ -1,0 +1,21 @@
+server:
+  port: 8080
+spring:
+  profiles:
+    active: local
+
+---
+
+spring:
+  config:
+    import: classpath:application-dev.yml
+    activate:
+      on-profile: dev
+
+---
+
+spring:
+  config:
+    import: classpath:application-prod.yml
+    activate:
+      on-profile: prod
