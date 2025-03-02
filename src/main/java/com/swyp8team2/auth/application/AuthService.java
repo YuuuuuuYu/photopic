@@ -61,4 +61,9 @@ public class AuthService {
         Long guestId = userService.createGuest();
         return cryptoService.encrypt(String.valueOf(guestId));
     }
+
+    @Transactional
+    public void signOut(String refreshToken) {
+        jwtService.signOut(refreshToken);
+    }
 }

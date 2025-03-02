@@ -44,4 +44,10 @@ public class JwtService {
                 claim.id(), tokenPair.accessToken(), tokenPair.refreshToken());
         return new TokenResponse(tokenPair, claim.idAsLong());
     }
+
+    @Transactional
+    public void signOut(String refreshToken) {
+        JwtClaim claim = jwtProvider.parseToken(refreshToken);
+        refreshTokenRepository.deleteByUserId(claim.idAsLong());
+    }
 }

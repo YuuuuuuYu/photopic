@@ -63,4 +63,17 @@ public class AuthController {
         String guestToken = authService.createGuestToken();
         return ResponseEntity.ok(new GuestTokenResponse(guestToken));
     }
+
+    @PostMapping("/sign-out")
+    public ResponseEntity<Void> signOut(
+            @CookieValue(name = CustomHeader.CustomCookie.REFRESH_TOKEN, required = false) String refreshToken,
+            HttpServletResponse response
+    ) {
+        if (Objects.isNull(refreshToken)) {
+            throw new BadRequestException(ErrorCode.INVALID_REFRESH_TOKEN_HEADER);
+        }
+        refreshTokenCookieGenerator.removeCookie(response);
+        authService.signOut(refreshToken);
+        return ResponseEntity.ok().build();
+    }
 }
