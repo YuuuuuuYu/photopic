@@ -69,4 +69,4 @@ jobs:
           script_stop: true
           script: |
             sudo fuser -k -n tcp 8080 || true
-            nohup java -jar -Dspring.profiles.active=prod photopic-prod.jar > ./output.log 2>&1 &
+            nohup java -Xms256m -Xmx742m -jar -Dspring.profiles.active=prod photopic-prod.jar > ./output.log 2>&1 &
