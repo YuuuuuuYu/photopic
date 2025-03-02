@@ -57,7 +57,7 @@ public class Post extends BaseEntity {
     }
 
     private void validatePostImages(List<PostImage> images) {
-        if (images.size() < 2 && images.size() > 9) {
+        if (images.size() < 2 || images.size() > 9) {
             throw new BadRequestException(ErrorCode.INVALID_POST_IMAGE_COUNT);
         }
     }
