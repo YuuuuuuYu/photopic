@@ -3,6 +3,7 @@ package com.swyp8team2.auth.presentation;
 
 import com.swyp8team2.auth.application.AuthService;
 import com.swyp8team2.auth.application.jwt.TokenPair;
+import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.auth.presentation.dto.GuestTokenResponse;
 import com.swyp8team2.auth.presentation.dto.OAuthSignInRequest;
 import com.swyp8team2.auth.presentation.dto.TokenResponse;
@@ -15,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,5 +64,19 @@ public class AuthController {
     public ResponseEntity<GuestTokenResponse> guestToken() {
         String guestToken = authService.createGuestToken();
         return ResponseEntity.ok(new GuestTokenResponse(guestToken));
+    }
+
+    @PostMapping("/sign-out")
+    public ResponseEntity<Void> signOut(
+            @CookieValue(name = CustomHeader.CustomCookie.REFRESH_TOKEN, required = false) String refreshToken,
+            HttpServletResponse response,
+            @AuthenticationPrincipal UserInfo userInfo
+    ) {
+        if (Objects.isNull(refreshToken)) {
+            throw new BadRequestException(ErrorCode.INVALID_REFRESH_TOKEN_HEADER);
+        }
+        refreshTokenCookieGenerator.removeCookie(response);
+        authService.signOut(userInfo.userId(), refreshToken);
+        return ResponseEntity.ok().build();
     }
 }

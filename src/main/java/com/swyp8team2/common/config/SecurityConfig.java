@@ -113,8 +113,7 @@ public class SecurityConfig {
                 mvc.pattern(HttpMethod.GET, "/posts/shareUrl/{shareUrl}"),
                 mvc.pattern(HttpMethod.GET, "/posts/{postId}"),
                 mvc.pattern(HttpMethod.GET, "/posts/{postId}/comments"),
-//                mvc.pattern("/posts/{postId}/votes/guest/**"),
-                mvc.pattern("/auth/oauth2/**")
+                mvc.pattern("/auth/oauth2/**"),
         };
     }
 

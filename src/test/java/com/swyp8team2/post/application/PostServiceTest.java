@@ -25,7 +25,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,10 +87,10 @@ class PostServiceTest extends IntegrationTest {
                 () -> assertThat(post.getShareUrl()).isEqualTo(shareUrl),
                 () -> assertThat(images).hasSize(2),
                 () -> assertThat(images.get(0).getImageFileId()).isEqualTo(1L),
-                () -> assertThat(images.get(0).getName()).isEqualTo("뽀또 A"),
+                () -> assertThat(images.get(0).getName()).isEqualTo("뽀또A"),
                 () -> assertThat(images.get(0).getVoteCount()).isEqualTo(0),
                 () -> assertThat(images.get(1).getImageFileId()).isEqualTo(2L),
-                () -> assertThat(images.get(1).getName()).isEqualTo("뽀또 B"),
+                () -> assertThat(images.get(1).getName()).isEqualTo("뽀또B"),
                 () -> assertThat(images.get(1).getVoteCount()).isEqualTo(0)
         );
     }
@@ -156,15 +155,15 @@ class PostServiceTest extends IntegrationTest {
     }
 
     @Test
-    @DisplayName("내가 작성한 게시글 조회 - 커서 null인 경우")
-    void findMyPosts() throws Exception {
+    @DisplayName("유저가 작성한 게시글 조회 - 커서 null인 경우")
+    void findUserPosts() throws Exception {
         //given
         User user = userRepository.save(createUser(1));
         List<Post> posts = createPosts(user);
         int size = 10;
 
         //when
-        var response = postService.findMyPosts(user.getId(), null, size);
+        var response = postService.findUserPosts(user.getId(), null, size);
 
         //then
         assertAll(
@@ -175,15 +174,15 @@ class PostServiceTest extends IntegrationTest {
     }
 
     @Test
-    @DisplayName("내가 작성한 게시글 조회 - 커서 있는 경우")
-    void findMyPosts2() throws Exception {
+    @DisplayName("유저가 작성한 게시글 조회 - 커서 있는 경우")
+    void findUserPosts2() throws Exception {
         //given
         User user = userRepository.save(createUser(1));
         List<Post> posts = createPosts(user);
         int size = 10;
 
         //when
-        var response = postService.findMyPosts(user.getId(), posts.get(3).getId(), size);
+        var response = postService.findUserPosts(user.getId(), posts.get(3).getId(), size);
 
         //then
         assertAll(
@@ -204,7 +203,7 @@ class PostServiceTest extends IntegrationTest {
     }
 
     @Test
-    @DisplayName("내가 투표한 게시글 조회 - 커서 null인 경우")
+    @DisplayName("유저가 투표한 게시글 조회 - 커서 null인 경우")
     void findVotedPosts() throws Exception {
         //given
         User user = userRepository.save(createUser(1));

@@ -88,21 +88,21 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/user/me")
+    @GetMapping("/users/{userId}")
     public ResponseEntity<CursorBasePaginatedResponse<SimplePostResponse>> findMyPosts(
+            @PathVariable("userId") Long userId,
             @RequestParam(name = "cursor", required = false) @Min(0) Long cursor,
-            @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size,
-            @AuthenticationPrincipal UserInfo userInfo
+            @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size
     ) {
-        return ResponseEntity.ok(postService.findMyPosts(userInfo.userId(), cursor, size));
+        return ResponseEntity.ok(postService.findUserPosts(userId, cursor, size));
     }
 
-    @GetMapping("/user/voted")
+    @GetMapping("/users/{userId}/voted")
     public ResponseEntity<CursorBasePaginatedResponse<SimplePostResponse>> findVotedPosts(
+            @PathVariable("userId") Long userId,
             @RequestParam(name = "cursor", required = false) @Min(0) Long cursor,
-            @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size,
-            @AuthenticationPrincipal UserInfo userInfo
+            @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size
     ) {
-        return ResponseEntity.ok(postService.findVotedPosts(userInfo.userId(), cursor, size));
+        return ResponseEntity.ok(postService.findVotedPosts(userId, cursor, size));
     }
 }

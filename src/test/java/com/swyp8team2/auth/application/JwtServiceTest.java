@@ -17,6 +17,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
 class JwtServiceTest extends IntegrationTest {
@@ -100,6 +101,35 @@ class JwtServiceTest extends IntegrationTest {
 
         //when
         assertThatThrownBy(() -> jwtService.reissue("mismatchToken"))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage(ErrorCode.REFRESH_TOKEN_MISMATCHED.getMessage());
+    }
+
+    @Test
+    @DisplayName("로그아웃하면 refresh token을 db에서 삭제해야 함")
+    void signOut() throws Exception {
+        //given
+        long givenUserId = 1L;
+        String givenRefreshToken = "refreshToken";
+        refreshTokenRepository.save(new RefreshToken(givenUserId, givenRefreshToken));
+
+        //when
+        jwtService.signOut(givenUserId, givenRefreshToken);
+
+        //then
+        assertThat(refreshTokenRepository.findByUserId(givenUserId)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("로그아웃 - 유저의 refresh token이 아닌 경우")
+    void signOut_invalidRefreshToken() throws Exception {
+        //given
+        long givenUserId = 1L;
+        String givenRefreshToken = "refreshToken";
+        refreshTokenRepository.save(new RefreshToken(givenUserId, givenRefreshToken));
+
+        //when then
+        assertThatThrownBy(() -> jwtService.signOut(givenUserId, "differentToken"))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.REFRESH_TOKEN_MISMATCHED.getMessage());
     }

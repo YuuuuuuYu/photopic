@@ -16,6 +16,6 @@ public class PostImageNameGenerator {
         if (index >= alphabets.length) {
             throw new InternalServerException(ErrorCode.POST_IMAGE_NAME_GENERATOR_INDEX_OUT_OF_BOUND);
         }
-        return "뽀또 " + alphabets[index++];
+        return "뽀또" + alphabets[index++];
     }
 }

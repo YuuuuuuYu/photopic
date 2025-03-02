@@ -21,7 +21,6 @@ import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import com.swyp8team2.vote.domain.Vote;
 import com.swyp8team2.vote.domain.VoteRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -113,7 +112,7 @@ public class PostService {
                 .orElse(false);
     }
 
-    public CursorBasePaginatedResponse<SimplePostResponse> findMyPosts(Long userId, Long cursor, int size) {
+    public CursorBasePaginatedResponse<SimplePostResponse> findUserPosts(Long userId, Long cursor, int size) {
         Slice<Post> postSlice = postRepository.findByUserId(userId, cursor, PageRequest.ofSize(size));
         return CursorBasePaginatedResponse.of(postSlice.map(this::createSimplePostResponse)
         );
