@@ -50,6 +50,9 @@ public class GuestAuthFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (ApplicationException e) {
             request.setAttribute(EXCEPTION_KEY, e);
+        } catch (Exception e) {
+            log.debug("GuestAuthFilter error", e);
+            request.setAttribute(EXCEPTION_KEY, new BadRequestException(ErrorCode.INVALID_TOKEN));
         } finally {
             doFilter(request, response, filterChain);
         }

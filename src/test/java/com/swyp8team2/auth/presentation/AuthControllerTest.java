@@ -11,19 +11,24 @@ import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.common.exception.ErrorResponse;
 import com.swyp8team2.common.presentation.CustomHeader;
 import com.swyp8team2.support.RestDocsTest;
+import com.swyp8team2.support.WithMockUserInfo;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.cookies.CookieDocumentation.cookieWithName;
 import static org.springframework.restdocs.cookies.CookieDocumentation.requestCookies;
 import static org.springframework.restdocs.cookies.CookieDocumentation.responseCookies;
 
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
@@ -167,6 +172,33 @@ class AuthControllerTest extends RestDocsTest {
                 .andDo(restDocs.document(
                         responseFields(
                                 fieldWithPath("guestToken").description("게스트 토큰")
+                        )
+                ));
+    }
+
+    @Test
+    @WithMockUserInfo
+    @DisplayName("로그아웃")
+    void signOut() throws Exception {
+        //given
+
+        //when then
+        mockMvc.perform(post("/auth/sign-out")
+                        .cookie(new Cookie(CustomHeader.CustomCookie.REFRESH_TOKEN, "refreshToken"))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer accessToken"))
+                .andExpect(status().isOk())
+                .andExpect(cookie().httpOnly(CustomHeader.CustomCookie.REFRESH_TOKEN, true))
+                .andExpect(cookie().path(CustomHeader.CustomCookie.REFRESH_TOKEN, "/"))
+                .andExpect(cookie().secure(CustomHeader.CustomCookie.REFRESH_TOKEN, true))
+                .andExpect(cookie().attribute(CustomHeader.CustomCookie.REFRESH_TOKEN, "SameSite", "None"))
+                .andExpect(cookie().maxAge(CustomHeader.CustomCookie.REFRESH_TOKEN, 0))
+                .andDo(restDocs.document(
+                        requestHeaders(authorizationHeader()),
+                        requestCookies(
+                                cookieWithName(CustomHeader.CustomCookie.REFRESH_TOKEN).description("리프레시 토큰")
+                        ),
+                        responseCookies(
+                                cookieWithName(CustomHeader.CustomCookie.REFRESH_TOKEN).description("리프레시 토큰")
                         )
                 ));
     }

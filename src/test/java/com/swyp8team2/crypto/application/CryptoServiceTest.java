@@ -60,4 +60,16 @@ class CryptoServiceTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.INVALID_TOKEN.getMessage());
     }
+
+    @Test
+    @DisplayName("복호화 - empty string")
+    void decrypt_emptyString() {
+        // given
+        String invalid = "";
+
+        // when then
+        assertThatThrownBy(() -> cryptoService.decrypt(invalid))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage(ErrorCode.INVALID_TOKEN.getMessage());
+    }
 }
