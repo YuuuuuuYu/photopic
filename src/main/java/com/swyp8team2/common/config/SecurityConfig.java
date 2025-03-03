@@ -95,11 +95,12 @@ public class SecurityConfig {
     public static MvcRequestMatcher[] getWhiteList(HandlerMappingIntrospector introspect) {
         MvcRequestMatcher.Builder mvc = new MvcRequestMatcher.Builder(introspect);
         return new MvcRequestMatcher[]{
-                mvc.pattern("/auth/reissue"),
+                mvc.pattern(HttpMethod.POST, "/auth/oauth2/code/kakao"),
+                mvc.pattern(HttpMethod.POST, "/auth/guest/sign-in"),
+                mvc.pattern(HttpMethod.POST, "/auth/reissue"),
                 mvc.pattern(HttpMethod.GET, "/posts/shareUrl/{shareUrl}"),
                 mvc.pattern(HttpMethod.GET, "/posts/{postId}"),
                 mvc.pattern(HttpMethod.GET, "/posts/{postId}/comments"),
-                mvc.pattern("/auth/oauth2/**"),
         };
     }
 }
