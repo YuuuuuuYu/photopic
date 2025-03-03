@@ -1,6 +1,7 @@
 package com.swyp8team2.common.config;
 
 import com.swyp8team2.auth.application.jwt.JwtProvider;
+import com.swyp8team2.auth.presentation.filter.CustomAccessDenialHandler;
 import com.swyp8team2.auth.presentation.filter.HeaderTokenExtractor;
 import com.swyp8team2.auth.presentation.filter.JwtAuthFilter;
 import com.swyp8team2.auth.presentation.filter.JwtAuthenticationEntryPoint;
@@ -91,7 +92,12 @@ public class SecurityConfig {
                         UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception ->
                         exception.authenticationEntryPoint(
-                                new JwtAuthenticationEntryPoint(handlerExceptionResolver)));
+                                        new JwtAuthenticationEntryPoint(handlerExceptionResolver))
+                                .accessDeniedHandler((request, response, accessDeniedException) ->
+                                        new CustomAccessDenialHandler(handlerExceptionResolver)
+                                                .handle(request, response, accessDeniedException)
+                                )
+                );
         return http.build();
     }
 
