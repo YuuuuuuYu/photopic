@@ -4,6 +4,7 @@ import com.swyp8team2.auth.application.jwt.JwtProvider;
 import com.swyp8team2.auth.presentation.filter.HeaderTokenExtractor;
 import com.swyp8team2.auth.presentation.filter.JwtAuthFilter;
 import com.swyp8team2.auth.presentation.filter.JwtAuthenticationEntryPoint;
+import com.swyp8team2.user.domain.Role;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -81,7 +82,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize ->
                         authorize
                                 .requestMatchers(getWhiteList(introspect)).permitAll()
-                                .anyRequest().authenticated())
+                                .requestMatchers(getGuestAllowedList(introspect))
+                                .hasAnyRole(Role.USER.name(), Role.GUEST.name())
+                                .anyRequest().hasRole(Role.USER.name()))
 
                 .addFilterBefore(
                         new JwtAuthFilter(jwtProvider, new HeaderTokenExtractor()),
@@ -101,6 +104,14 @@ public class SecurityConfig {
                 mvc.pattern(HttpMethod.GET, "/posts/shareUrl/{shareUrl}"),
                 mvc.pattern(HttpMethod.GET, "/posts/{postId}"),
                 mvc.pattern(HttpMethod.GET, "/posts/{postId}/comments"),
+        };
+    }
+
+    public static MvcRequestMatcher[] getGuestAllowedList(HandlerMappingIntrospector introspect) {
+        MvcRequestMatcher.Builder mvc = new MvcRequestMatcher.Builder(introspect);
+        return new MvcRequestMatcher[]{
+                mvc.pattern(HttpMethod.POST, "/posts/{postId}/votes"),
+                mvc.pattern(HttpMethod.GET, "/users/me"),
         };
     }
 }

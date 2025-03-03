@@ -2,7 +2,9 @@ package com.swyp8team2.user.presentation;
 
 import com.swyp8team2.support.RestDocsTest;
 import com.swyp8team2.support.WithMockUserInfo;
+import com.swyp8team2.user.domain.Role;
 import com.swyp8team2.user.presentation.dto.UserInfoResponse;
+import com.swyp8team2.user.presentation.dto.UserMyInfoResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -52,8 +54,8 @@ class UserControllerTest extends RestDocsTest {
     @DisplayName("본인 정보 조회")
     void findMe() throws Exception {
         //given
-        UserInfoResponse response = new UserInfoResponse(1L, "nickname", "https://image.com/profile-image");
-        given(userService.findById(1L))
+        UserMyInfoResponse response = new UserMyInfoResponse(1L, "nickname", "https://image.com/profile-image", Role.USER);
+        given(userService.findByMe(1L))
                 .willReturn(response);
 
         //when then
@@ -66,7 +68,8 @@ class UserControllerTest extends RestDocsTest {
                         responseFields(
                                 fieldWithPath("id").description("유저 아이디").type(NUMBER),
                                 fieldWithPath("nickname").description("닉네임").type(STRING),
-                                fieldWithPath("profileUrl").description("프로필 이미지 URL").type(STRING)
+                                fieldWithPath("profileUrl").description("프로필 이미지 URL").type(STRING),
+                                fieldWithPath("role").description("유저 권한").type(STRING)
                         )
                 ));
     }
