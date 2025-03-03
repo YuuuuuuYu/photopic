@@ -3,6 +3,7 @@ package com.swyp8team2.auth.application.jwt;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.common.exception.InternalServerException;
 import com.swyp8team2.common.exception.UnauthorizedException;
+import com.swyp8team2.user.domain.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -63,6 +64,7 @@ public class JwtProvider {
 
         return Jwts.builder()
                 .claim(JwtClaim.ID, claim.id())
+                .claim(JwtClaim.ROLE, claim.role())
                 .setIssuedAt(Date.from(now))
                 .setIssuer(issuer)
                 .setExpiration(Date.from(expiredAt))
@@ -80,7 +82,8 @@ public class JwtProvider {
             Claims claims = parser.parseClaimsJws(token)
                     .getBody();
             String userId = (String) claims.get(JwtClaim.ID);
-            return new JwtClaim(Long.parseLong(userId));
+            Role role = Role.valueOf((String) claims.get(JwtClaim.ROLE));
+            return new JwtClaim(Long.parseLong(userId), role);
         } catch (ExpiredJwtException e) {
             log.trace("Expired Jwt Token: {}", e.getMessage());
             throw new UnauthorizedException(ErrorCode.EXPIRED_TOKEN);

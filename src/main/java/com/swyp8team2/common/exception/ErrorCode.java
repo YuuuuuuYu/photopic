@@ -20,14 +20,15 @@ public enum ErrorCode {
     INVALID_POST_IMAGE_COUNT("게시글 이미지 개수 오류"),
     NOT_POST_AUTHOR("게시글 작성자가 아님"),
     POST_ALREADY_CLOSED("이미 마감된 게시글"),
-    INVALID_GUEST_HEADER("잘못된 게스트 토큰 헤더"),
     FILE_NAME_TOO_LONG("파일 이름이 너무 김"),
 
     //401
     EXPIRED_TOKEN("토큰 만료"),
     INVALID_TOKEN("유효하지 않은 토큰"),
     INVALID_AUTH_HEADER("잘못된 인증 헤더"),
-    OAUTH_LOGIN_FAILED("소셜 로그인 실패"),
+
+    //403
+    FORBIDDEN("권한 없음"),
 
     //500
     INTERNAL_SERVER_ERROR("서버 내부 오류"),

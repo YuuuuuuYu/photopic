@@ -10,6 +10,7 @@ import com.swyp8team2.auth.presentation.dto.TokenResponse;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.support.IntegrationTest;
+import com.swyp8team2.user.domain.Role;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ class JwtServiceTest extends IntegrationTest {
                 .willReturn(expectedTokenPair);
 
         //when
-        TokenResponse tokenResponse = jwtService.createToken(givenUserId);
+        TokenResponse tokenResponse = jwtService.createToken(new JwtClaim(givenUserId, Role.USER));
 
         //then
         TokenPair tokenPair = tokenResponse.tokenPair();
@@ -59,7 +60,7 @@ class JwtServiceTest extends IntegrationTest {
         String newRefreshToken = "newRefreshToken";
         TokenPair expectedTokenPair = new TokenPair("newAccessToken", newRefreshToken);
         given(jwtProvider.parseToken(any(String.class)))
-                .willReturn(new JwtClaim(givenUserId));
+                .willReturn(new JwtClaim(givenUserId, Role.USER));
         given(jwtProvider.createToken(any(JwtClaim.class)))
                 .willReturn(expectedTokenPair);
         refreshTokenRepository.save(new RefreshToken(givenUserId, givenRefreshToken));
@@ -79,7 +80,7 @@ class JwtServiceTest extends IntegrationTest {
     void reissue_refreshTokenNotFound() throws Exception {
         //given
         given(jwtProvider.parseToken(any(String.class)))
-                .willReturn(new JwtClaim(1L));
+                .willReturn(new JwtClaim(1L, Role.USER));
 
         //when
         assertThatThrownBy(() -> jwtService.reissue("refreshToken"))
@@ -94,7 +95,7 @@ class JwtServiceTest extends IntegrationTest {
         long givenUserId = 1L;
         String givenRefreshToken = "refreshToken";
         given(jwtProvider.parseToken(any(String.class)))
-                .willReturn(new JwtClaim(givenUserId));
+                .willReturn(new JwtClaim(givenUserId, Role.USER));
         given(jwtProvider.createToken(any(JwtClaim.class)))
                 .willReturn(new TokenPair("accessToken", "newRefreshToken"));
         refreshTokenRepository.save(new RefreshToken(givenUserId, givenRefreshToken));

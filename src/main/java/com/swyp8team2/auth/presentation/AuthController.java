@@ -4,7 +4,6 @@ package com.swyp8team2.auth.presentation;
 import com.swyp8team2.auth.application.AuthService;
 import com.swyp8team2.auth.application.jwt.TokenPair;
 import com.swyp8team2.auth.domain.UserInfo;
-import com.swyp8team2.auth.presentation.dto.GuestTokenResponse;
 import com.swyp8team2.auth.presentation.dto.OAuthSignInRequest;
 import com.swyp8team2.auth.presentation.dto.TokenResponse;
 import com.swyp8team2.auth.presentation.dto.AuthResponse;
@@ -42,7 +41,19 @@ public class AuthController {
         TokenPair tokenPair = tokenResponse.tokenPair();
         Cookie cookie = refreshTokenCookieGenerator.createCookie(tokenPair.refreshToken());
         response.addCookie(cookie);
-        return ResponseEntity.ok(new AuthResponse(tokenPair.accessToken(), tokenResponse.userId()));
+        return ResponseEntity.ok(new AuthResponse(tokenPair.accessToken(), tokenResponse.userId(), tokenResponse.role()));
+    }
+
+    @PostMapping("/guest/sign-in")
+    public ResponseEntity<AuthResponse> guestSignIn(
+            @CookieValue(name = CustomHeader.CustomCookie.REFRESH_TOKEN, required = false) String refreshToken,
+            HttpServletResponse response
+    ) {
+        TokenResponse tokenResponse = authService.guestSignIn(refreshToken);
+        TokenPair tokenPair = tokenResponse.tokenPair();
+        Cookie cookie = refreshTokenCookieGenerator.createCookie(tokenPair.refreshToken());
+        response.addCookie(cookie);
+        return ResponseEntity.ok(new AuthResponse(tokenPair.accessToken(), tokenResponse.userId(), tokenResponse.role()));
     }
 
     @PostMapping("/reissue")
@@ -57,13 +68,13 @@ public class AuthController {
         TokenPair tokenPair = tokenResponse.tokenPair();
         Cookie cookie = refreshTokenCookieGenerator.createCookie(tokenPair.refreshToken());
         response.addCookie(cookie);
-        return ResponseEntity.ok(new AuthResponse(tokenPair.accessToken(), tokenResponse.userId()));
-    }
-
-    @PostMapping("/guest/token")
-    public ResponseEntity<GuestTokenResponse> guestToken() {
-        String guestToken = authService.createGuestToken();
-        return ResponseEntity.ok(new GuestTokenResponse(guestToken));
+        return ResponseEntity.ok(
+                new AuthResponse(
+                        tokenPair.accessToken(),
+                        tokenResponse.userId(),
+                        tokenResponse.role()
+                )
+        );
     }
 
     @PostMapping("/sign-out")

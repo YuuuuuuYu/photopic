@@ -5,6 +5,7 @@ import com.swyp8team2.auth.application.jwt.JwtProvider;
 import com.swyp8team2.auth.application.jwt.TokenPair;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.common.exception.UnauthorizedException;
+import com.swyp8team2.user.domain.Role;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +25,7 @@ class JwtProviderTest {
     void createToken() throws Exception {
         //given
         JwtProvider jwtProvider = new JwtProvider("2345asdfasdfsadfsdf243dfdsfsfssasdf", "issuer", Clock.systemDefaultZone());
-        JwtClaim givenClaim = new JwtClaim(1L);
+        JwtClaim givenClaim = new JwtClaim(1L, Role.USER);
 
         //when
         TokenPair tokenPair = jwtProvider.createToken(givenClaim);
@@ -49,7 +50,7 @@ class JwtProviderTest {
                 .willReturn(clock.instant().minus(24, ChronoUnit.HOURS));
 
         //when then
-        TokenPair tokenPair = jwtProvider.createToken(new JwtClaim(1L));
+        TokenPair tokenPair = jwtProvider.createToken(new JwtClaim(1L, Role.USER));
         assertThatThrownBy(() -> jwtProvider.parseToken(tokenPair.accessToken()))
                 .isInstanceOf(UnauthorizedException.class)
                 .hasMessage(ErrorCode.EXPIRED_TOKEN.getMessage());
@@ -64,7 +65,7 @@ class JwtProviderTest {
         JwtProvider jwtProviderWithDifferentKey = new JwtProvider("1211qwerqwerqwer1111qwerqwerqwer", "issuer", clock);
 
         //when then
-        TokenPair tokenPair = jwtProviderWithDifferentKey.createToken(new JwtClaim(1L));
+        TokenPair tokenPair = jwtProviderWithDifferentKey.createToken(new JwtClaim(1L, Role.USER));
         assertThatThrownBy(() -> jwtProvider.parseToken(tokenPair.accessToken()))
                 .isInstanceOf(UnauthorizedException.class)
                 .hasMessage(ErrorCode.INVALID_TOKEN.getMessage());
@@ -79,7 +80,7 @@ class JwtProviderTest {
         JwtProvider jwtProviderWithDifferentIssuer = new JwtProvider("2345asdfasdfsadfsdf243dfdsfsfssasdf", "asdf", clock);
 
         //when then
-        TokenPair tokenPair = jwtProviderWithDifferentIssuer.createToken(new JwtClaim(1L));
+        TokenPair tokenPair = jwtProviderWithDifferentIssuer.createToken(new JwtClaim(1L, Role.USER));
         assertThatThrownBy(() -> jwtProvider.parseToken(tokenPair.accessToken()))
                 .isInstanceOf(UnauthorizedException.class)
                 .hasMessage(ErrorCode.INVALID_TOKEN.getMessage());

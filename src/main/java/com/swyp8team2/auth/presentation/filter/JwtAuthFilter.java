@@ -35,7 +35,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
             JwtClaim claim = jwtProvider.parseToken(headerTokenExtractor.extractToken(authorization));
 
-            Authentication authentication = getAuthentication(claim.idAsLong());
+            Authentication authentication = getAuthentication(claim);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (ApplicationException e) {
             request.setAttribute(EXCEPTION_KEY, e);
@@ -44,8 +44,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
     }
 
-    private Authentication getAuthentication(long userId) {
-        UserInfo userInfo = new UserInfo(userId, Role.USER);
+    private Authentication getAuthentication(JwtClaim claim) {
+        UserInfo userInfo = new UserInfo(claim.idAsLong(), claim.role());
         return new UsernamePasswordAuthenticationToken(userInfo, null, userInfo.getAuthorities());
     }
 }

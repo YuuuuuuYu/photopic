@@ -69,14 +69,14 @@ public class ApplicationControllerAdvice {
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handle(AuthenticationException e) {
-        log.info(e.getMessage());
+        log.debug(e.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(ErrorCode.INVALID_TOKEN));
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handle(AccessDeniedException e) {
-        log.info(e.getMessage());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(ErrorCode.INVALID_TOKEN));
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handle(ForbiddenException e) {
+        log.debug(e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(ErrorCode.FORBIDDEN));
     }
 
     @ExceptionHandler(Exception.class)

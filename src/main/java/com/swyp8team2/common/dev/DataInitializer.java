@@ -1,5 +1,6 @@
 package com.swyp8team2.common.dev;
 
+import com.swyp8team2.auth.application.jwt.JwtClaim;
 import com.swyp8team2.auth.application.jwt.JwtService;
 import com.swyp8team2.auth.application.jwt.TokenPair;
 import com.swyp8team2.auth.presentation.dto.TokenResponse;
@@ -70,7 +71,7 @@ public class DataInitializer {
         }
         List<NicknameAdjective> adjectives = nicknameAdjectiveRepository.findAll();
         User testUser = userRepository.save(User.create("nickname", "https://t1.kakaocdn.net/account_images/default_profile.jpeg"));
-        TokenResponse tokenResponse = jwtService.createToken(testUser.getId());
+        TokenResponse tokenResponse = jwtService.createToken(new JwtClaim(testUser.getId(), testUser.getRole()));
         TokenPair tokenPair = tokenResponse.tokenPair();
         System.out.println("accessToken = " + tokenPair.accessToken());
         System.out.println("refreshToken = " + tokenPair.refreshToken());
