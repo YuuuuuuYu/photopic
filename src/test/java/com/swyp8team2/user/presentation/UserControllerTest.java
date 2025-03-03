@@ -68,7 +68,7 @@ class UserControllerTest extends RestDocsTest {
                         responseFields(
                                 fieldWithPath("id").description("유저 아이디").type(NUMBER),
                                 fieldWithPath("nickname").description("닉네임").type(STRING),
-                                fieldWithPath("profileUrl").description("프로필 이미지 URL").type(STRING),
+                                fieldWithPath("profileImageUrl").description("프로필 이미지 URL").type(STRING),
                                 fieldWithPath("role").description("유저 권한").type(STRING)
                         )
                 ));

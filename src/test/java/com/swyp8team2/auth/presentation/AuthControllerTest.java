@@ -20,6 +20,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
@@ -67,6 +68,44 @@ class AuthControllerTest extends RestDocsTest {
                         requestFields(
                                 fieldWithPath("code").description("카카오 인증 코드"),
                                 fieldWithPath("redirectUri").description("카카오 인증 redirect uri")
+                        ),
+                        responseFields(
+                                fieldWithPath("accessToken").description("액세스 토큰"),
+                                fieldWithPath("userId").description("유저 Id"),
+                                fieldWithPath("role").description("유저 권한")
+                        ),
+                        responseCookies(
+                                cookieWithName(CustomHeader.CustomCookie.REFRESH_TOKEN).description("리프레시 토큰")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("게스트 로그인")
+    void guestSignIn() throws Exception {
+        //given
+        TokenPair expectedTokenPair = new TokenPair("accessToken", "refreshToken");
+        AuthResponse response = new AuthResponse(expectedTokenPair.accessToken(), 1L, Role.USER);
+        given(authService.guestSignIn(any()))
+                .willReturn(new TokenResponse(expectedTokenPair, 1L, Role.USER));
+
+        //when then
+        mockMvc.perform(post("/auth/guest/sign-in")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .cookie(new Cookie(CustomHeader.CustomCookie.REFRESH_TOKEN, "refreshToken")))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(response)))
+                .andExpect(cookie().value(CustomHeader.CustomCookie.REFRESH_TOKEN, expectedTokenPair.refreshToken()))
+                .andExpect(cookie().httpOnly(CustomHeader.CustomCookie.REFRESH_TOKEN, true))
+                .andExpect(cookie().path(CustomHeader.CustomCookie.REFRESH_TOKEN, "/"))
+                .andExpect(cookie().secure(CustomHeader.CustomCookie.REFRESH_TOKEN, true))
+                .andExpect(cookie().attribute(CustomHeader.CustomCookie.REFRESH_TOKEN, "SameSite", "None"))
+                .andExpect(cookie().maxAge(CustomHeader.CustomCookie.REFRESH_TOKEN, 60 * 60 * 24 * 14))
+                .andDo(restDocs.document(
+                        requestCookies(
+                                cookieWithName(CustomHeader.CustomCookie.REFRESH_TOKEN)
+                                        .optional()
+                                        .description("리프레시 토큰")
                         ),
                         responseFields(
                                 fieldWithPath("accessToken").description("액세스 토큰"),
