@@ -11,11 +11,6 @@ operation::auth-controller-test/kakao-o-auth-sign-in[snippets='http-request,curl
 
 operation::auth-controller-test/reissue[snippets='http-request,curl-request,request-cookies,http-response,response-cookies,response-fields']
 
-[[게스트-토큰-발급]]
-=== `POST` 게스트 토큰 발급
-
-operation::auth-controller-test/guest-token[snippets='http-request,curl-request,http-response,response-fields']
-
 [[로그아웃]]
 === `POST` 로그아웃
 

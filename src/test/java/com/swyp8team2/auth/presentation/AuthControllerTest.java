@@ -158,25 +158,6 @@ class AuthControllerTest extends RestDocsTest {
     }
 
     @Test
-    @DisplayName("게스트 토큰 발급")
-    void guestToken() throws Exception {
-        //given
-        String guestToken = "guestToken";
-        given(authService.createGuestToken())
-                .willReturn(guestToken);
-
-        //when then
-        mockMvc.perform(post("/auth/guest/token"))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(new GuestTokenResponse(guestToken))))
-                .andDo(restDocs.document(
-                        responseFields(
-                                fieldWithPath("guestToken").description("게스트 토큰")
-                        )
-                ));
-    }
-
-    @Test
     @WithMockUserInfo
     @DisplayName("로그아웃")
     void signOut() throws Exception {

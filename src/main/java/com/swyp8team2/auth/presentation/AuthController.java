@@ -60,12 +60,6 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(tokenPair.accessToken(), tokenResponse.userId()));
     }
 
-    @PostMapping("/guest/token")
-    public ResponseEntity<GuestTokenResponse> guestToken() {
-        String guestToken = authService.createGuestToken();
-        return ResponseEntity.ok(new GuestTokenResponse(guestToken));
-    }
-
     @PostMapping("/sign-out")
     public ResponseEntity<Void> signOut(
             @CookieValue(name = CustomHeader.CustomCookie.REFRESH_TOKEN, required = false) String refreshToken,
