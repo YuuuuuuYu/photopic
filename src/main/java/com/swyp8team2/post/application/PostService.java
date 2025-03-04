@@ -75,7 +75,7 @@ public class PostService {
     }
 
     public PostResponse findById(Long userId, Long postId) {
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findByIdFetchPostImage(postId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
         User author = userRepository.findById(post.getUserId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
@@ -114,8 +114,7 @@ public class PostService {
 
     public CursorBasePaginatedResponse<SimplePostResponse> findUserPosts(Long userId, Long cursor, int size) {
         Slice<Post> postSlice = postRepository.findByUserId(userId, cursor, PageRequest.ofSize(size));
-        return CursorBasePaginatedResponse.of(postSlice.map(this::createSimplePostResponse)
-        );
+        return CursorBasePaginatedResponse.of(postSlice.map(this::createSimplePostResponse));
     }
 
     private SimplePostResponse createSimplePostResponse(Post post) {
@@ -135,7 +134,7 @@ public class PostService {
     }
 
     public List<PostImageVoteStatusResponse> findPostStatus(Long postId) {
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findByIdFetchPostImage(postId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
         int totalVoteCount = getTotalVoteCount(post.getImages());
         return post.getImages().stream()

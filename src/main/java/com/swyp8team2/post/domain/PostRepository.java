@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
@@ -31,4 +32,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             """
     )
     Slice<Post> findByIdIn(@Param("postIds") List<Long> postIds, @Param("postId") Long postId, Pageable pageable);
+
+    @Query("""
+            SELECT p
+            FROM Post p
+            JOIN FETCH p.images
+            WHERE p.id = :postId
+            """
+    )
+    Optional<Post> findByIdFetchPostImage(@Param("postId") Long postId);
 }
