@@ -17,7 +17,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             FROM Post p
             WHERE p.userId = :userId
             AND (:postId IS NULL OR p.id < :postId)
-            ORDER BY p.createdAt DESC
+            ORDER BY p.id DESC
             """
     )
     Slice<Post> findByUserId(@Param("userId") Long userId, @Param("postId") Long postId, Pageable pageable);
@@ -27,7 +27,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             FROM Post p
             WHERE p.id IN :postIds
             AND (:postId IS NULL OR p.id < :postId)
-            ORDER BY p.createdAt DESC
+            ORDER BY p.id DESC
             """
     )
     Slice<Post> findByIdIn(@Param("postIds") List<Long> postIds, @Param("postId") Long postId, Pageable pageable);
