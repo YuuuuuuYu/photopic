@@ -30,6 +30,9 @@ public enum ErrorCode {
     //403
     FORBIDDEN("권한 없음"),
 
+    //404
+    NOT_FOUND("리소스를 찾을 수 없음"),
+
     //500
     INTERNAL_SERVER_ERROR("서버 내부 오류"),
     INVALID_INPUT_VALUE("잘못된 입력 값"),
