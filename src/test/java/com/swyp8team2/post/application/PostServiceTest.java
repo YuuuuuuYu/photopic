@@ -228,7 +228,7 @@ class PostServiceTest extends IntegrationTest {
 
     @Test
     @DisplayName("투표 현황 조회")
-    void findPostStatus() throws Exception {
+    void findVoteStatus() throws Exception {
         //given
         User user = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
@@ -237,7 +237,7 @@ class PostServiceTest extends IntegrationTest {
         voteService.vote(user.getId(), post.getId(), post.getImages().get(0).getId());
 
         //when
-        var response = postService.findPostStatus(post.getId());
+        var response = postService.findVoteStatus(user.getId(), post.getId());
 
         //then
         assertAll(

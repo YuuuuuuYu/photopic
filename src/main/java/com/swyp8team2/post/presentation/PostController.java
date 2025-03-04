@@ -65,9 +65,10 @@ public class PostController {
 
     @GetMapping("/{postId}/status")
     public ResponseEntity<List<PostImageVoteStatusResponse>> findVoteStatus(
-            @PathVariable("postId") Long postId
+            @PathVariable("postId") Long postId,
+            @AuthenticationPrincipal UserInfo userInfo
     ) {
-        return ResponseEntity.ok(postService.findPostStatus(postId));
+        return ResponseEntity.ok(postService.findVoteStatus(userInfo.userId(), postId));
     }
 
     @PostMapping("/{postId}/close")
