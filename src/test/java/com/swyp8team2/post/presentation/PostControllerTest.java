@@ -204,7 +204,7 @@ class PostControllerTest extends RestDocsTest {
                 new PostImageVoteStatusResponse(1L, "뽀또A", 2, "66.7"),
                 new PostImageVoteStatusResponse(2L, "뽀또B", 1, "33.3")
         );
-        given(postService.findPostStatus(1L))
+        given(postService.findVoteStatus(1L, 1L))
                 .willReturn(response);
 
         //when then

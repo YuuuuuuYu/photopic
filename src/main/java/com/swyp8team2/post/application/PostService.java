@@ -134,15 +134,24 @@ public class PostService {
         return CursorBasePaginatedResponse.of(postSlice.map(this::createSimplePostResponse));
     }
 
-    public List<PostImageVoteStatusResponse> findPostStatus(Long postId) {
+    public List<PostImageVoteStatusResponse> findVoteStatus(Long userId, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
+        validateVoteStatus(userId, post);
         int totalVoteCount = getTotalVoteCount(post.getImages());
         return post.getImages().stream()
                 .map(image -> {
                     String ratio = ratioCalculator.calculate(totalVoteCount, image.getVoteCount());
                     return new PostImageVoteStatusResponse(image.getId(), image.getName(), image.getVoteCount(), ratio);
                 }).toList();
+    }
+
+    private void validateVoteStatus(Long userId, Post post) {
+        boolean voted = voteRepository.findByUserIdAndPostId(userId, post.getId())
+                .isPresent();
+        if (!(post.isAuthor(userId) || voted)) {
+            throw new BadRequestException(ErrorCode.ACCESS_DENIED_VOTE_STATUS);
+        }
     }
 
     private int getTotalVoteCount(List<PostImage> images) {
@@ -157,7 +166,9 @@ public class PostService {
     public void delete(Long userId, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
-        post.validateOwner(userId);
+        if (!post.isAuthor(userId)) {
+            throw new BadRequestException(ErrorCode.NOT_POST_AUTHOR);
+        }
         postRepository.delete(post);
     }
 

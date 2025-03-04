@@ -95,17 +95,17 @@ public class Post extends BaseEntity {
     }
 
     public void close(Long userId) {
-        validateOwner(userId);
+        if (!isAuthor(userId)) {
+            throw new BadRequestException(ErrorCode.NOT_POST_AUTHOR);
+        }
         if (status == Status.CLOSED) {
             throw new BadRequestException(ErrorCode.POST_ALREADY_CLOSED);
         }
         this.status = Status.CLOSED;
     }
 
-    public void validateOwner(Long userId) {
-        if (!this.userId.equals(userId)) {
-            throw new BadRequestException(ErrorCode.NOT_POST_AUTHOR);
-        }
+    public boolean isAuthor(Long userId) {
+        return this.userId.equals(userId);
     }
 
     public void validateProgress() {
