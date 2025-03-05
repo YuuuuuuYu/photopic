@@ -41,6 +41,7 @@ public class FileValidator {
         }
 
         String ext = Optional.of(originalFilename)
+                .filter(name -> name.contains("."))
                 .map(name -> name.substring(name.lastIndexOf('.') + 1))
                 .orElseThrow(() -> new BadRequestException(ErrorCode.MISSING_FILE_EXTENSION))
                 .toLowerCase();
