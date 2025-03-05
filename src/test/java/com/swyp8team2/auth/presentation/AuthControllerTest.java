@@ -223,4 +223,23 @@ class AuthControllerTest extends RestDocsTest {
                         )
                 ));
     }
+
+    @Test
+    @WithMockUserInfo
+    @DisplayName("회원탈퇴")
+    void withdraw() throws Exception {
+        //given
+
+        //when then
+        mockMvc.perform(post("/auth/withdraw")
+                        .cookie(new Cookie(CustomHeader.CustomCookie.REFRESH_TOKEN, "refreshToken"))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer accessToken"))
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(authorizationHeader()),
+                        requestCookies(
+                                cookieWithName(CustomHeader.CustomCookie.REFRESH_TOKEN).description("리프레시 토큰")
+                        )
+                ));
+    }
 }
