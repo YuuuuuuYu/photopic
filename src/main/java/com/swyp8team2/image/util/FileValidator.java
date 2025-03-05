@@ -36,6 +36,10 @@ public class FileValidator {
         }
 
         String originalFilename = file.getOriginalFilename();
+        if (originalFilename.length() > 100) {
+            throw new BadRequestException(ErrorCode.FILE_NAME_TOO_LONG);
+        }
+
         String ext = Optional.of(originalFilename)
                 .filter(name -> name.contains("."))
                 .map(name -> name.substring(name.lastIndexOf('.') + 1))
