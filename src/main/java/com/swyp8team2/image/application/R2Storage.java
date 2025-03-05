@@ -70,7 +70,7 @@ public class R2Storage {
                 file.transferTo(tempFile);
                 switch(fileExtension) {
                     case ".heic", ".heif" -> {
-                        convertHeicToWebp(tempFile, originFilename, realFileName);
+                        convertHeicToJpg(tempFile, originFilename, realFileName);
                     } case ".png", ".gif" -> {
                         metadata.put("Content-Type", "image/jpeg");
                         s3PutObject(convertToJpg(tempFile), realFileName, metadata);
@@ -92,7 +92,7 @@ public class R2Storage {
         }
     }
 
-    private void convertHeicToWebp(File sourceFile, String originFilename, String realFileName) throws IOException {
+    private void convertHeicToJpg(File sourceFile, String originFilename, String realFileName) throws IOException {
         byte[] fileContent = Files.readAllBytes(sourceFile.toPath());
         String base64Content = Base64.getEncoder().encodeToString(fileContent);
 
