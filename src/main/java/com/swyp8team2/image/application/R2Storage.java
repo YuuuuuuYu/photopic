@@ -1,36 +1,45 @@
 package com.swyp8team2.image.application;
 
-import com.sksamuel.scrimage.ImmutableImage;
-import com.swyp8team2.common.exception.BadRequestException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swyp8team2.common.exception.ErrorCode;
+import com.swyp8team2.common.exception.InternalServerException;
 import com.swyp8team2.common.exception.ServiceUnavailableException;
 import com.swyp8team2.common.util.DateTime;
 import com.swyp8team2.image.presentation.dto.ImageFileDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.lambda.LambdaClient;
+import software.amazon.awssdk.services.lambda.model.InvokeRequest;
+import software.amazon.awssdk.services.lambda.model.InvokeResponse;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.FileImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Base64;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class R2Storage {
+
+    private static final String CONVERT_EXTENSION = ".jpeg";
 
     @Value("${file.endpoint}")
     private String imageDomainUrl;
@@ -41,126 +50,103 @@ public class R2Storage {
     @Value("${r2.bucket.path}")
     private String filePath;
 
-    @Value("${r2.bucket.resize-path}")
-    private String resizedFilePath;
-
-    @Value("${r2.bucket.resize-height}")
-    private int resizeHeight;
+    @Value("${aws.lambda-arn}")
+    private String lambdaFunctionName;
 
     private final S3Client s3Client;
+    private final LambdaClient lambdaClient;
 
     public List<ImageFileDto> uploadImageFile(MultipartFile... files) {
         List<ImageFileDto> imageFiles = new ArrayList<>();
-        List<File> tempFiles = new ArrayList<>();
         try {
             for (int i = 0; i < files.length; i++) {
                 MultipartFile file = files[i];
-                String originFileName = file.getOriginalFilename();
-                if (originFileName.length() > 100) {
-                    throw new BadRequestException(ErrorCode.FILE_NAME_TOO_LONG);
-                }
-                String realFileName = getRealFileName(originFileName, filePath, i);
-                File tempFile = File.createTempFile("upload_", "_" + originFileName);
+                String originFilename = file.getOriginalFilename();
+                String fileExtension = originFilename.substring(originFilename.lastIndexOf("."));
+                Map<String, String> metadata = new HashMap<>();
+                String realFileName = getRealFileName(filePath, i, CONVERT_EXTENSION);
+
+                File tempFile = File.createTempFile("upload_", originFilename);
                 file.transferTo(tempFile);
+                switch(fileExtension) {
+                    case ".heic", ".heif" -> {
+                        convertHeicToWebp(tempFile, originFilename, realFileName);
+                    } case ".png", ".gif" -> {
+                        metadata.put("Content-Type", "image/jpeg");
+                        s3PutObject(convertToJpg(tempFile), realFileName, metadata);
+                    } default -> {
+                        realFileName = getRealFileName(filePath, i, fileExtension);
+                        s3PutObject(tempFile, realFileName, metadata);
+                    }
+                }
 
-                int splitIndex = originFileName.lastIndexOf("/");
-                String imageType = originFileName.substring(splitIndex + 1).toLowerCase();
-
-                File originFile = s3PutObject(tempFile, realFileName, imageType);
                 String imageUrl = imageDomainUrl + realFileName;
-                String resizeImageUrl = resizeImage(tempFile, realFileName, resizeHeight);
-
-                log.debug("uploadImageFile originFileName: {}, imageUrl: {}, resizeImageUrl: {}",
-                        originFileName, imageUrl, resizeImageUrl);
-
-                imageFiles.add(new ImageFileDto(originFileName, imageUrl, resizeImageUrl));
-                tempFiles.add(originFile);
+                imageFiles.add(new ImageFileDto(originFilename, imageUrl, imageUrl));
+                deleteTempFile(tempFile);
             }
 
             return imageFiles;
         } catch (IOException e) {
-            log.error("Failed to create temp file", e);
-            throw new ServiceUnavailableException(ErrorCode.SERVICE_UNAVAILABLE);
-        } finally {
-            tempFiles.forEach(this::deleteTempFile);
-        }
-    }
-
-    private String resizeImage(File file, String realFileName, int targetHeight) {
-        try {
-            String ext = Optional.of(realFileName)
-                    .filter(name -> name.contains("."))
-                    .map(name -> name.substring(name.lastIndexOf('.') + 1))
-                    .orElseThrow(() -> new BadRequestException(ErrorCode.MISSING_FILE_EXTENSION))
-                    .toLowerCase();
-
-            BufferedImage srcImage;
-            if ("webp".equals(ext)) {
-                srcImage = ImmutableImage.loader().fromFile(file).awt();
-            } else {
-                srcImage = ImageIO.read(file);
-            }
-            BufferedImage resizedImage = highQualityResize(srcImage, targetHeight);
-
-            int splitIndex = realFileName.lastIndexOf("/") + 1;
-            realFileName = realFileName.substring(splitIndex);
-            String dstKey = resizedFilePath + realFileName;
-            String imageType = realFileName.substring(realFileName.lastIndexOf(".") + 1).toLowerCase();
-
-            File tempFile = File.createTempFile("resized_", "." + imageType);
-            ImageIO.write(resizedImage, imageType, tempFile);
-
-            s3PutObject(tempFile, dstKey, imageType);
-            deleteTempFile(tempFile);
-
-            return imageDomainUrl + dstKey;
-        } catch (IOException e) {
-            log.error("Failed to create temp file", e);
+            log.error("Failed to upload file", e);
             throw new ServiceUnavailableException(ErrorCode.SERVICE_UNAVAILABLE);
         }
     }
 
-    private BufferedImage highQualityResize(BufferedImage originalImage, int targetHeight) {
-        int originalWidth = originalImage.getWidth();
-        int originalHeight = originalImage.getHeight();
+    private void convertHeicToWebp(File sourceFile, String originFilename, String realFileName) throws IOException {
+        byte[] fileContent = Files.readAllBytes(sourceFile.toPath());
+        String base64Content = Base64.getEncoder().encodeToString(fileContent);
 
-        double scale = (double) targetHeight / originalHeight;
-        int targetWidth = (int) (originalWidth * scale);
+        Map<String, String> payload = new HashMap<>();
+        payload.put("fileContent", base64Content);
+        payload.put("originFilename", originFilename);
+        payload.put("key", realFileName);
 
-        return Scalr.resize(originalImage, Scalr.Method.QUALITY, Scalr.Mode.FIT_EXACT, targetWidth, targetHeight);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String payloadJson = objectMapper.writeValueAsString(payload);
+        InvokeRequest invokeRequest = InvokeRequest.builder()
+                .functionName(lambdaFunctionName)
+                .payload(SdkBytes.fromUtf8String(payloadJson))
+                .build();
+
+        InvokeResponse response = lambdaClient.invoke(invokeRequest);
+        String responseJson = response.payload().asUtf8String();
+        Map<String, Object> responseMap = objectMapper.readValue(responseJson, Map.class);
+
+        if (responseMap.containsKey("errorMessage")) {
+            log.error("Lambda service error, {}", responseMap.get("errorMessage"));
+            throw new InternalServerException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    private File s3PutObject(File file, String realFileName, String imageType) {
-        Map<String, String> metadata = getMetadataMap(imageType);
+    private File convertToJpg(File sourceFile) throws IOException {
+        BufferedImage image = ImageIO.read(sourceFile);
+        File jpgFile = File.createTempFile("converted_", ".jpeg");
+
+        ImageWriter writer = ImageIO.getImageWritersByFormatName("jpeg").next();
+        try (FileImageOutputStream output = new FileImageOutputStream(jpgFile)) {
+            writer.setOutput(output);
+            ImageWriteParam param = writer.getDefaultWriteParam();
+            param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+            param.setCompressionQuality(0.9f);
+
+            writer.write(null, new IIOImage(image, null, null), param);
+            writer.dispose();
+            return jpgFile;
+        }
+    }
+
+    private void s3PutObject(File file, String realFileName, Map<String, String> metadata) {
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .metadata(metadata)
                 .key(realFileName)
                 .build();
 
-        PutObjectResponse putObjectResponse = s3Client.putObject(objectRequest, RequestBody.fromFile(file));
-        return file;
+        s3Client.putObject(objectRequest, RequestBody.fromFile(file));
     }
 
-    private Map<String, String> getMetadataMap(String imageType) {
-        Map<String, String> metadata = new HashMap<>();
-        switch (imageType) {
-            case "png" -> {
-                metadata.put("Content-Type", "image/png");
-            } case "gif" -> {
-                metadata.put("Content-Type", "image/gif");
-            } case "webp" -> {
-                metadata.put("Content-Type", "image/webp");
-            } default -> {
-                metadata.put("Content-Type", "image/jpeg");
-            }
-        }
-        return metadata;
-    }
-
-    private String getRealFileName(String originFileName, String filePath, int sequence) {
-        String objectType = originFileName.substring(originFileName.lastIndexOf(".")).toLowerCase();
-        return filePath + DateTime.getCurrentTimestamp() + sequence + objectType;
+    private String getRealFileName(String filePath, int sequence, String extension) {
+        return filePath + DateTime.getCurrentTimestamp() + sequence + extension;
     }
 
     private void deleteTempFile(File tempFile) {
