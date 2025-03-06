@@ -5,6 +5,7 @@ import com.swyp8team2.comment.domain.Comment;
 import com.swyp8team2.comment.presentation.dto.AuthorDto;
 import com.swyp8team2.comment.presentation.dto.CommentResponse;
 import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
+import com.swyp8team2.comment.presentation.dto.UpdateCommentRequest;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.support.RestDocsTest;
 import com.swyp8team2.support.WithMockUserInfo;
@@ -136,6 +137,34 @@ class CommentControllerTest extends RestDocsTest {
                 ));
 
         verify(commentService, times(1)).findComments(eq(null), eq(postId), eq(cursor), eq(size));
+    }
+
+    @Test
+    @WithMockUserInfo
+    @DisplayName("댓글 수정")
+    void updateComment() throws Exception {
+        //given
+        UpdateCommentRequest request = new UpdateCommentRequest("수정 댓글");
+
+        //when then
+        mockMvc.perform(post("/posts/{postId}/comments/{commentId}", "1", "1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(authorizationHeader()),
+                        pathParameters(
+                                parameterWithName("postId").description("게시글 Id"),
+                                parameterWithName("commentId").description("댓글 Id")
+                        ),
+                        requestFields(
+                                fieldWithPath("content")
+                                        .type(JsonFieldType.STRING)
+                                        .description("댓글 내용")
+                                        .attributes(constraints("최대 ?글자"))
+                        )
+                ));
     }
 
     @Test

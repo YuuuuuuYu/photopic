@@ -2,9 +2,9 @@ package com.swyp8team2.comment.presentation;
 
 import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.comment.application.CommentService;
-import com.swyp8team2.comment.presentation.dto.AuthorDto;
 import com.swyp8team2.comment.presentation.dto.CommentResponse;
 import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
+import com.swyp8team2.comment.presentation.dto.UpdateCommentRequest;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -50,6 +48,17 @@ public class CommentController {
     ) {
         Long userId = Optional.ofNullable(userInfo).map(UserInfo::userId).orElse(null);
         return ResponseEntity.ok(commentService.findComments(userId, postId, cursor, size));
+    }
+
+    @PostMapping("/{commentId}")
+    public ResponseEntity<Void> updateComment(
+            @PathVariable("postId") Long postId,
+            @PathVariable("commentId") Long commentId,
+            @Valid @RequestBody UpdateCommentRequest request,
+            @AuthenticationPrincipal UserInfo userInfo
+    ) {
+
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{commentId}")

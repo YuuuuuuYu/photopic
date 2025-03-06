@@ -3,11 +3,7 @@ package com.swyp8team2.post.presentation;
 import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.post.application.PostService;
-import com.swyp8team2.post.presentation.dto.CreatePostRequest;
-import com.swyp8team2.post.presentation.dto.CreatePostResponse;
-import com.swyp8team2.post.presentation.dto.PostImageVoteStatusResponse;
-import com.swyp8team2.post.presentation.dto.PostResponse;
-import com.swyp8team2.post.presentation.dto.SimplePostResponse;
+import com.swyp8team2.post.presentation.dto.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +65,23 @@ public class PostController {
             @AuthenticationPrincipal UserInfo userInfo
     ) {
         return ResponseEntity.ok(postService.findVoteStatus(userInfo.userId(), postId));
+    }
+
+    @PostMapping("/{postId}/status")
+    public ResponseEntity<Void> toggleStatusPost(
+            @PathVariable("postId") Long postId,
+            @AuthenticationPrincipal UserInfo userInfo
+    ) {
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{postId}/update")
+    public ResponseEntity<Void> updatePost(
+            @PathVariable("postId") Long postId,
+            @Valid @RequestBody UpdatePostRequest request,
+            @AuthenticationPrincipal UserInfo userInfo
+    ) {
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{postId}/close")
