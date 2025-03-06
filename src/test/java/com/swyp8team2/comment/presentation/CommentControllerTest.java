@@ -1,6 +1,7 @@
 package com.swyp8team2.comment.presentation;
 
 import com.swyp8team2.auth.domain.UserInfo;
+import com.swyp8team2.comment.domain.Comment;
 import com.swyp8team2.comment.presentation.dto.AuthorDto;
 import com.swyp8team2.comment.presentation.dto.CommentResponse;
 import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import static org.awaitility.Awaitility.given;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -141,6 +143,8 @@ class CommentControllerTest extends RestDocsTest {
     @DisplayName("댓글 삭제")
     void deleteComment() throws Exception {
         //given
+        Long commentId = 1L;
+        doNothing().when(commentService).deleteComment(eq(commentId), any(UserInfo.class));
 
         //when then
         mockMvc.perform(delete("/posts/{postId}/comments/{commentId}", "1", "1")
@@ -153,5 +157,7 @@ class CommentControllerTest extends RestDocsTest {
                                 parameterWithName("commentId").description("댓글 Id")
                         )
                 ));
+
+        verify(commentService, times(1)).deleteComment(eq(commentId), any(UserInfo.class));
     }
 }
