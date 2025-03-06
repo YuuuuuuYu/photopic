@@ -34,6 +34,6 @@ operation::auth-controller-test/reissue[snippets='http-request,curl-request,requ
 operation::auth-controller-test/sign-out[snippets='http-request,curl-request,request-cookies,request-headers,http-response,response-cookies']
 
 [[회원탈퇴]]
-=== `POST` 회원탈퇴
+=== `POST` 회원탈퇴 (미구현)
 
 operation::auth-controller-test/withdraw[snippets='http-request,curl-request,request-cookies,request-headers,http-response']
