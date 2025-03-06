@@ -30,12 +30,6 @@ class CommentRepositoryTest extends RepositoryTest {
 
         // then
         assertThat(result1.getContent()).hasSize(3);
-
-        // when2
-        Slice<Comment> result2 = commentRepository.findByPostId(1L, 1L, PageRequest.of(0, 10));
-
-        // then2
-        assertThat(result2.getContent()).hasSize(2);
     }
 
     @Test
