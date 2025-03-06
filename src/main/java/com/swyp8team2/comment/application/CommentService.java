@@ -8,6 +8,7 @@ import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
+import com.swyp8team2.common.exception.UnauthorizedException;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import com.swyp8team2.vote.domain.Vote;
@@ -49,5 +50,18 @@ public class CommentService {
                 .map(Vote::getPostImageId)
                 .orElse(null);
         return CommentResponse.of(comment, author, author.getId().equals(userId), voteImageId);
+    }
+
+    @Transactional
+    public void deleteComment(Long commentId, UserInfo userInfo) {
+        Comment comment = commentRepository.findByIdAndNotDeleted(commentId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (!comment.getUserNo().equals(userInfo.userId())) {
+            throw new UnauthorizedException(ErrorCode.FORBIDDEN);
+        }
+
+        comment.delete();
+        commentRepository.save(comment);
     }
 }
