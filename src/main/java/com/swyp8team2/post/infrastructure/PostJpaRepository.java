@@ -1,5 +1,6 @@
-package com.swyp8team2.post.domain;
+package com.swyp8team2.post.infrastructure;
 
+import com.swyp8team2.post.domain.Post;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PostRepository extends JpaRepository<Post, Long> {
+public interface PostJpaRepository extends JpaRepository<Post, Long> {
 
     @Query("""
             SELECT p

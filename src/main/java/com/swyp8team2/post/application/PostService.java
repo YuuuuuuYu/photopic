@@ -10,7 +10,7 @@ import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
 import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.PostImage;
-import com.swyp8team2.post.domain.PostRepository;
+import com.swyp8team2.post.infrastructure.PostJpaRepository;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.CreatePostResponse;
 import com.swyp8team2.post.presentation.dto.PostResponse;
@@ -33,7 +33,7 @@ import java.util.Objects;
 @Transactional(readOnly = true)
 public class PostService {
 
-    private final PostRepository postRepository;
+    private final PostJpaRepository postRepository;
     private final UserRepository userRepository;
     private final RatioCalculator ratioCalculator;
     private final ImageFileRepository imageFileRepository;
@@ -41,7 +41,7 @@ public class PostService {
     private final CryptoService shareUrlCryptoService;
 
     public PostService(
-            PostRepository postRepository,
+            PostJpaRepository postRepository,
             UserRepository userRepository,
             RatioCalculator ratioCalculator,
             ImageFileRepository imageFileRepository,

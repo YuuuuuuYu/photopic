@@ -2,7 +2,6 @@ package com.swyp8team2.post.infrastructure;
 
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.post.domain.Post;
-import com.swyp8team2.post.domain.PostRepository;
 import com.swyp8team2.support.RepositoryTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,7 +23,7 @@ class PostQueryRepositoryTest extends RepositoryTest {
     PostQueryRepository postQueryRepository;
 
     @Autowired
-    PostRepository postRepository;
+    PostJpaRepository postRepository;
 
     @Test
     @DisplayName("유저가 작성한 게시글 조회 - 게시글이 15개일 경우 15번쨰부터 10개 조회해야 함")

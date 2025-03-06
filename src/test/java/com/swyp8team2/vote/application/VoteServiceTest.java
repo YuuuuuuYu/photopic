@@ -6,7 +6,7 @@ import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
 import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.PostImage;
-import com.swyp8team2.post.domain.PostRepository;
+import com.swyp8team2.post.infrastructure.PostJpaRepository;
 import com.swyp8team2.post.domain.Status;
 import com.swyp8team2.support.IntegrationTest;
 import com.swyp8team2.user.domain.User;
@@ -38,7 +38,7 @@ class VoteServiceTest extends IntegrationTest {
     VoteRepository voteRepository;
 
     @Autowired
-    PostRepository postRepository;
+    PostJpaRepository postRepository;
 
     @Autowired
     ImageFileRepository imageFileRepository;

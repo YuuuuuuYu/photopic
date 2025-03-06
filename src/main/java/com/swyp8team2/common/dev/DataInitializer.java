@@ -11,17 +11,14 @@ import com.swyp8team2.crypto.application.CryptoService;
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
 import com.swyp8team2.image.presentation.dto.ImageFileDto;
-import com.swyp8team2.post.application.PostService;
 import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.PostImage;
-import com.swyp8team2.post.domain.PostRepository;
+import com.swyp8team2.post.infrastructure.PostJpaRepository;
 import com.swyp8team2.user.domain.NicknameAdjective;
 import com.swyp8team2.user.domain.NicknameAdjectiveRepository;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import com.swyp8team2.vote.application.VoteService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +34,7 @@ public class DataInitializer {
     private final NicknameAdjectiveRepository nicknameAdjectiveRepository;
     private final UserRepository userRepository;
     private final ImageFileRepository imageFileRepository;
-    private final PostRepository postRepository;
+    private final PostJpaRepository postRepository;
     private final CryptoService shaereUrlCryptoService;
     private final JwtService jwtService;
     private final VoteService voteService;
@@ -47,7 +44,7 @@ public class DataInitializer {
             NicknameAdjectiveRepository nicknameAdjectiveRepository,
             UserRepository userRepository,
             ImageFileRepository imageFileRepository,
-            PostRepository postRepository,
+            PostJpaRepository postRepository,
             @ShareUrlCryptoService CryptoService shaereUrlCryptoService,
             JwtService jwtService,
             VoteService voteService,

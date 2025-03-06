@@ -8,7 +8,7 @@ import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
 import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.PostImage;
-import com.swyp8team2.post.domain.PostRepository;
+import com.swyp8team2.post.infrastructure.PostJpaRepository;
 import com.swyp8team2.post.domain.Status;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.CreatePostResponse;
@@ -44,7 +44,7 @@ class PostServiceTest extends IntegrationTest {
     PostService postService;
 
     @Autowired
-    PostRepository postRepository;
+    PostJpaRepository postRepository;
 
     @Autowired
     UserRepository userRepository;
