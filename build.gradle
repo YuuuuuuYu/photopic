@@ -50,6 +50,12 @@ dependencies {
     // base64
     implementation 'io.seruco.encoding:base62:0.1.3'
 
+    // querydsl
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -62,6 +68,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// rest docs
 ext {
     snippetsDir = file('build/generated-snippets')
 }
@@ -73,7 +80,7 @@ asciidoctor {
     dependsOn test
 }
 
-task copyDocument(type: Copy) {
+tasks.register('copyDocument', Copy) {
     dependsOn asciidoctor
     doFirst {
         delete file('src/main/resources/static/docs')
@@ -87,6 +94,24 @@ bootJar {
     from ("${asciidoctor.outputDir}") {
         into 'static/docs'
     }
+}
+
+// querydsl
+def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
+sourceSets {
+    main.java.srcDirs += [ querydslDir ]
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
+}
+
+clean.doLast {
+    file(querydslDir).deleteDir()
+}
+
+clean {
+    delete file('src/main/generated')
 }
 
 tasks.named('test') {
