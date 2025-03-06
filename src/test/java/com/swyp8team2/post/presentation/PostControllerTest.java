@@ -2,14 +2,7 @@ package com.swyp8team2.post.presentation;
 
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.post.domain.Status;
-import com.swyp8team2.post.presentation.dto.AuthorDto;
-import com.swyp8team2.post.presentation.dto.CreatePostRequest;
-import com.swyp8team2.post.presentation.dto.CreatePostResponse;
-import com.swyp8team2.post.presentation.dto.PostImageVoteStatusResponse;
-import com.swyp8team2.post.presentation.dto.PostResponse;
-import com.swyp8team2.post.presentation.dto.SimplePostResponse;
-import com.swyp8team2.post.presentation.dto.PostImageRequestDto;
-import com.swyp8team2.post.presentation.dto.PostImageResponse;
+import com.swyp8team2.post.presentation.dto.*;
 import com.swyp8team2.support.RestDocsTest;
 import com.swyp8team2.support.WithMockUserInfo;
 import org.junit.jupiter.api.DisplayName;
@@ -35,6 +28,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.response
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -355,6 +349,51 @@ class PostControllerTest extends RestDocsTest {
                                         .type(JsonFieldType.STRING)
                                         .description("게시글 생성 시간")
                         )
+                ));
+    }
+
+    @Test
+    @WithMockUserInfo
+    @DisplayName("게시글 노출 변경")
+    void toggleStatusPost() throws Exception {
+        //given
+
+        //when then
+        mockMvc.perform(post("/posts/{postId}/status", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(authorizationHeader()),
+                        pathParameters(
+                                parameterWithName("postId").description("게시글 Id")
+                        )
+                ));
+    }
+
+    @Test
+    @WithMockUserInfo
+    @DisplayName("게시글 수정")
+    void updatePost() throws Exception {
+        //given
+        UpdatePostRequest request = new UpdatePostRequest("설명");
+
+        //when then
+        mockMvc.perform(post("/posts/{postId}/update", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(authorizationHeader()),
+                        pathParameters(
+                                parameterWithName("postId").description("게시글 Id")
+                        ),
+                        requestFields(
+                                fieldWithPath("description")
+                                        .type(JsonFieldType.STRING)
+                                        .description("설명")
+                                        .attributes(constraints("0~100자 사이"))
+                                )
                 ));
     }
 
