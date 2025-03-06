@@ -93,12 +93,8 @@ public class AuthController {
 
     @PostMapping("/withdraw")
     public ResponseEntity<Void> withdraw(
-            @CookieValue(name = CustomHeader.CustomCookie.REFRESH_TOKEN, required = false) String refreshToken,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
-        if (Objects.isNull(refreshToken)) {
-            throw new BadRequestException(ErrorCode.INVALID_REFRESH_TOKEN_HEADER);
-        }
         return ResponseEntity.ok().build();
     }
 }

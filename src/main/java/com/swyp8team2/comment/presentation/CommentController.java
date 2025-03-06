@@ -54,7 +54,7 @@ public class CommentController {
     public ResponseEntity<Void> updateComment(
             @PathVariable("postId") Long postId,
             @PathVariable("commentId") Long commentId,
-            @RequestBody UpdateCommentRequest request,
+            @Valid @RequestBody UpdateCommentRequest request,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
 
