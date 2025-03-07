@@ -1,5 +1,6 @@
 package com.swyp8team2.common.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
@@ -17,9 +18,11 @@ import java.time.LocalDateTime;
 public abstract class BaseEntity {
 
     @CreatedBy
+    @Column(updatable = false)
     private Long createdBy;
 
     @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedBy
@@ -30,4 +33,9 @@ public abstract class BaseEntity {
 
     private boolean deleted = false;
     private LocalDateTime deletedAt;
+
+    public void delete() {
+        this.deleted = true;
+        this.deletedAt = LocalDateTime.now();
+    }
 }

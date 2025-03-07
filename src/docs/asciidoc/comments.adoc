@@ -17,6 +17,6 @@ operation::comment-controller-test/find-comments[snippets='http-request,curl-req
 operation::comment-controller-test/update-comment[snippets='http-request,curl-request,path-parameters,request-headers,request-fields,http-response']
 
 [[댓글-삭제]]
-=== `DELETE` 댓글 삭제 (미구현)
+=== `DELETE` 댓글 삭제
 
 operation::comment-controller-test/delete-comment[snippets='http-request,curl-request,path-parameters,request-headers,http-response']
