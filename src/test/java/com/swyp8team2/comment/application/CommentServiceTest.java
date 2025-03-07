@@ -8,6 +8,7 @@ import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
+import com.swyp8team2.common.exception.ForbiddenException;
 import com.swyp8team2.common.exception.UnauthorizedException;
 import com.swyp8team2.user.domain.Role;
 import com.swyp8team2.user.domain.User;
@@ -159,7 +160,7 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 삭제 - 권한 없는 사용자")
-    void deleteComment_Unauthorized() {
+    void deleteComment_forbiddenException() {
         // given
         Long postId = 1L;
         UserInfo userInfo = new UserInfo(100L, Role.USER);
@@ -168,8 +169,7 @@ class CommentServiceTest {
 
         // when then
         assertThatThrownBy(() -> commentService.deleteComment(1L, userInfo))
-                .isInstanceOf(UnauthorizedException.class)
-                .hasMessage((ErrorCode.FORBIDDEN.getMessage()));
+                .isInstanceOf(ForbiddenException.class);
         assertFalse(comment.isDeleted());
         assertNull(comment.getDeletedAt());
     }

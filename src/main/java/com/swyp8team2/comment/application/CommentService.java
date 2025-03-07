@@ -8,6 +8,7 @@ import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
+import com.swyp8team2.common.exception.ForbiddenException;
 import com.swyp8team2.common.exception.UnauthorizedException;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
@@ -58,7 +59,7 @@ public class CommentService {
                 .orElseThrow(() -> new BadRequestException(ErrorCode.COMMENT_NOT_FOUND));
 
         if (!comment.getUserNo().equals(userInfo.userId())) {
-            throw new UnauthorizedException(ErrorCode.FORBIDDEN);
+            throw new ForbiddenException();
         }
 
         comment.delete();
