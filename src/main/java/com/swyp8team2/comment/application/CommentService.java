@@ -61,8 +61,8 @@ public class CommentService {
             throw new ForbiddenException();
         }
 
-        Comment newComment = comment.updateComment(request.content());
-        commentRepository.save(newComment);
+        comment.updateComment(request.content());
+        commentRepository.save(comment);
     }
 
     @Transactional

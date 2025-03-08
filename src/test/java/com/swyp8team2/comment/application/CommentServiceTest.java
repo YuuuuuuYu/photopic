@@ -137,13 +137,12 @@ class CommentServiceTest {
         when(commentRepository.findByIdAndNotDeleted(1L)).thenReturn(Optional.of(comment));
 
         // when
-        Comment newComment = comment.updateComment(request.content());
         commentService.updateComment(1L, request, userInfo);
 
         // then
         assertAll(
-                () -> assertThat(comment.getId()).isEqualTo(newComment.getId()),
-                () -> assertThat(comment.getContent()).isNotEqualTo(newComment.getContent())
+                () -> assertThat(comment.getId()).isEqualTo(1L),
+                () -> assertThat(comment.getContent()).isEqualTo("수정 댓글")
         );
     }
 
@@ -172,8 +171,11 @@ class CommentServiceTest {
         when(commentRepository.findByIdAndNotDeleted(1L)).thenReturn(Optional.of(comment));
 
         // when then
-        assertThatThrownBy(() -> commentService.updateComment(1L, request, userInfo))
-                .isInstanceOf(ForbiddenException.class);
+        assertAll(
+                () -> assertThatThrownBy(() -> commentService.updateComment(1L, request, userInfo))
+                        .isInstanceOf(ForbiddenException.class),
+                () -> assertThat(comment.getContent()).isEqualTo("첫 번째 댓글")
+        );
     }
 
     @Test
