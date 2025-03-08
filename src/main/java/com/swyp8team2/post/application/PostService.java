@@ -183,4 +183,11 @@ public class PostService {
         String decrypt = shareUrlCryptoService.decrypt(shareUrl);
         return findById(userId, Long.valueOf(decrypt));
     }
+
+    @Transactional
+    public void toggleScope(Long userId, Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
+        post.toggleScope(userId);
+    }
 }
