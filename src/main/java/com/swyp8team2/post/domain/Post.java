@@ -39,18 +39,22 @@ public class Post extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Enumerated(EnumType.STRING)
+    private Scope scope;
+
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<PostImage> images = new ArrayList<>();
 
     private String shareUrl;
 
-    public Post(Long id, Long userId, String description, Status status, List<PostImage> images, String shareUrl) {
+    public Post(Long id, Long userId, String description, Status status, Scope scope, List<PostImage> images, String shareUrl) {
         validateDescription(description);
         validatePostImages(images);
         this.id = id;
         this.description = description;
         this.userId = userId;
         this.status = status;
+        this.scope = scope;
         this.images = images;
         images.forEach(image -> image.setPost(this));
         this.shareUrl = shareUrl;
@@ -69,7 +73,7 @@ public class Post extends BaseEntity {
     }
 
     public static Post create(Long userId, String description, List<PostImage> images) {
-        return new Post(null, userId, description, Status.PROGRESS, images, null);
+        return new Post(null, userId, description, Status.PROGRESS, Scope.PRIVATE, images, null);
     }
 
     public PostImage getBestPickedImage() {
@@ -119,5 +123,12 @@ public class Post extends BaseEntity {
             throw new InternalServerException(ErrorCode.SHARE_URL_ALREADY_EXISTS);
         }
         this.shareUrl = shareUrl;
+    }
+
+    public void toggleScope(Long userId) {
+        if (!isAuthor(userId)) {
+            throw new BadRequestException(ErrorCode.NOT_POST_AUTHOR);
+        }
+        this.scope = scope.equals(Scope.PRIVATE) ? Scope.PUBLIC : Scope.PRIVATE;
     }
 }
