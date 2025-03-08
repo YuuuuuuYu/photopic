@@ -62,7 +62,6 @@ public class CommentService {
         }
 
         comment.updateComment(request.content());
-        commentRepository.save(comment);
     }
 
     @Transactional
@@ -75,6 +74,5 @@ public class CommentService {
         }
 
         comment.delete();
-        commentRepository.save(comment);
     }
 }
