@@ -50,8 +50,7 @@ public class Comment extends BaseEntity {
         this.content = content;
     }
 
-    public void updateComment(String content) {
-        validateEmptyString(content);
-        this.content = content;
+    public Comment updateComment(String content) {
+        return new Comment(this.id, this.postId, this.userNo, content);
     }
 }
