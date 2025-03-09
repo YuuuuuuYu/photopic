@@ -114,14 +114,6 @@ public class PostService {
         return getCursorPaginatedResponse(postSlice);
     }
 
-    private SimplePostResponse getSimplePostResponse(Post post, List<ImageFile> imageIds) {
-        ImageFile bestPickedImage = imageIds.stream()
-                .filter(imageFile -> imageFile.getId().equals(post.getBestPickedImage().getImageFileId()))
-                .findFirst()
-                .orElseThrow(() -> new InternalServerException(ErrorCode.IMAGE_FILE_NOT_FOUND));
-        return SimplePostResponse.of(post, bestPickedImage.getThumbnailUrl());
-    }
-
     public CursorBasePaginatedResponse<SimplePostResponse> findVotedPosts(Long userId, Long cursor, int size) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
@@ -149,6 +141,14 @@ public class PostService {
                 postSlice.getPageable(),
                 postSlice.hasNext()
         ));
+    }
+
+    private SimplePostResponse getSimplePostResponse(Post post, List<ImageFile> imageIds) {
+        ImageFile bestPickedImage = imageIds.stream()
+                .filter(imageFile -> imageFile.getId().equals(post.getBestPickedImage().getImageFileId()))
+                .findFirst()
+                .orElseThrow(() -> new InternalServerException(ErrorCode.IMAGE_FILE_NOT_FOUND));
+        return SimplePostResponse.of(post, bestPickedImage.getThumbnailUrl());
     }
 
     public List<PostImageVoteStatusResponse> findVoteStatus(Long userId, Long postId) {
