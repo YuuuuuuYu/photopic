@@ -1,9 +1,7 @@
 package com.swyp8team2.post.application;
 
-import com.swyp8team2.common.annotation.ShareUrlCryptoService;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
-import com.swyp8team2.crypto.application.CryptoService;
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
 import com.swyp8team2.post.domain.Post;
@@ -17,7 +15,6 @@ import com.swyp8team2.post.presentation.dto.PostImageRequestDto;
 import com.swyp8team2.support.IntegrationTest;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
-import com.swyp8team2.vote.domain.VoteRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +47,7 @@ public class PostCommandServiceTest extends IntegrationTest {
     ImageFileRepository imageFileRepository;
 
     @MockitoBean
-    CryptoService shareUrlCryptoService;
+    ShareUrlService shareUrlShareUrlService;
 
     @Test
     @DisplayName("게시글 작성")
@@ -66,7 +63,7 @@ public class PostCommandServiceTest extends IntegrationTest {
                 VoteType.SINGLE
         );
         String shareUrl = "shareUrl";
-        given(shareUrlCryptoService.encrypt(any()))
+        given(shareUrlShareUrlService.encrypt(any()))
                 .willReturn(shareUrl);
 
         //when

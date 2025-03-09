@@ -71,7 +71,6 @@ class PostQueryServiceTest extends IntegrationTest {
     }
 
     @Test
-    @Disabled
     @DisplayName("유저가 작성한 게시글 조회 - 커서 null인 경우")
     void findUserPosts() throws Exception {
         //given
@@ -91,7 +90,6 @@ class PostQueryServiceTest extends IntegrationTest {
     }
 
     @Test
-    @Disabled
     @DisplayName("유저가 작성한 게시글 조회 - 커서 있는 경우")
     void findUserPosts2() throws Exception {
         //given

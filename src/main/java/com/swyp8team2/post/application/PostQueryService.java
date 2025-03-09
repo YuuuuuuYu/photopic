@@ -4,7 +4,6 @@ import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.common.exception.InternalServerException;
-import com.swyp8team2.crypto.application.CryptoService;
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
 import com.swyp8team2.post.domain.Post;
@@ -35,10 +34,10 @@ public class PostQueryService {
     private final UserRepository userRepository;
     private final ImageFileRepository imageFileRepository;
     private final VoteRepository voteRepository;
-    private final CryptoService shareUrlCryptoService;
+    private final ShareUrlService shareUrlShareUrlService;
 
     public PostResponse findByShareUrl(Long userId, String shareUrl) {
-        String decrypt = shareUrlCryptoService.decrypt(shareUrl);
+        String decrypt = shareUrlShareUrlService.decrypt(shareUrl);
         return findById(userId, Long.valueOf(decrypt));
     }
 
