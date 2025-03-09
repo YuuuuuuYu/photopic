@@ -10,6 +10,7 @@ import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.PostImage;
 import com.swyp8team2.post.domain.PostRepository;
 import com.swyp8team2.post.domain.Status;
+import com.swyp8team2.post.domain.VoteType;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.CreatePostResponse;
 import com.swyp8team2.post.presentation.dto.PostResponse;
@@ -68,10 +69,14 @@ class PostServiceTest extends IntegrationTest {
     void create() throws Exception {
         //given
         long userId = 1L;
-        CreatePostRequest request = new CreatePostRequest("description", List.of(
-                new PostImageRequestDto(1L),
-                new PostImageRequestDto(2L)
-        ));
+        CreatePostRequest request = new CreatePostRequest(
+                "description",
+                List.of(
+                        new PostImageRequestDto(1L),
+                        new PostImageRequestDto(2L)
+                ),
+                VoteType.SINGLE
+        );
         String shareUrl = "shareUrl";
         given(shareUrlCryptoService.encrypt(any()))
                 .willReturn(shareUrl);
@@ -86,6 +91,8 @@ class PostServiceTest extends IntegrationTest {
                 () -> assertThat(post.getDescription()).isEqualTo("description"),
                 () -> assertThat(post.getUserId()).isEqualTo(userId),
                 () -> assertThat(post.getShareUrl()).isEqualTo(shareUrl),
+                () -> assertThat(post.getStatus()).isEqualTo(Status.PROGRESS),
+                () -> assertThat(post.getVoteType()).isEqualTo(VoteType.SINGLE),
                 () -> assertThat(images).hasSize(2),
                 () -> assertThat(images.get(0).getImageFileId()).isEqualTo(1L),
                 () -> assertThat(images.get(0).getName()).isEqualTo("뽀또A"),
@@ -101,10 +108,13 @@ class PostServiceTest extends IntegrationTest {
     void create_invalidPostImageCount() throws Exception {
         //given
         long userId = 1L;
-        CreatePostRequest request = new CreatePostRequest("description", List.of(
-                new PostImageRequestDto(1L)
-        ));
-
+        CreatePostRequest request = new CreatePostRequest(
+                "description",
+                List.of(
+                        new PostImageRequestDto(1L)
+                ),
+                VoteType.SINGLE
+        );
         //when then
         assertThatThrownBy(() -> postService.create(userId, request))
                 .isInstanceOf(BadRequestException.class)
@@ -116,10 +126,14 @@ class PostServiceTest extends IntegrationTest {
     void create_descriptionCountExceeded() throws Exception {
         //given
         long userId = 1L;
-        CreatePostRequest request = new CreatePostRequest("a".repeat(101), List.of(
-                new PostImageRequestDto(1L),
-                new PostImageRequestDto(2L)
-        ));
+        CreatePostRequest request = new CreatePostRequest(
+                "a".repeat(101),
+                List.of(
+                        new PostImageRequestDto(1L),
+                        new PostImageRequestDto(2L)
+                ),
+                VoteType.SINGLE
+        );
 
         //when then
         assertThatThrownBy(() -> postService.create(userId, request))
@@ -149,9 +163,9 @@ class PostServiceTest extends IntegrationTest {
                 () -> assertThat(response.shareUrl()).isEqualTo(post.getShareUrl()),
                 () -> assertThat(votes).hasSize(2),
                 () -> assertThat(votes.get(0).imageUrl()).isEqualTo(imageFile1.getImageUrl()),
-                () -> assertThat(votes.get(0).voted()).isFalse(),
+                () -> assertThat(votes.get(0).voteId()).isNull(),
                 () -> assertThat(votes.get(1).imageUrl()).isEqualTo(imageFile2.getImageUrl()),
-                () -> assertThat(votes.get(1).voted()).isFalse()
+                () -> assertThat(votes.get(1).voteId()).isNull()
         );
     }
 
@@ -231,7 +245,7 @@ class PostServiceTest extends IntegrationTest {
 
     @Test
     @DisplayName("투표 현황 조회")
-    void findPostStatus() throws Exception {
+    void findVoteStatus() throws Exception {
         //given
         User user = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
@@ -240,7 +254,7 @@ class PostServiceTest extends IntegrationTest {
         voteService.vote(user.getId(), post.getId(), post.getImages().get(0).getId());
 
         //when
-        var response = postService.findPostStatus(post.getId());
+        var response = postService.findVoteStatus(user.getId(), post.getId());
 
         //then
         assertAll(
@@ -254,6 +268,49 @@ class PostServiceTest extends IntegrationTest {
                 () -> assertThat(response.get(1).voteCount()).isEqualTo(0),
                 () -> assertThat(response.get(1).voteRatio()).isEqualTo("0.0")
         );
+    }
+
+    @Test
+    @DisplayName("투표 현황 조회 - 투표한 사람인 경우")
+    void findVoteStatus_voteUser() throws Exception {
+        //given
+        User author = userRepository.save(createUser(1));
+        User voter = userRepository.save(createUser(2));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post post = postRepository.save(createPost(author.getId(), imageFile1, imageFile2, 1));
+        voteService.vote(voter.getId(), post.getId(), post.getImages().get(0).getId());
+
+        //when
+        var response = postService.findVoteStatus(voter.getId(), post.getId());
+
+        //then
+        assertAll(
+                () -> assertThat(response).hasSize(2),
+                () -> assertThat(response.get(0).id()).isEqualTo(post.getImages().get(0).getId()),
+                () -> assertThat(response.get(0).imageName()).isEqualTo(post.getImages().get(0).getName()),
+                () -> assertThat(response.get(0).voteCount()).isEqualTo(1),
+                () -> assertThat(response.get(0).voteRatio()).isEqualTo("100.0"),
+                () -> assertThat(response.get(1).id()).isEqualTo(post.getImages().get(1).getId()),
+                () -> assertThat(response.get(1).imageName()).isEqualTo(post.getImages().get(1).getName()),
+                () -> assertThat(response.get(1).voteCount()).isEqualTo(0),
+                () -> assertThat(response.get(1).voteRatio()).isEqualTo("0.0")
+        );
+    }
+
+    @Test
+    @DisplayName("투표 현황 조회 - 작성자 아니고 투표 안 한 사람인 경우")
+    void findVoteStatus_notAuthorAndVoter() throws Exception {
+        //given
+        User author = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post post = postRepository.save(createPost(author.getId(), imageFile1, imageFile2, 1));
+
+        //when
+        assertThatThrownBy(() -> postService.findVoteStatus(2L, post.getId()))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage(ErrorCode.ACCESS_DENIED_VOTE_STATUS.getMessage());
     }
 
     @Test

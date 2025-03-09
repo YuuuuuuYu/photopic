@@ -1,15 +1,10 @@
 package com.swyp8team2.post.presentation;
 
+import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.post.domain.Status;
-import com.swyp8team2.post.presentation.dto.AuthorDto;
-import com.swyp8team2.post.presentation.dto.CreatePostRequest;
-import com.swyp8team2.post.presentation.dto.CreatePostResponse;
-import com.swyp8team2.post.presentation.dto.PostImageVoteStatusResponse;
-import com.swyp8team2.post.presentation.dto.PostResponse;
-import com.swyp8team2.post.presentation.dto.SimplePostResponse;
-import com.swyp8team2.post.presentation.dto.PostImageRequestDto;
-import com.swyp8team2.post.presentation.dto.PostImageResponse;
+import com.swyp8team2.post.domain.VoteType;
+import com.swyp8team2.post.presentation.dto.*;
 import com.swyp8team2.support.RestDocsTest;
 import com.swyp8team2.support.WithMockUserInfo;
 import org.junit.jupiter.api.DisplayName;
@@ -24,9 +19,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -35,6 +30,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.response
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -48,7 +44,8 @@ class PostControllerTest extends RestDocsTest {
         //given
         CreatePostRequest request = new CreatePostRequest(
                 "제목",
-                List.of(new PostImageRequestDto(1L), new PostImageRequestDto(2L))
+                List.of(new PostImageRequestDto(1L), new PostImageRequestDto(2L)),
+                VoteType.SINGLE
         );
         CreatePostResponse response = new CreatePostResponse(1L, "shareUrl");
         given(postService.create(any(), any()))
@@ -74,7 +71,10 @@ class PostControllerTest extends RestDocsTest {
                                         .attributes(constraints("최소 2개")),
                                 fieldWithPath("images[].imageFileId")
                                         .type(JsonFieldType.NUMBER)
-                                        .description("투표 후보 이미지 ID")
+                                        .description("투표 후보 이미지 ID"),
+                                fieldWithPath("voteType")
+                                        .type(JsonFieldType.STRING)
+                                        .description("투표 방식 (SINGLE, MULTIPLE)")
                         ),
                         responseFields(
                                 fieldWithPath("postId")
@@ -101,8 +101,8 @@ class PostControllerTest extends RestDocsTest {
                 ),
                 "description",
                 List.of(
-                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/image/1", "https://image.photopic.site/image/resize/1", true),
-                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/image/2", "https://image.photopic.site/image/resize/2", false)
+                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/image/1", "https://image.photopic.site/image/resize/1", 1L),
+                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/image/2", "https://image.photopic.site/image/resize/2", null)
                 ),
                 "https://photopic.site/shareurl",
                  true,
@@ -132,7 +132,7 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("images[].imageName").type(JsonFieldType.STRING).description("사진 이름"),
                                 fieldWithPath("images[].imageUrl").type(JsonFieldType.STRING).description("사진 이미지"),
                                 fieldWithPath("images[].thumbnailUrl").type(JsonFieldType.STRING).description("확대 사진 이미지"),
-                                fieldWithPath("images[].voted").type(JsonFieldType.BOOLEAN).description("투표 여부"),
+                                fieldWithPath("images[].voteId").type(JsonFieldType.NUMBER).optional().description("투표 Id (투표 안 한 경우 null)"),
                                 fieldWithPath("shareUrl").type(JsonFieldType.STRING).description("게시글 공유 URL"),
                                 fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시글 생성 시간"),
                                 fieldWithPath("status").type(JsonFieldType.STRING).description("게시글 마감 여부 (PROGRESS, CLOSED)"),
@@ -155,8 +155,8 @@ class PostControllerTest extends RestDocsTest {
                 ),
                 "description",
                 List.of(
-                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/image/1", "https://image.photopic.site/image/resize/1", true),
-                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/image/2", "https://image.photopic.site/image/resize/2", false)
+                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/image/1", "https://image.photopic.site/image/resize/1", 1L),
+                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/image/2", "https://image.photopic.site/image/resize/2", null)
                 ),
                 "https://photopic.site/shareurl",
                 true,
@@ -186,7 +186,7 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("images[].imageName").type(JsonFieldType.STRING).description("사진 이름"),
                                 fieldWithPath("images[].imageUrl").type(JsonFieldType.STRING).description("사진 이미지"),
                                 fieldWithPath("images[].thumbnailUrl").type(JsonFieldType.STRING).description("확대 사진 이미지"),
-                                fieldWithPath("images[].voted").type(JsonFieldType.BOOLEAN).description("투표 여부"),
+                                fieldWithPath("images[].voteId").type(JsonFieldType.NUMBER).optional().description("투표 Id (투표 안 한 경우 null)"),
                                 fieldWithPath("shareUrl").type(JsonFieldType.STRING).description("게시글 공유 URL"),
                                 fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시글 생성 시간"),
                                 fieldWithPath("status").type(JsonFieldType.STRING).description("게시글 마감 여부 (PROGRESS, CLOSED)"),
@@ -204,7 +204,7 @@ class PostControllerTest extends RestDocsTest {
                 new PostImageVoteStatusResponse(1L, "뽀또A", 2, "66.7"),
                 new PostImageVoteStatusResponse(2L, "뽀또B", 1, "33.3")
         );
-        given(postService.findPostStatus(1L))
+        given(postService.findVoteStatus(1L, 1L))
                 .willReturn(response);
 
         //when then
@@ -355,6 +355,55 @@ class PostControllerTest extends RestDocsTest {
                                         .type(JsonFieldType.STRING)
                                         .description("게시글 생성 시간")
                         )
+                ));
+    }
+
+    @Test
+    @WithMockUserInfo
+    @DisplayName("게시글 공개 범위 변경")
+    void toggleStatusPost() throws Exception {
+        //given
+        Long postId = 1L;
+        doNothing().when(postService).toggleScope(any(), eq(postId));
+
+        //when then
+        mockMvc.perform(post("/posts/{postId}/scope", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(authorizationHeader()),
+                        pathParameters(
+                                parameterWithName("postId").description("게시글 Id")
+                        )
+                ));
+
+        verify(postService, times(1)).toggleScope(any(), eq(postId));
+    }
+
+    @Test
+    @WithMockUserInfo
+    @DisplayName("게시글 수정")
+    void updatePost() throws Exception {
+        //given
+        UpdatePostRequest request = new UpdatePostRequest("설명");
+
+        //when then
+        mockMvc.perform(post("/posts/{postId}/update", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(authorizationHeader()),
+                        pathParameters(
+                                parameterWithName("postId").description("게시글 Id")
+                        ),
+                        requestFields(
+                                fieldWithPath("description")
+                                        .type(JsonFieldType.STRING)
+                                        .description("설명")
+                                        .attributes(constraints("0~100자 사이"))
+                                )
                 ));
     }
 

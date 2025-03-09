@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
@@ -14,6 +16,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             SELECT c
             FROM Comment c
             WHERE c.postId = :postId
+                AND c.deleted = false
                 AND (:cursor is null or c.id > :cursor)
             ORDER BY c.createdAt ASC
             """)
@@ -23,4 +26,11 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             Pageable pageable
     );
 
+    @Query("""
+            SELECT c
+            FROM Comment c
+            WHERE c.id = :commentId
+                AND c.deleted = false
+            """)
+    Optional<Comment> findByIdAndNotDeleted(@Param("commentId") Long commentId);
 }

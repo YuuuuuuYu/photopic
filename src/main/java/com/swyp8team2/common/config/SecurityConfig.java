@@ -117,6 +117,7 @@ public class SecurityConfig {
         MvcRequestMatcher.Builder mvc = new MvcRequestMatcher.Builder(introspect);
         return new MvcRequestMatcher[]{
                 mvc.pattern(HttpMethod.POST, "/posts/{postId}/votes"),
+                mvc.pattern(HttpMethod.DELETE, "/votes/{voteId}"),
                 mvc.pattern(HttpMethod.GET, "/users/me"),
         };
     }

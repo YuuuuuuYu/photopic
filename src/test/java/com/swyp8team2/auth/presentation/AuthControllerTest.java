@@ -223,4 +223,19 @@ class AuthControllerTest extends RestDocsTest {
                         )
                 ));
     }
+
+    @Test
+    @WithMockUserInfo
+    @DisplayName("회원탈퇴")
+    void withdraw() throws Exception {
+        //given
+
+        //when then
+        mockMvc.perform(post("/auth/withdraw")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer accessToken"))
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(authorizationHeader())
+                ));
+    }
 }

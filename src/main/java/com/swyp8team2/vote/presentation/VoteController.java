@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,12 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/posts/{postId}/votes")
 public class VoteController {
 
     private final VoteService voteService;
 
-    @PostMapping("")
+    @PostMapping("/posts/{postId}/votes")
     public ResponseEntity<Void> vote(
             @PathVariable("postId") Long postId,
             @Valid @RequestBody VoteRequest request,
@@ -34,31 +34,12 @@ public class VoteController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/guest")
-    public ResponseEntity<Void> guestVote(
-            @PathVariable("postId") Long postId,
-            @Valid @RequestBody VoteRequest request,
+    @DeleteMapping("/votes/{voteId}")
+    public ResponseEntity<Void> cancelVote(
+            @PathVariable("voteId") Long voteId,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
-        voteService.guestVote(userInfo.userId(), postId, request.imageId());
-        return ResponseEntity.ok().build();
-    }
-
-    @PatchMapping("")
-    public ResponseEntity<Void> changeVote(
-            @PathVariable("postId") Long postId,
-            @Valid @RequestBody ChangeVoteRequest request,
-            @AuthenticationPrincipal UserInfo userInfo
-    ) {
-        return ResponseEntity.ok().build();
-    }
-
-    @PatchMapping("/guest")
-    public ResponseEntity<Void> changeGuestVote(
-            @PathVariable("postId") Long postId,
-            @RequestHeader(CustomHeader.GUEST_TOKEN) String guestId,
-            @Valid @RequestBody ChangeVoteRequest request
-    ) {
+        voteService.cancelVote(userInfo.userId(), voteId);
         return ResponseEntity.ok().build();
     }
 }

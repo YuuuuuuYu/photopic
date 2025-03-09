@@ -3,7 +3,7 @@ package com.swyp8team2.comment.presentation;
 import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.comment.presentation.dto.AuthorDto;
 import com.swyp8team2.comment.presentation.dto.CommentResponse;
-import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
+import com.swyp8team2.comment.presentation.dto.CommentRequest;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.support.RestDocsTest;
 import com.swyp8team2.support.WithMockUserInfo;
@@ -36,9 +36,9 @@ class CommentControllerTest extends RestDocsTest {
     void createComment() throws Exception {
         //given
         Long postId = 1L;
-        CreateCommentRequest request = new CreateCommentRequest("content");
+        CommentRequest request = new CommentRequest("content");
 
-        doNothing().when(commentService).createComment(eq(postId), any(CreateCommentRequest.class), any(UserInfo.class));
+        doNothing().when(commentService).createComment(eq(postId), any(CommentRequest.class), any(UserInfo.class));
 
         //when then
         mockMvc.perform(post("/posts/{postId}/comments", "1")
@@ -56,7 +56,7 @@ class CommentControllerTest extends RestDocsTest {
                         )
                 ));
 
-        verify(commentService, times(1)).createComment(eq(postId), any(CreateCommentRequest.class), any(UserInfo.class));
+        verify(commentService, times(1)).createComment(eq(postId), any(CommentRequest.class), any(UserInfo.class));
     }
 
     @Test
@@ -138,9 +138,39 @@ class CommentControllerTest extends RestDocsTest {
 
     @Test
     @WithMockUserInfo
+    @DisplayName("댓글 수정")
+    void updateComment() throws Exception {
+        //given
+        CommentRequest request = new CommentRequest("수정 댓글");
+
+        //when then
+        mockMvc.perform(post("/posts/{postId}/comments/{commentId}", "1", "1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
+                .andExpect(status().isOk())
+                .andDo(restDocs.document(
+                        requestHeaders(authorizationHeader()),
+                        pathParameters(
+                                parameterWithName("postId").description("게시글 Id"),
+                                parameterWithName("commentId").description("댓글 Id")
+                        ),
+                        requestFields(
+                                fieldWithPath("content")
+                                        .type(JsonFieldType.STRING)
+                                        .description("댓글 내용")
+                                        .attributes(constraints("최대 ?글자"))
+                        )
+                ));
+    }
+
+    @Test
+    @WithMockUserInfo
     @DisplayName("댓글 삭제")
     void deleteComment() throws Exception {
         //given
+        Long commentId = 1L;
+        doNothing().when(commentService).deleteComment(eq(commentId), any(UserInfo.class));
 
         //when then
         mockMvc.perform(delete("/posts/{postId}/comments/{commentId}", "1", "1")
@@ -153,5 +183,7 @@ class CommentControllerTest extends RestDocsTest {
                                 parameterWithName("commentId").description("댓글 Id")
                         )
                 ));
+
+        verify(commentService, times(1)).deleteComment(eq(commentId), any(UserInfo.class));
     }
 }

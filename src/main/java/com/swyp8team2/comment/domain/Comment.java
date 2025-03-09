@@ -49,4 +49,9 @@ public class Comment extends BaseEntity {
         this.userNo = userNo;
         this.content = content;
     }
+
+    public void updateComment(String content) {
+        validateEmptyString(content);
+        this.content = content;
+    }
 }

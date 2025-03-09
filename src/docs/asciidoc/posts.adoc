@@ -34,6 +34,16 @@ operation::post-controller-test/find-my-post[snippets='http-request,curl-request
 
 operation::post-controller-test/find-voted-post[snippets='http-request,curl-request,query-parameters,request-headers,http-response,response-fields']
 
+[[게시글-투표-수정]]
+=== `POST` 게시글 노출 변경
+
+operation::post-controller-test/toggle-status-post[snippets='http-request,curl-request,path-parameters,request-headers,http-response']
+
+[[게시글-투표-수정]]
+=== `POST` 게시글 투표 수정 (미구현)
+
+operation::post-controller-test/update-post[snippets='http-request,curl-request,path-parameters,request-headers,http-response']
+
 [[게시글-투표-마감]]
 === `POST` 게시글 투표 마감
 

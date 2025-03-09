@@ -8,6 +8,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.checksums.RequestChecksumCalculation;
 import software.amazon.awssdk.core.checksums.ResponseChecksumValidation;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
 
@@ -25,6 +26,12 @@ public class S3Config {
     @Value("${r2.endpoint}")
     private String endpoint;
 
+    @Value("${aws.access-key}")
+    private String awsAccessKey;
+
+    @Value("${aws.secret-key}")
+    private String awsSecretKey;
+
     @Bean
     public S3Client s3Client() {
         return S3Client.builder()
@@ -37,6 +44,14 @@ public class S3Config {
                         .build())
                 .requestChecksumCalculation(RequestChecksumCalculation.WHEN_REQUIRED)
                 .responseChecksumValidation(ResponseChecksumValidation.WHEN_REQUIRED)
+                .build();
+    }
+    @Bean
+    public LambdaClient lambdaClient() {
+        return LambdaClient.builder()
+                .region(Region.AP_NORTHEAST_2)
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(awsAccessKey, awsSecretKey)))
                 .build();
     }
 }

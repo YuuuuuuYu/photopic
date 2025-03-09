@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -60,7 +59,7 @@ public class PostService {
     @Transactional
     public CreatePostResponse create(Long userId, CreatePostRequest request) {
         List<PostImage> postImages = createPostImages(request);
-        Post post = Post.create(userId, request.description(), postImages);
+        Post post = Post.create(userId, request.description(), postImages, request.voteType());
         Post save = postRepository.save(post);
         save.setShareUrl(shareUrlCryptoService.encrypt(String.valueOf(save.getId())));
         return new CreatePostResponse(save.getId(), save.getShareUrl());
@@ -80,37 +79,34 @@ public class PostService {
                 .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
         User author = userRepository.findById(post.getUserId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
-        List<PostImageResponse> votes = createPostImageResponse(userId, postId, post);
+        List<PostImageResponse> votes = createPostImageResponse(userId, post);
         boolean isAuthor = post.getUserId().equals(userId);
         return PostResponse.of(post, author, votes, isAuthor);
     }
 
-    private List<PostImageResponse> createPostImageResponse(Long userId, Long postId, Post post) {
+    private List<PostImageResponse> createPostImageResponse(Long userId, Post post) {
         List<PostImage> images = post.getImages();
         return images.stream()
-                .map(image -> createVoteResponseDto(image, userId, postId))
+                .map(image -> createVoteResponseDto(image, userId))
                 .toList();
     }
 
-    private PostImageResponse createVoteResponseDto(PostImage image, Long userId, Long postId) {
+    private PostImageResponse createVoteResponseDto(PostImage image, Long userId) {
         ImageFile imageFile = imageFileRepository.findById(image.getImageFileId())
                 .orElseThrow(() -> new InternalServerException(ErrorCode.IMAGE_FILE_NOT_FOUND));
-        boolean voted = Objects.nonNull(userId) && getVoted(image, userId, postId);
         return new PostImageResponse(
                 image.getId(),
                 image.getName(),
                 imageFile.getImageUrl(),
                 imageFile.getThumbnailUrl(),
-                voted
+                getVoteId(image, userId)
         );
     }
 
-    private Boolean getVoted(PostImage image, Long userId, Long postId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
-        return voteRepository.findByUserIdAndPostId(user.getId(), postId)
-                .map(vote -> vote.getPostImageId().equals(image.getId()))
-                .orElse(false);
+    private Long getVoteId(PostImage image, Long userId) {
+        return voteRepository.findByUserIdAndPostImageId(userId, image.getId())
+                .map(Vote::getId)
+                .orElse(null);
     }
 
     public CursorBasePaginatedResponse<SimplePostResponse> findUserPosts(Long userId, Long cursor, int size) {
@@ -155,15 +151,24 @@ public class PostService {
         ));
     }
 
-    public List<PostImageVoteStatusResponse> findPostStatus(Long postId) {
+    public List<PostImageVoteStatusResponse> findVoteStatus(Long userId, Long postId) {
         Post post = postRepository.findByIdFetchPostImage(postId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
+        validateVoteStatus(userId, post);
         int totalVoteCount = getTotalVoteCount(post.getImages());
         return post.getImages().stream()
                 .map(image -> {
                     String ratio = ratioCalculator.calculate(totalVoteCount, image.getVoteCount());
                     return new PostImageVoteStatusResponse(image.getId(), image.getName(), image.getVoteCount(), ratio);
                 }).toList();
+    }
+
+    private void validateVoteStatus(Long userId, Post post) {
+        boolean voted = voteRepository.findByUserIdAndPostId(userId, post.getId())
+                .isPresent();
+        if (!(post.isAuthor(userId) || voted)) {
+            throw new BadRequestException(ErrorCode.ACCESS_DENIED_VOTE_STATUS);
+        }
     }
 
     private int getTotalVoteCount(List<PostImage> images) {
@@ -178,7 +183,9 @@ public class PostService {
     public void delete(Long userId, Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
-        post.validateOwner(userId);
+        if (!post.isAuthor(userId)) {
+            throw new BadRequestException(ErrorCode.NOT_POST_AUTHOR);
+        }
         postRepository.delete(post);
     }
 
@@ -192,5 +199,12 @@ public class PostService {
     public PostResponse findByShareUrl(Long userId, String shareUrl) {
         String decrypt = shareUrlCryptoService.decrypt(shareUrl);
         return findById(userId, Long.valueOf(decrypt));
+    }
+
+    @Transactional
+    public void toggleScope(Long userId, Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
+        post.toggleScope(userId);
     }
 }

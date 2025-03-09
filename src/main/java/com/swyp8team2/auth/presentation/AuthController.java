@@ -90,4 +90,11 @@ public class AuthController {
         authService.signOut(userInfo.userId(), refreshToken);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/withdraw")
+    public ResponseEntity<Void> withdraw(
+            @AuthenticationPrincipal UserInfo userInfo
+    ) {
+        return ResponseEntity.ok().build();
+    }
 }
