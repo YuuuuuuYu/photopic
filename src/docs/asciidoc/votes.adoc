@@ -5,3 +5,8 @@
 === `POST` 투표
 
 operation::vote-controller-test/vote[snippets='http-request,curl-request,request-headers,request-fields,http-response']
+
+[[투표-취소]]
+=== `DELETE` 투표 취소
+
+operation::vote-controller-test/cancel-vote[snippets='http-request,curl-request,path-parameters,request-headers,http-response']
