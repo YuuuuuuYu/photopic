@@ -23,6 +23,7 @@ import com.swyp8team2.vote.domain.Vote;
 import com.swyp8team2.vote.domain.VoteRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -114,7 +115,29 @@ public class PostService {
 
     public CursorBasePaginatedResponse<SimplePostResponse> findUserPosts(Long userId, Long cursor, int size) {
         Slice<Post> postSlice = postRepository.findByUserId(userId, cursor, PageRequest.ofSize(size));
-        return CursorBasePaginatedResponse.of(postSlice.map(this::createSimplePostResponse));
+        List<Long> bestPickedImageIds = postSlice.getContent().stream()
+                .map(Post::getBestPickedImage)
+                .map(PostImage::getImageFileId)
+                .toList();
+        List<ImageFile> imageIds = imageFileRepository.findByIdIn(bestPickedImageIds);
+
+        List<SimplePostResponse> responseContent = postSlice.getContent().stream()
+                .map(post -> getSimplePostResponse(post, imageIds))
+                .toList();
+
+        return CursorBasePaginatedResponse.of(new SliceImpl<>(
+                responseContent,
+                postSlice.getPageable(),
+                postSlice.hasNext())
+        );
+    }
+
+    private SimplePostResponse getSimplePostResponse(Post post, List<ImageFile> imageIds) {
+        ImageFile bestPickedImage = imageIds.stream()
+                .filter(imageFile -> imageFile.getId().equals(post.getBestPickedImage().getImageFileId()))
+                .findFirst()
+                .orElseThrow(() -> new InternalServerException(ErrorCode.IMAGE_FILE_NOT_FOUND));
+        return SimplePostResponse.of(post, bestPickedImage.getThumbnailUrl());
     }
 
     private SimplePostResponse createSimplePostResponse(Post post) {
