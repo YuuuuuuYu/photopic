@@ -115,6 +115,29 @@ public class PostService {
 
     public CursorBasePaginatedResponse<SimplePostResponse> findUserPosts(Long userId, Long cursor, int size) {
         Slice<Post> postSlice = postRepository.findByUserId(userId, cursor, PageRequest.ofSize(size));
+        return getCursorPaginatedResponse(postSlice);
+    }
+
+    private SimplePostResponse getSimplePostResponse(Post post, List<ImageFile> imageIds) {
+        ImageFile bestPickedImage = imageIds.stream()
+                .filter(imageFile -> imageFile.getId().equals(post.getBestPickedImage().getImageFileId()))
+                .findFirst()
+                .orElseThrow(() -> new InternalServerException(ErrorCode.IMAGE_FILE_NOT_FOUND));
+        return SimplePostResponse.of(post, bestPickedImage.getThumbnailUrl());
+    }
+
+    public CursorBasePaginatedResponse<SimplePostResponse> findVotedPosts(Long userId, Long cursor, int size) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
+        List<Long> votedPostIds = voteRepository.findByUserId(user.getId())
+                .map(Vote::getPostId)
+                .toList();
+        Slice<Post> votedPostSlice = postRepository.findByIdIn(votedPostIds, cursor, PageRequest.ofSize(size));
+
+        return getCursorPaginatedResponse(votedPostSlice);
+    }
+
+    private CursorBasePaginatedResponse<SimplePostResponse> getCursorPaginatedResponse(Slice<Post> postSlice) {
         List<Long> bestPickedImageIds = postSlice.getContent().stream()
                 .map(Post::getBestPickedImage)
                 .map(PostImage::getImageFileId)
@@ -128,32 +151,8 @@ public class PostService {
         return CursorBasePaginatedResponse.of(new SliceImpl<>(
                 responseContent,
                 postSlice.getPageable(),
-                postSlice.hasNext())
-        );
-    }
-
-    private SimplePostResponse getSimplePostResponse(Post post, List<ImageFile> imageIds) {
-        ImageFile bestPickedImage = imageIds.stream()
-                .filter(imageFile -> imageFile.getId().equals(post.getBestPickedImage().getImageFileId()))
-                .findFirst()
-                .orElseThrow(() -> new InternalServerException(ErrorCode.IMAGE_FILE_NOT_FOUND));
-        return SimplePostResponse.of(post, bestPickedImage.getThumbnailUrl());
-    }
-
-    private SimplePostResponse createSimplePostResponse(Post post) {
-        ImageFile bestPickedImage = imageFileRepository.findById(post.getBestPickedImage().getImageFileId())
-                .orElseThrow(() -> new InternalServerException(ErrorCode.IMAGE_FILE_NOT_FOUND));
-        return SimplePostResponse.of(post, bestPickedImage.getThumbnailUrl());
-    }
-
-    public CursorBasePaginatedResponse<SimplePostResponse> findVotedPosts(Long userId, Long cursor, int size) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
-        List<Long> postIds = voteRepository.findByUserId(user.getId())
-                .map(Vote::getPostId)
-                .toList();
-        Slice<Post> postSlice = postRepository.findByIdIn(postIds, cursor, PageRequest.ofSize(size));
-        return CursorBasePaginatedResponse.of(postSlice.map(this::createSimplePostResponse));
+                postSlice.hasNext()
+        ));
     }
 
     public List<PostImageVoteStatusResponse> findPostStatus(Long postId) {
