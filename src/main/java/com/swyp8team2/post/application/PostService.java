@@ -59,7 +59,7 @@ public class PostService {
     @Transactional
     public CreatePostResponse create(Long userId, CreatePostRequest request) {
         List<PostImage> postImages = createPostImages(request);
-        Post post = Post.create(userId, request.description(), postImages);
+        Post post = Post.create(userId, request.description(), postImages, request.voteType());
         Post save = postRepository.save(post);
         save.setShareUrl(shareUrlCryptoService.encrypt(String.valueOf(save.getId())));
         return new CreatePostResponse(save.getId(), save.getShareUrl());

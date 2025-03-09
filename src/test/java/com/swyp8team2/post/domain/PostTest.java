@@ -25,7 +25,7 @@ class PostTest {
         );
 
         //when
-        Post post = Post.create(userId, description, postImages);
+        Post post = Post.create(userId, description, postImages, VoteType.SINGLE);
 
         //then
         List<PostImage> images = post.getImages();
@@ -52,7 +52,7 @@ class PostTest {
         );
 
         //when then
-        assertThatThrownBy(() -> Post.create(1L, "description", postImages))
+        assertThatThrownBy(() -> Post.create(1L, "description", postImages, VoteType.SINGLE))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.INVALID_POST_IMAGE_COUNT.getMessage());
     }
@@ -68,7 +68,7 @@ class PostTest {
         );
 
         //when then
-        assertThatThrownBy(() -> Post.create(1L, description, postImages))
+        assertThatThrownBy(() -> Post.create(1L, description, postImages, VoteType.SINGLE))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.DESCRIPTION_LENGTH_EXCEEDED.getMessage());
     }
@@ -82,7 +82,7 @@ class PostTest {
                 PostImage.create("뽀또A", 1L),
                 PostImage.create("뽀또B", 2L)
         );
-        Post post = new Post(null, userId, "description", Status.PROGRESS, Scope.PRIVATE, postImages, "shareUrl");
+        Post post = new Post(null, userId, "description", Status.PROGRESS, Scope.PRIVATE, postImages, "shareUrl", VoteType.SINGLE);
 
         //when
         post.close(userId);
@@ -100,7 +100,7 @@ class PostTest {
                 PostImage.create("뽀또A", 1L),
                 PostImage.create("뽀또B", 2L)
         );
-        Post post = new Post(null, userId, "description", Status.CLOSED, Scope.PRIVATE, postImages, "shareUrl");
+        Post post = new Post(null, userId, "description", Status.CLOSED, Scope.PRIVATE, postImages, "shareUrl", VoteType.SINGLE);
 
         //when then
         assertThatThrownBy(() -> post.close(userId))
@@ -117,7 +117,7 @@ class PostTest {
                 PostImage.create("뽀또A", 1L),
                 PostImage.create("뽀또B", 2L)
         );
-        Post post = new Post(null, userId, "description", Status.PROGRESS, Scope.PRIVATE, postImages, "shareUrl");
+        Post post = new Post(null, userId, "description", Status.PROGRESS, Scope.PRIVATE, postImages, "shareUrl", VoteType.SINGLE);
 
         //when then
         assertThatThrownBy(() -> post.close(2L))
@@ -134,7 +134,7 @@ class PostTest {
                 PostImage.create("뽀또A", 1L),
                 PostImage.create("뽀또B", 2L)
         );
-        Post post = new Post(null, userId, "description", Status.PROGRESS, Scope.PRIVATE, postImages, "shareUrl");
+        Post post = new Post(null, userId, "description", Status.PROGRESS, Scope.PRIVATE, postImages, "shareUrl", VoteType.SINGLE);
 
         //when then
         post.toggleScope(userId);
@@ -154,7 +154,7 @@ class PostTest {
                 PostImage.create("뽀또A", 1L),
                 PostImage.create("뽀또B", 2L)
         );
-        Post post = new Post(null, userId, "description", Status.PROGRESS, Scope.PRIVATE, postImages, "shareUrl");
+        Post post = new Post(null, userId, "description", Status.PROGRESS, Scope.PRIVATE, postImages, "shareUrl", VoteType.SINGLE);
 
         //when then
         assertThatThrownBy(() -> post.toggleScope(2L))

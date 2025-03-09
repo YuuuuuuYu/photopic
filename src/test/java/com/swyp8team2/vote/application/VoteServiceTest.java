@@ -96,17 +96,18 @@ class VoteServiceTest extends IntegrationTest {
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
         Post post = postRepository.save(new Post(
-                        null,
-                        user.getId(),
-                        "description",
-                        Status.CLOSED,
-                        Scope.PRIVATE,
-                        List.of(
-                                PostImage.create("뽀또A", imageFile1.getId()),
-                                PostImage.create("뽀또B", imageFile2.getId())
-                        ),
-                        "shareUrl"
-                ));
+                null,
+                user.getId(),
+                "description",
+                Status.CLOSED,
+                Scope.PRIVATE,
+                List.of(
+                        PostImage.create("뽀또A", imageFile1.getId()),
+                        PostImage.create("뽀또B", imageFile2.getId())
+                ),
+                "shareUrl",
+                VoteType.SINGLE
+        ));
 
         // when
         assertThatThrownBy(() -> voteService.vote(user.getId(), post.getId(), post.getImages().get(0).getId()))
@@ -182,7 +183,8 @@ class VoteServiceTest extends IntegrationTest {
                         PostImage.create("뽀또A", imageFile1.getId()),
                         PostImage.create("뽀또B", imageFile2.getId())
                 ),
-                "shareUrl"
+                "shareUrl",
+                VoteType.SINGLE
         ));
 
         // when

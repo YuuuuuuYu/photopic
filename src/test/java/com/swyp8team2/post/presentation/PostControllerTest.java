@@ -3,6 +3,7 @@ package com.swyp8team2.post.presentation;
 import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.post.domain.Status;
+import com.swyp8team2.post.domain.VoteType;
 import com.swyp8team2.post.presentation.dto.*;
 import com.swyp8team2.support.RestDocsTest;
 import com.swyp8team2.support.WithMockUserInfo;
@@ -43,7 +44,8 @@ class PostControllerTest extends RestDocsTest {
         //given
         CreatePostRequest request = new CreatePostRequest(
                 "제목",
-                List.of(new PostImageRequestDto(1L), new PostImageRequestDto(2L))
+                List.of(new PostImageRequestDto(1L), new PostImageRequestDto(2L)),
+                VoteType.SINGLE
         );
         CreatePostResponse response = new CreatePostResponse(1L, "shareUrl");
         given(postService.create(any(), any()))
@@ -69,7 +71,10 @@ class PostControllerTest extends RestDocsTest {
                                         .attributes(constraints("최소 2개")),
                                 fieldWithPath("images[].imageFileId")
                                         .type(JsonFieldType.NUMBER)
-                                        .description("투표 후보 이미지 ID")
+                                        .description("투표 후보 이미지 ID"),
+                                fieldWithPath("voteType")
+                                        .type(JsonFieldType.STRING)
+                                        .description("투표 방식 (SINGLE, MULTIPLE)")
                         ),
                         responseFields(
                                 fieldWithPath("postId")
