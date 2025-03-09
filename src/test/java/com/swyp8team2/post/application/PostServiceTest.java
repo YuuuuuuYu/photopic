@@ -162,9 +162,9 @@ class PostServiceTest extends IntegrationTest {
                 () -> assertThat(response.shareUrl()).isEqualTo(post.getShareUrl()),
                 () -> assertThat(votes).hasSize(2),
                 () -> assertThat(votes.get(0).imageUrl()).isEqualTo(imageFile1.getImageUrl()),
-                () -> assertThat(votes.get(0).voted()).isFalse(),
+                () -> assertThat(votes.get(0).voteId()).isNull(),
                 () -> assertThat(votes.get(1).imageUrl()).isEqualTo(imageFile2.getImageUrl()),
-                () -> assertThat(votes.get(1).voted()).isFalse()
+                () -> assertThat(votes.get(1).voteId()).isNull()
         );
     }
 

@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -79,37 +78,34 @@ public class PostService {
                 .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
         User author = userRepository.findById(post.getUserId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
-        List<PostImageResponse> votes = createPostImageResponse(userId, postId, post);
+        List<PostImageResponse> votes = createPostImageResponse(userId, post);
         boolean isAuthor = post.getUserId().equals(userId);
         return PostResponse.of(post, author, votes, isAuthor);
     }
 
-    private List<PostImageResponse> createPostImageResponse(Long userId, Long postId, Post post) {
+    private List<PostImageResponse> createPostImageResponse(Long userId, Post post) {
         List<PostImage> images = post.getImages();
         return images.stream()
-                .map(image -> createVoteResponseDto(image, userId, postId))
+                .map(image -> createVoteResponseDto(image, userId))
                 .toList();
     }
 
-    private PostImageResponse createVoteResponseDto(PostImage image, Long userId, Long postId) {
+    private PostImageResponse createVoteResponseDto(PostImage image, Long userId) {
         ImageFile imageFile = imageFileRepository.findById(image.getImageFileId())
                 .orElseThrow(() -> new InternalServerException(ErrorCode.IMAGE_FILE_NOT_FOUND));
-        boolean voted = Objects.nonNull(userId) && getVoted(image, userId, postId);
         return new PostImageResponse(
                 image.getId(),
                 image.getName(),
                 imageFile.getImageUrl(),
                 imageFile.getThumbnailUrl(),
-                voted
+                getVoteId(image, userId)
         );
     }
 
-    private Boolean getVoted(PostImage image, Long userId, Long postId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
-        return voteRepository.findByUserIdAndPostId(user.getId(), postId)
-                .map(vote -> vote.getPostImageId().equals(image.getId()))
-                .orElse(false);
+    private Long getVoteId(PostImage image, Long userId) {
+        return voteRepository.findByUserIdAndPostImageId(userId, image.getId())
+                .map(Vote::getId)
+                .orElse(null);
     }
 
     public CursorBasePaginatedResponse<SimplePostResponse> findUserPosts(Long userId, Long cursor, int size) {

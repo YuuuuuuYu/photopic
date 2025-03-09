@@ -33,7 +33,6 @@ public class PostController {
             @Valid @RequestBody CreatePostRequest request,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
-
         return ResponseEntity.ok(postService.create(userInfo.userId(), request));
     }
 
