@@ -43,22 +43,4 @@ public class VoteController {
         voteService.guestVote(userInfo.userId(), postId, request.imageId());
         return ResponseEntity.ok().build();
     }
-
-    @PatchMapping("")
-    public ResponseEntity<Void> changeVote(
-            @PathVariable("postId") Long postId,
-            @Valid @RequestBody ChangeVoteRequest request,
-            @AuthenticationPrincipal UserInfo userInfo
-    ) {
-        return ResponseEntity.ok().build();
-    }
-
-    @PatchMapping("/guest")
-    public ResponseEntity<Void> changeGuestVote(
-            @PathVariable("postId") Long postId,
-            @RequestHeader(CustomHeader.GUEST_TOKEN) String guestId,
-            @Valid @RequestBody ChangeVoteRequest request
-    ) {
-        return ResponseEntity.ok().build();
-    }
 }
