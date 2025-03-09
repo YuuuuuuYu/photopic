@@ -1,4 +1,4 @@
-package com.swyp8team2.post.application;
+package com.swyp8team2.vote.application;
 
 import org.springframework.stereotype.Component;
 
