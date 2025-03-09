@@ -3,7 +3,7 @@ package com.swyp8team2.vote.application;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.post.domain.Post;
-import com.swyp8team2.post.infrastructure.PostJpaRepository;
+import com.swyp8team2.post.domain.PostRepository;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import com.swyp8team2.vote.domain.Vote;
@@ -19,7 +19,7 @@ public class VoteService {
 
     private final VoteRepository voteRepository;
     private final UserRepository userRepository;
-    private final PostJpaRepository postRepository;
+    private final PostRepository postRepository;
 
     @Transactional
     public Long vote(Long voterId, Long postId, Long imageId) {

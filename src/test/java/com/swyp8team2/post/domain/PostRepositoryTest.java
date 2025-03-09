@@ -1,7 +1,6 @@
 package com.swyp8team2.post.domain;
 
 import com.swyp8team2.image.domain.ImageFile;
-import com.swyp8team2.post.infrastructure.PostJpaRepository;
 import com.swyp8team2.support.RepositoryTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,10 +16,10 @@ import static com.swyp8team2.support.fixture.FixtureGenerator.createPost;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-class PostJpaRepositoryTest extends RepositoryTest {
+class PostRepositoryTest extends RepositoryTest {
 
     @Autowired
-    PostJpaRepository postRepository;
+    PostRepository postRepository;
 
     @Test
     @DisplayName("유저가 작성한 게시글 조회 - 게시글이 15개일 경우 15번쨰부터 10개 조회해야 함")
