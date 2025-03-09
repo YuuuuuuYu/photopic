@@ -19,7 +19,20 @@ public abstract class FixtureGenerator {
                         PostImage.create("뽀또A", imageFile1.getId()),
                         PostImage.create("뽀또B", imageFile2.getId())
                 ),
-                VoteType.SINGLE);
+                VoteType.SINGLE
+        );
+    }
+
+    public static Post createMultiplePost(Long userId, ImageFile imageFile1, ImageFile imageFile2, int key) {
+        return Post.create(
+                userId,
+                "description" + key,
+                List.of(
+                        PostImage.create("뽀또A", imageFile1.getId()),
+                        PostImage.create("뽀또B", imageFile2.getId())
+                ),
+                VoteType.MULTIPLE
+        );
     }
 
     public static User createUser(int key) {

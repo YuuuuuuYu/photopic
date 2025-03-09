@@ -40,7 +40,7 @@ public class VoteController {
             @Valid @RequestBody VoteRequest request,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
-        voteService.guestVote(userInfo.userId(), postId, request.imageId());
+        voteService.vote(userInfo.userId(), postId, request.imageId());
         return ResponseEntity.ok().build();
     }
 }

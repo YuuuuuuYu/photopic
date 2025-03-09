@@ -77,7 +77,7 @@ class VoteControllerTest extends RestDocsTest {
                                         .description("투표 후보 Id")
                         )
                 ));
-        verify(voteService, times(1)).guestVote(any(), any(), any());
+        verify(voteService, times(1)).vote(any(), any(), any());
     }
 
     @Test
