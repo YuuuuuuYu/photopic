@@ -10,6 +10,7 @@ import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.PostImage;
 import com.swyp8team2.post.domain.PostRepository;
 import com.swyp8team2.post.domain.Status;
+import com.swyp8team2.post.domain.VoteType;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.CreatePostResponse;
 import com.swyp8team2.post.presentation.dto.PostResponse;
@@ -67,10 +68,14 @@ class PostServiceTest extends IntegrationTest {
     void create() throws Exception {
         //given
         long userId = 1L;
-        CreatePostRequest request = new CreatePostRequest("description", List.of(
-                new PostImageRequestDto(1L),
-                new PostImageRequestDto(2L)
-        ));
+        CreatePostRequest request = new CreatePostRequest(
+                "description",
+                List.of(
+                        new PostImageRequestDto(1L),
+                        new PostImageRequestDto(2L)
+                ),
+                VoteType.SINGLE
+        );
         String shareUrl = "shareUrl";
         given(shareUrlCryptoService.encrypt(any()))
                 .willReturn(shareUrl);
@@ -85,6 +90,8 @@ class PostServiceTest extends IntegrationTest {
                 () -> assertThat(post.getDescription()).isEqualTo("description"),
                 () -> assertThat(post.getUserId()).isEqualTo(userId),
                 () -> assertThat(post.getShareUrl()).isEqualTo(shareUrl),
+                () -> assertThat(post.getStatus()).isEqualTo(Status.PROGRESS),
+                () -> assertThat(post.getVoteType()).isEqualTo(VoteType.SINGLE),
                 () -> assertThat(images).hasSize(2),
                 () -> assertThat(images.get(0).getImageFileId()).isEqualTo(1L),
                 () -> assertThat(images.get(0).getName()).isEqualTo("뽀또A"),
@@ -100,10 +107,13 @@ class PostServiceTest extends IntegrationTest {
     void create_invalidPostImageCount() throws Exception {
         //given
         long userId = 1L;
-        CreatePostRequest request = new CreatePostRequest("description", List.of(
-                new PostImageRequestDto(1L)
-        ));
-
+        CreatePostRequest request = new CreatePostRequest(
+                "description",
+                List.of(
+                        new PostImageRequestDto(1L)
+                ),
+                VoteType.SINGLE
+        );
         //when then
         assertThatThrownBy(() -> postService.create(userId, request))
                 .isInstanceOf(BadRequestException.class)
@@ -115,10 +125,14 @@ class PostServiceTest extends IntegrationTest {
     void create_descriptionCountExceeded() throws Exception {
         //given
         long userId = 1L;
-        CreatePostRequest request = new CreatePostRequest("a".repeat(101), List.of(
-                new PostImageRequestDto(1L),
-                new PostImageRequestDto(2L)
-        ));
+        CreatePostRequest request = new CreatePostRequest(
+                "a".repeat(101),
+                List.of(
+                        new PostImageRequestDto(1L),
+                        new PostImageRequestDto(2L)
+                ),
+                VoteType.SINGLE
+        );
 
         //when then
         assertThatThrownBy(() -> postService.create(userId, request))
@@ -148,9 +162,9 @@ class PostServiceTest extends IntegrationTest {
                 () -> assertThat(response.shareUrl()).isEqualTo(post.getShareUrl()),
                 () -> assertThat(votes).hasSize(2),
                 () -> assertThat(votes.get(0).imageUrl()).isEqualTo(imageFile1.getImageUrl()),
-                () -> assertThat(votes.get(0).voted()).isFalse(),
+                () -> assertThat(votes.get(0).voteId()).isNull(),
                 () -> assertThat(votes.get(1).imageUrl()).isEqualTo(imageFile2.getImageUrl()),
-                () -> assertThat(votes.get(1).voted()).isFalse()
+                () -> assertThat(votes.get(1).voteId()).isNull()
         );
     }
 

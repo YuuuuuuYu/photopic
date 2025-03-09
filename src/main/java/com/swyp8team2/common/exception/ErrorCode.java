@@ -23,6 +23,8 @@ public enum ErrorCode {
     FILE_NAME_TOO_LONG("파일 이름이 너무 김"),
     ACCESS_DENIED_VOTE_STATUS("투표 현황 조회 권한 없음"),
     COMMENT_NOT_FOUND("존재하지 않는 댓글"),
+    VOTE_NOT_FOUND("존재하지 않는 투표"),
+    NOT_VOTER("투표자가 아님"),
 
     //401
     EXPIRED_TOKEN("토큰 만료"),

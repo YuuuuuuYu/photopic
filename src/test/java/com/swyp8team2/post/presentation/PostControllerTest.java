@@ -3,6 +3,7 @@ package com.swyp8team2.post.presentation;
 import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.post.domain.Status;
+import com.swyp8team2.post.domain.VoteType;
 import com.swyp8team2.post.presentation.dto.*;
 import com.swyp8team2.support.RestDocsTest;
 import com.swyp8team2.support.WithMockUserInfo;
@@ -43,7 +44,8 @@ class PostControllerTest extends RestDocsTest {
         //given
         CreatePostRequest request = new CreatePostRequest(
                 "제목",
-                List.of(new PostImageRequestDto(1L), new PostImageRequestDto(2L))
+                List.of(new PostImageRequestDto(1L), new PostImageRequestDto(2L)),
+                VoteType.SINGLE
         );
         CreatePostResponse response = new CreatePostResponse(1L, "shareUrl");
         given(postService.create(any(), any()))
@@ -69,7 +71,10 @@ class PostControllerTest extends RestDocsTest {
                                         .attributes(constraints("최소 2개")),
                                 fieldWithPath("images[].imageFileId")
                                         .type(JsonFieldType.NUMBER)
-                                        .description("투표 후보 이미지 ID")
+                                        .description("투표 후보 이미지 ID"),
+                                fieldWithPath("voteType")
+                                        .type(JsonFieldType.STRING)
+                                        .description("투표 방식 (SINGLE, MULTIPLE)")
                         ),
                         responseFields(
                                 fieldWithPath("postId")
@@ -96,8 +101,8 @@ class PostControllerTest extends RestDocsTest {
                 ),
                 "description",
                 List.of(
-                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/image/1", "https://image.photopic.site/image/resize/1", true),
-                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/image/2", "https://image.photopic.site/image/resize/2", false)
+                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/image/1", "https://image.photopic.site/image/resize/1", 1L),
+                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/image/2", "https://image.photopic.site/image/resize/2", null)
                 ),
                 "https://photopic.site/shareurl",
                  true,
@@ -127,7 +132,7 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("images[].imageName").type(JsonFieldType.STRING).description("사진 이름"),
                                 fieldWithPath("images[].imageUrl").type(JsonFieldType.STRING).description("사진 이미지"),
                                 fieldWithPath("images[].thumbnailUrl").type(JsonFieldType.STRING).description("확대 사진 이미지"),
-                                fieldWithPath("images[].voted").type(JsonFieldType.BOOLEAN).description("투표 여부"),
+                                fieldWithPath("images[].voteId").type(JsonFieldType.NUMBER).optional().description("투표 Id (투표 안 한 경우 null)"),
                                 fieldWithPath("shareUrl").type(JsonFieldType.STRING).description("게시글 공유 URL"),
                                 fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시글 생성 시간"),
                                 fieldWithPath("status").type(JsonFieldType.STRING).description("게시글 마감 여부 (PROGRESS, CLOSED)"),
@@ -150,8 +155,8 @@ class PostControllerTest extends RestDocsTest {
                 ),
                 "description",
                 List.of(
-                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/image/1", "https://image.photopic.site/image/resize/1", true),
-                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/image/2", "https://image.photopic.site/image/resize/2", false)
+                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/image/1", "https://image.photopic.site/image/resize/1", 1L),
+                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/image/2", "https://image.photopic.site/image/resize/2", null)
                 ),
                 "https://photopic.site/shareurl",
                 true,
@@ -181,7 +186,7 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("images[].imageName").type(JsonFieldType.STRING).description("사진 이름"),
                                 fieldWithPath("images[].imageUrl").type(JsonFieldType.STRING).description("사진 이미지"),
                                 fieldWithPath("images[].thumbnailUrl").type(JsonFieldType.STRING).description("확대 사진 이미지"),
-                                fieldWithPath("images[].voted").type(JsonFieldType.BOOLEAN).description("투표 여부"),
+                                fieldWithPath("images[].voteId").type(JsonFieldType.NUMBER).optional().description("투표 Id (투표 안 한 경우 null)"),
                                 fieldWithPath("shareUrl").type(JsonFieldType.STRING).description("게시글 공유 URL"),
                                 fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시글 생성 시간"),
                                 fieldWithPath("status").type(JsonFieldType.STRING).description("게시글 마감 여부 (PROGRESS, CLOSED)"),

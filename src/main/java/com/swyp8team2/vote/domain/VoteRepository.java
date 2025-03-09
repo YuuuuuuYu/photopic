@@ -11,4 +11,8 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     Optional<Vote> findByUserIdAndPostId(Long userId, Long postId);
 
     Slice<Vote> findByUserId(Long userId);
+
+    Optional<Vote> findByUserIdAndPostImageId(Long voterId, Long imageId);
+
+    Optional<Vote> findByIdAndUserId(Long voteId, Long userId);
 }

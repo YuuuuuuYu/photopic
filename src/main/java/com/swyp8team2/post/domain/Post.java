@@ -47,7 +47,18 @@ public class Post extends BaseEntity {
 
     private String shareUrl;
 
-    public Post(Long id, Long userId, String description, Status status, Scope scope, List<PostImage> images, String shareUrl) {
+    private VoteType voteType;
+
+    public Post(
+            Long id,
+            Long userId,
+            String description,
+            Status status,
+            Scope scope,
+            List<PostImage> images,
+            String shareUrl,
+            VoteType voteType
+    ) {
         validateDescription(description);
         validatePostImages(images);
         this.id = id;
@@ -58,6 +69,7 @@ public class Post extends BaseEntity {
         this.images = images;
         images.forEach(image -> image.setPost(this));
         this.shareUrl = shareUrl;
+        this.voteType = voteType;
     }
 
     private void validatePostImages(List<PostImage> images) {
@@ -72,8 +84,8 @@ public class Post extends BaseEntity {
         }
     }
 
-    public static Post create(Long userId, String description, List<PostImage> images) {
-        return new Post(null, userId, description, Status.PROGRESS, Scope.PRIVATE, images, null);
+    public static Post create(Long userId, String description, List<PostImage> images, VoteType voteType) {
+        return new Post(null, userId, description, Status.PROGRESS, Scope.PRIVATE, images, null, voteType);
     }
 
     public PostImage getBestPickedImage() {
