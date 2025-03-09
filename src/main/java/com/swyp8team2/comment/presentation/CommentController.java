@@ -3,8 +3,7 @@ package com.swyp8team2.comment.presentation;
 import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.comment.application.CommentService;
 import com.swyp8team2.comment.presentation.dto.CommentResponse;
-import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
-import com.swyp8team2.comment.presentation.dto.UpdateCommentRequest;
+import com.swyp8team2.comment.presentation.dto.CommentRequest;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -32,7 +31,7 @@ public class CommentController {
     @PostMapping("")
     public ResponseEntity<Void> createComment(
             @PathVariable("postId") Long postId,
-            @Valid @RequestBody CreateCommentRequest request,
+            @Valid @RequestBody CommentRequest request,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
         commentService.createComment(postId, request, userInfo);
@@ -54,10 +53,10 @@ public class CommentController {
     public ResponseEntity<Void> updateComment(
             @PathVariable("postId") Long postId,
             @PathVariable("commentId") Long commentId,
-            @Valid @RequestBody UpdateCommentRequest request,
+            @Valid @RequestBody CommentRequest request,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
-
+        commentService.updateComment(commentId, request, userInfo);
         return ResponseEntity.ok().build();
     }
 

@@ -1,11 +1,9 @@
 package com.swyp8team2.comment.presentation;
 
 import com.swyp8team2.auth.domain.UserInfo;
-import com.swyp8team2.comment.domain.Comment;
 import com.swyp8team2.comment.presentation.dto.AuthorDto;
 import com.swyp8team2.comment.presentation.dto.CommentResponse;
-import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
-import com.swyp8team2.comment.presentation.dto.UpdateCommentRequest;
+import com.swyp8team2.comment.presentation.dto.CommentRequest;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.support.RestDocsTest;
 import com.swyp8team2.support.WithMockUserInfo;
@@ -20,7 +18,6 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import static org.awaitility.Awaitility.given;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -39,9 +36,9 @@ class CommentControllerTest extends RestDocsTest {
     void createComment() throws Exception {
         //given
         Long postId = 1L;
-        CreateCommentRequest request = new CreateCommentRequest("content");
+        CommentRequest request = new CommentRequest("content");
 
-        doNothing().when(commentService).createComment(eq(postId), any(CreateCommentRequest.class), any(UserInfo.class));
+        doNothing().when(commentService).createComment(eq(postId), any(CommentRequest.class), any(UserInfo.class));
 
         //when then
         mockMvc.perform(post("/posts/{postId}/comments", "1")
@@ -59,7 +56,7 @@ class CommentControllerTest extends RestDocsTest {
                         )
                 ));
 
-        verify(commentService, times(1)).createComment(eq(postId), any(CreateCommentRequest.class), any(UserInfo.class));
+        verify(commentService, times(1)).createComment(eq(postId), any(CommentRequest.class), any(UserInfo.class));
     }
 
     @Test
@@ -144,7 +141,7 @@ class CommentControllerTest extends RestDocsTest {
     @DisplayName("댓글 수정")
     void updateComment() throws Exception {
         //given
-        UpdateCommentRequest request = new UpdateCommentRequest("수정 댓글");
+        CommentRequest request = new CommentRequest("수정 댓글");
 
         //when then
         mockMvc.perform(post("/posts/{postId}/comments/{commentId}", "1", "1")

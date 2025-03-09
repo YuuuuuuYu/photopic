@@ -4,12 +4,11 @@ import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.comment.domain.Comment;
 import com.swyp8team2.comment.domain.CommentRepository;
 import com.swyp8team2.comment.presentation.dto.CommentResponse;
-import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
+import com.swyp8team2.comment.presentation.dto.CommentRequest;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.common.exception.ForbiddenException;
-import com.swyp8team2.common.exception.UnauthorizedException;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import com.swyp8team2.vote.domain.Vote;
@@ -32,7 +31,7 @@ public class CommentService {
     private final VoteRepository voteRepository;
 
     @Transactional
-    public void createComment(Long postId, CreateCommentRequest request, UserInfo userInfo) {
+    public void createComment(Long postId, CommentRequest request, UserInfo userInfo) {
         Comment comment = new Comment(postId, userInfo.userId(), request.content());
         commentRepository.save(comment);
     }
@@ -54,6 +53,18 @@ public class CommentService {
     }
 
     @Transactional
+    public void updateComment(Long commentId, CommentRequest request, UserInfo userInfo) {
+        Comment comment = commentRepository.findByIdAndNotDeleted(commentId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (!comment.getUserNo().equals(userInfo.userId())) {
+            throw new ForbiddenException();
+        }
+
+        comment.updateComment(request.content());
+    }
+
+    @Transactional
     public void deleteComment(Long commentId, UserInfo userInfo) {
         Comment comment = commentRepository.findByIdAndNotDeleted(commentId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.COMMENT_NOT_FOUND));
@@ -63,6 +74,5 @@ public class CommentService {
         }
 
         comment.delete();
-        commentRepository.save(comment);
     }
 }

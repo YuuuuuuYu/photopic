@@ -4,12 +4,11 @@ import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.comment.domain.Comment;
 import com.swyp8team2.comment.domain.CommentRepository;
 import com.swyp8team2.comment.presentation.dto.CommentResponse;
-import com.swyp8team2.comment.presentation.dto.CreateCommentRequest;
+import com.swyp8team2.comment.presentation.dto.CommentRequest;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.common.exception.ForbiddenException;
-import com.swyp8team2.common.exception.UnauthorizedException;
 import com.swyp8team2.user.domain.Role;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
@@ -55,7 +54,7 @@ class CommentServiceTest {
     void createComment() {
         // given
         Long postId = 1L;
-        CreateCommentRequest request = new CreateCommentRequest("테스트 댓글");
+        CommentRequest request = new CommentRequest("테스트 댓글");
         UserInfo userInfo = new UserInfo(100L, Role.USER);
         Comment comment = new Comment(postId, userInfo.userId(), request.content());
 
@@ -124,6 +123,58 @@ class CommentServiceTest {
         assertThatThrownBy(() -> commentService.findComments(1L, postId, cursor, size))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage((ErrorCode.USER_NOT_FOUND.getMessage()));
+    }
+
+    @Test
+    @DisplayName("댓글 수정")
+    void updateComment() {
+        // given
+        Long postId = 1L;
+        UserInfo userInfo = new UserInfo(100L, Role.USER);
+        Comment comment = new Comment(1L, postId, 100L, "첫 번째 댓글");
+        CommentRequest request = new CommentRequest("수정 댓글");
+        when(commentRepository.findByIdAndNotDeleted(1L)).thenReturn(Optional.of(comment));
+
+        // when
+        commentService.updateComment(1L, request, userInfo);
+
+        // then
+        assertAll(
+                () -> assertThat(comment.getId()).isEqualTo(1L),
+                () -> assertThat(comment.getContent()).isEqualTo("수정 댓글")
+        );
+    }
+
+    @Test
+    @DisplayName("댓글 수정 - 존재하지 않은 댓글")
+    void updateComment_commentNotFound() {
+        // given
+        CommentRequest request = new CommentRequest("수정 댓글");
+        UserInfo userInfo = new UserInfo(100L, Role.USER);
+        when(commentRepository.findByIdAndNotDeleted(1L)).thenReturn(Optional.empty());
+
+        // when then
+        assertThatThrownBy(() -> commentService.updateComment(1L, request, userInfo))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage((ErrorCode.COMMENT_NOT_FOUND.getMessage()));
+    }
+
+    @Test
+    @DisplayName("댓글 수정 - 권한 없는 사용자")
+    void updateComment_forbiddenException() {
+        // given
+        Long postId = 1L;
+        UserInfo userInfo = new UserInfo(100L, Role.USER);
+        Comment comment = new Comment(1L, postId, 110L, "첫 번째 댓글");
+        CommentRequest request = new CommentRequest("수정 댓글");
+        when(commentRepository.findByIdAndNotDeleted(1L)).thenReturn(Optional.of(comment));
+
+        // when then
+        assertAll(
+                () -> assertThatThrownBy(() -> commentService.updateComment(1L, request, userInfo))
+                        .isInstanceOf(ForbiddenException.class),
+                () -> assertThat(comment.getContent()).isEqualTo("첫 번째 댓글")
+        );
     }
 
     @Test

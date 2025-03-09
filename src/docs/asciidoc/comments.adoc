@@ -12,7 +12,7 @@ operation::comment-controller-test/create-comment[snippets='http-request,curl-re
 operation::comment-controller-test/find-comments[snippets='http-request,curl-request,path-parameters,http-response,response-fields']
 
 [[댓글-수정]]
-=== `POST` 댓글 수정 (미구현)
+=== `POST` 댓글 수정
 
 operation::comment-controller-test/update-comment[snippets='http-request,curl-request,path-parameters,request-headers,request-fields,http-response']
 
