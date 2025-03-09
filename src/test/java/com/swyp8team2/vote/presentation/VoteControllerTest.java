@@ -16,6 +16,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -54,81 +55,21 @@ class VoteControllerTest extends RestDocsTest {
     }
 
     @Test
-    @WithMockUserInfo(role = Role.GUEST)
-    @DisplayName("게스트 투표")
-    void guestVote() throws Exception {
+    @WithMockUserInfo
+    @DisplayName("투표 취소")
+    void cancelVote() throws Exception {
         //given
-        VoteRequest request = new VoteRequest(1L);
 
         //when test
-        mockMvc.perform(post("/posts/{postId}/votes/guest", "1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                        .header(CustomHeader.GUEST_TOKEN, "guestToken"))
-                .andExpect(status().isOk())
-                .andDo(restDocs.document(
-                        requestHeaders(guestHeader()),
-                        pathParameters(
-                                parameterWithName("postId").description("게시글 Id")
-                        ),
-                        requestFields(
-                                fieldWithPath("imageId")
-                                        .type(JsonFieldType.NUMBER)
-                                        .description("투표 후보 Id")
-                        )
-                ));
-        verify(voteService, times(1)).vote(any(), any(), any());
-    }
-
-    @Test
-    @WithMockUserInfo
-    @DisplayName("투표 변경")
-    void changeVote() throws Exception {
-        //given
-        ChangeVoteRequest request = new ChangeVoteRequest(1L);
-
-        //when
-        mockMvc.perform(patch("/posts/{postId}/votes", "1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
+        mockMvc.perform(delete("/votes/{voteId}", "1")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                 .andExpect(status().isOk())
                 .andDo(restDocs.document(
                         requestHeaders(authorizationHeader()),
                         pathParameters(
-                                parameterWithName("postId").description("변경할 게시글 Id")
-                        ),
-                        requestFields(
-                                fieldWithPath("imageId")
-                                        .type(JsonFieldType.NUMBER)
-                                        .description("변경할 투표 이미지 Id")
+                                parameterWithName("voteId").description("투표 Id")
                         )
                 ));
-    }
-
-    @Test
-    @WithMockUserInfo(role = Role.GUEST)
-    @DisplayName("게스트 투표 변경")
-    void guestChangeVote() throws Exception {
-        //given
-        ChangeVoteRequest request = new ChangeVoteRequest(1L);
-
-        //when
-        mockMvc.perform(patch("/posts/{postId}/votes/guest", "1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                        .header(CustomHeader.GUEST_TOKEN, "guestToken"))
-                .andExpect(status().isOk())
-                .andDo(restDocs.document(
-                        requestHeaders(guestHeader()),
-                        pathParameters(
-                                parameterWithName("postId").description("변경활 게시글 Id")
-                        ),
-                        requestFields(
-                                fieldWithPath("imageId")
-                                        .type(JsonFieldType.NUMBER)
-                                        .description("변경할 투표 이미지 Id")
-                        )
-                ));
+        verify(voteService, times(1)).cancelVote(any(), any());
     }
 }

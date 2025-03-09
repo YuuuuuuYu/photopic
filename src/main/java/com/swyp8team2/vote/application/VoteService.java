@@ -47,15 +47,28 @@ public class VoteService {
 
     private void deleteVoteIfExisting(Post post, Long userId) {
         voteRepository.findByUserIdAndPostId(userId, post.getId())
-                        .ifPresent(vote -> {
-                            voteRepository.delete(vote);
-                            post.cancelVote(vote.getPostImageId());
-                        });
+                .ifPresent(vote -> {
+                    voteRepository.delete(vote);
+                    post.cancelVote(vote.getPostImageId());
+                });
     }
 
     private Vote createVote(Post post, Long imageId, Long userId) {
         Vote vote = voteRepository.save(Vote.of(post.getId(), imageId, userId));
         post.vote(imageId);
         return vote;
+    }
+
+    @Transactional
+    public void cancelVote(Long userId, Long voteId) {
+        Vote vote = voteRepository.findById(voteId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.VOTE_NOT_FOUND));
+        if (!vote.isVoter(userId)) {
+            throw new BadRequestException(ErrorCode.NOT_VOTER);
+        }
+        voteRepository.delete(vote);
+        Post post = postRepository.findById(vote.getPostId())
+                .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
+        post.cancelVote(vote.getPostImageId());
     }
 }

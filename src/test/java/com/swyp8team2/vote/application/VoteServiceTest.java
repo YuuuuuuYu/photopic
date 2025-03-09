@@ -146,4 +146,42 @@ class VoteServiceTest extends IntegrationTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.POST_ALREADY_CLOSED.getMessage());
     }
+
+    @Test
+    @DisplayName("투표 취소")
+    void cancelVote() {
+        // given
+        User user = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        Long voteId = voteService.vote(user.getId(), post.getId(), post.getImages().get(0).getId());
+
+        // when
+        voteService.cancelVote(user.getId(), voteId);
+
+        // then
+        boolean res = voteRepository.findById(voteId).isEmpty();
+        Post findPost = postRepository.findById(post.getId()).get();
+        assertAll(
+                () -> assertThat(res).isEqualTo(true),
+                () -> assertThat(findPost.getImages().get(0).getVoteCount()).isEqualTo(0)
+        );
+    }
+
+    @Test
+    @DisplayName("투표 취소 - 투표자가 아닌 경우")
+    void cancelVote_notVoter() {
+        // given
+        User user = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        Long voteId = voteService.vote(user.getId(), post.getId(), post.getImages().get(0).getId());
+
+        // when then
+        assertThatThrownBy(() -> voteService.cancelVote(2L, voteId))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage(ErrorCode.NOT_VOTER.getMessage());
+    }
 }
