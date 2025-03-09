@@ -4,10 +4,7 @@ import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
-import com.swyp8team2.post.domain.Post;
-import com.swyp8team2.post.domain.PostImage;
-import com.swyp8team2.post.domain.PostRepository;
-import com.swyp8team2.post.domain.Status;
+import com.swyp8team2.post.domain.*;
 import com.swyp8team2.support.IntegrationTest;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
@@ -103,6 +100,7 @@ class VoteServiceTest extends IntegrationTest {
                         user.getId(),
                         "description",
                         Status.CLOSED,
+                        Scope.PRIVATE,
                         List.of(
                                 PostImage.create("뽀또A", imageFile1.getId()),
                                 PostImage.create("뽀또B", imageFile2.getId())
@@ -179,6 +177,7 @@ class VoteServiceTest extends IntegrationTest {
                 user.getId(),
                 "description",
                 Status.CLOSED,
+                Scope.PRIVATE,
                 List.of(
                         PostImage.create("뽀또A", imageFile1.getId()),
                         PostImage.create("뽀또B", imageFile2.getId())

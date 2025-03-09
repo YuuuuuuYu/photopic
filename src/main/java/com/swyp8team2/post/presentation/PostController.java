@@ -67,11 +67,12 @@ public class PostController {
         return ResponseEntity.ok(postService.findVoteStatus(userInfo.userId(), postId));
     }
 
-    @PostMapping("/{postId}/status")
-    public ResponseEntity<Void> toggleStatusPost(
+    @PostMapping("/{postId}/scope")
+    public ResponseEntity<Void> toggleScopePost(
             @PathVariable("postId") Long postId,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
+        postService.toggleScope(userInfo.userId(), postId);
         return ResponseEntity.ok().build();
     }
 

@@ -1,5 +1,6 @@
 package com.swyp8team2.post.presentation;
 
+import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.post.domain.Status;
 import com.swyp8team2.post.presentation.dto.*;
@@ -17,9 +18,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -354,12 +355,14 @@ class PostControllerTest extends RestDocsTest {
 
     @Test
     @WithMockUserInfo
-    @DisplayName("게시글 노출 변경")
+    @DisplayName("게시글 공개 범위 변경")
     void toggleStatusPost() throws Exception {
         //given
+        Long postId = 1L;
+        doNothing().when(postService).toggleScope(any(), eq(postId));
 
         //when then
-        mockMvc.perform(post("/posts/{postId}/status", 1)
+        mockMvc.perform(post("/posts/{postId}/scope", 1)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
                 .andExpect(status().isOk())
                 .andDo(restDocs.document(
@@ -368,6 +371,8 @@ class PostControllerTest extends RestDocsTest {
                                 parameterWithName("postId").description("게시글 Id")
                         )
                 ));
+
+        verify(postService, times(1)).toggleScope(any(), eq(postId));
     }
 
     @Test
