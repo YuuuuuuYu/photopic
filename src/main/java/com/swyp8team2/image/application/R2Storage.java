@@ -19,11 +19,14 @@ import software.amazon.awssdk.services.lambda.model.InvokeResponse;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.IIOImage;
+import javax.imageio.IIOException;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
+import java.awt.Graphics2D;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -132,6 +135,31 @@ public class R2Storage {
             writer.write(null, new IIOImage(image, null, null), param);
             writer.dispose();
             return jpgFile;
+        } catch (IIOException e) {
+            log.error("Failed to convert image to jpg", e);
+
+            // 알파 채널 처리를 위해 새 RGB 이미지 생성 (알파 채널 제거)
+            BufferedImage rgbImage = new BufferedImage(
+                    image.getWidth(),
+                    image.getHeight(),
+                    BufferedImage.TYPE_INT_RGB
+            );
+
+            // 원본 이미지를 새 RGB 이미지에 그림
+            // 흰색 배경 설정
+            Graphics2D graphics = rgbImage.createGraphics();
+            graphics.setColor(Color.WHITE);
+            graphics.fillRect(0, 0, rgbImage.getWidth(), rgbImage.getHeight());
+            graphics.drawImage(image, 0, 0, null);
+            graphics.dispose();
+
+            try {
+                ImageIO.write(rgbImage, "jpeg", jpgFile);
+                return jpgFile;
+            } catch (IOException io) {
+                log.error("Error in JPG conversion: {}", io.getMessage());
+                throw io;
+            }
         }
     }
 
