@@ -50,11 +50,11 @@ public class VoteService {
     }
 
     private void deleteVoteIfExisting(Post post, Long userId) {
-        voteRepository.findByUserIdAndPostId(userId, post.getId())
-                .ifPresent(vote -> {
-                    voteRepository.delete(vote);
-                    post.cancelVote(vote.getPostImageId());
-                });
+        List<Vote> votes = voteRepository.findByUserIdAndPostId(userId, post.getId());
+        for (Vote vote : votes) {
+            voteRepository.delete(vote);
+            post.cancelVote(vote.getPostImageId());
+        }
     }
 
     private Vote createVote(Post post, Long imageId, Long userId) {
@@ -89,9 +89,8 @@ public class VoteService {
     }
 
     private void validateVoteStatus(Long userId, Post post) {
-        boolean voted = voteRepository.findByUserIdAndPostId(userId, post.getId())
-                .isPresent();
-        if (!(post.isAuthor(userId) || voted)) {
+        List<Vote> votes = voteRepository.findByUserIdAndPostId(userId, post.getId());
+        if (!(post.isAuthor(userId) || !votes.isEmpty())) {
             throw new BadRequestException(ErrorCode.ACCESS_DENIED_VOTE_STATUS);
         }
     }
