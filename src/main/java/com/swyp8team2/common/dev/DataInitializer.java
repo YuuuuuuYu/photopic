@@ -6,7 +6,6 @@ import com.swyp8team2.auth.application.jwt.TokenPair;
 import com.swyp8team2.auth.presentation.dto.TokenResponse;
 import com.swyp8team2.comment.domain.Comment;
 import com.swyp8team2.comment.domain.CommentRepository;
-import com.swyp8team2.common.annotation.ShareUrlCryptoService;
 import com.swyp8team2.post.application.ShareUrlService;
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
@@ -46,7 +45,7 @@ public class DataInitializer {
             UserRepository userRepository,
             ImageFileRepository imageFileRepository,
             PostRepository postRepository,
-            @ShareUrlCryptoService ShareUrlService shaereUrlShareUrlService,
+            ShareUrlService shaereUrlShareUrlService,
             JwtService jwtService,
             VoteService voteService,
             CommentRepository commentRepository
