@@ -16,14 +16,6 @@ operation::post-controller-test/find-post[snippets='http-request,curl-request,pa
 
 operation::post-controller-test/find-post_share-url[snippets='http-request,curl-request,path-parameters,http-response,response-fields']
 
-[[게시글-목록-조회]]
-
-[[사진-투표-현황-조회]]
-=== `GET` 사진 투표 현황 조회
-
-operation::post-controller-test/find-vote-status[snippets='http-request,curl-request,request-headers,path-parameters,http-response,response-fields']
-
-
 [[유저가-작성한-게시글-조회]]
 === `GET` 유저가 작성한 게시글 조회
 
