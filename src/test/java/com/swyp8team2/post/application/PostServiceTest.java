@@ -146,7 +146,7 @@ class PostServiceTest extends IntegrationTest {
         User user = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
 
         //when
         PostResponse response = postService.findById(user.getId(), post.getId());
@@ -210,7 +210,7 @@ class PostServiceTest extends IntegrationTest {
         for (int i = 0; i < 30; i += 2) {
             ImageFile imageFile1 = imageFileRepository.save(createImageFile(i));
             ImageFile imageFile2 = imageFileRepository.save(createImageFile(i + 1));
-            posts.add(postRepository.save(createPost(user.getId(), imageFile1, imageFile2, i)));
+            posts.add(postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, i)));
         }
         return posts;
     }
@@ -246,7 +246,7 @@ class PostServiceTest extends IntegrationTest {
         User user = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
         voteService.vote(user.getId(), post.getId(), post.getImages().get(0).getId());
 
         //when
@@ -274,7 +274,7 @@ class PostServiceTest extends IntegrationTest {
         User voter = userRepository.save(createUser(2));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createPost(author.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createPost(author.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
         voteService.vote(voter.getId(), post.getId(), post.getImages().get(0).getId());
 
         //when
@@ -301,7 +301,7 @@ class PostServiceTest extends IntegrationTest {
         User author = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createPost(author.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createPost(author.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
 
         //when
         assertThatThrownBy(() -> postService.findVoteStatus(2L, post.getId()))
@@ -316,7 +316,7 @@ class PostServiceTest extends IntegrationTest {
         User user = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
 
         //when
         post.close(user.getId());
@@ -333,7 +333,7 @@ class PostServiceTest extends IntegrationTest {
         User user = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
 
         //when then
         assertThatThrownBy(() -> post.close(2L))
@@ -348,7 +348,7 @@ class PostServiceTest extends IntegrationTest {
         User user = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
         post.close(user.getId());
 
         //when then
@@ -375,12 +375,32 @@ class PostServiceTest extends IntegrationTest {
         User user = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
 
         //when
         postService.delete(user.getId(), post.getId());
 
         //then
         assertThat(postRepository.findById(post.getId())).isEmpty();
+    }
+
+    @Test
+    @DisplayName("피드 조회")
+    void findFeed() throws Exception {
+        //given
+        User user = userRepository.save(createUser(1));
+        List<Post> myPosts = createPosts(user);
+        List<Post> privatePosts = createPosts(userRepository.save(createUser(2)));
+        List<Post> publicPosts = createPosts(userRepository.save(createUser(2)));
+        int size = 10;
+
+        //when
+        var response = postService.findFeed(user.getId(), null, size);
+
+        //then
+        assertAll(
+                () -> assertThat(response.data()).hasSize(size),
+                () -> assertThat(response.hasNext()).isTrue()
+        );
     }
 }
