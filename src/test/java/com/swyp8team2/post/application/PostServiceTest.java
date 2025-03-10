@@ -1,17 +1,16 @@
 package com.swyp8team2.post.application;
 
+import com.swyp8team2.comment.domain.Comment;
+import com.swyp8team2.comment.domain.CommentRepository;
 import com.swyp8team2.common.annotation.ShareUrlCryptoService;
+import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.crypto.application.CryptoService;
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
 import com.swyp8team2.post.domain.*;
-import com.swyp8team2.post.presentation.dto.CreatePostRequest;
-import com.swyp8team2.post.presentation.dto.CreatePostResponse;
-import com.swyp8team2.post.presentation.dto.PostResponse;
-import com.swyp8team2.post.presentation.dto.PostImageRequestDto;
-import com.swyp8team2.post.presentation.dto.PostImageResponse;
+import com.swyp8team2.post.presentation.dto.*;
 import com.swyp8team2.support.IntegrationTest;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
@@ -26,12 +25,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.swyp8team2.support.fixture.FixtureGenerator.createImageFile;
-import static com.swyp8team2.support.fixture.FixtureGenerator.createPost;
-import static com.swyp8team2.support.fixture.FixtureGenerator.createUser;
+import static com.swyp8team2.support.fixture.FixtureGenerator.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -54,6 +51,9 @@ class PostServiceTest extends IntegrationTest {
 
     @Autowired
     VoteService voteService;
+
+    @Autowired
+    CommentRepository commentRepository;
 
     @MockitoBean
     @ShareUrlCryptoService
@@ -172,7 +172,7 @@ class PostServiceTest extends IntegrationTest {
     void findUserPosts() throws Exception {
         //given
         User user = userRepository.save(createUser(1));
-        List<Post> posts = createPosts(user);
+        List<Post> posts = createPosts(user, Scope.PRIVATE);
         int size = 10;
 
         //when
@@ -191,7 +191,7 @@ class PostServiceTest extends IntegrationTest {
     void findUserPosts2() throws Exception {
         //given
         User user = userRepository.save(createUser(1));
-        List<Post> posts = createPosts(user);
+        List<Post> posts = createPosts(user, Scope.PRIVATE);
         int size = 10;
 
         //when
@@ -205,12 +205,12 @@ class PostServiceTest extends IntegrationTest {
         );
     }
 
-    private List<Post> createPosts(User user) {
+    private List<Post> createPosts(User user, Scope scope) {
         List<Post> posts = new ArrayList<>();
         for (int i = 0; i < 30; i += 2) {
             ImageFile imageFile1 = imageFileRepository.save(createImageFile(i));
             ImageFile imageFile2 = imageFileRepository.save(createImageFile(i + 1));
-            posts.add(postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, i)));
+            posts.add(postRepository.save(createPost(user.getId(), scope, imageFile1, imageFile2, i)));
         }
         return posts;
     }
@@ -220,7 +220,7 @@ class PostServiceTest extends IntegrationTest {
     void findVotedPosts() throws Exception {
         //given
         User user = userRepository.save(createUser(1));
-        List<Post> posts = createPosts(user);
+        List<Post> posts = createPosts(user, Scope.PRIVATE);
         for (int i = 0; i < 15; i++) {
             Post post = posts.get(i);
             voteRepository.save(Vote.of(post.getId(), post.getImages().get(0).getId(), user.getId()));
@@ -385,22 +385,48 @@ class PostServiceTest extends IntegrationTest {
     }
 
     @Test
-    @DisplayName("피드 조회")
+    @DisplayName("피드 조회 - 내 게시글 1개, 공개 게시글 15개, 투표 10개, 댓글 20개")
     void findFeed() throws Exception {
         //given
-        User user = userRepository.save(createUser(1));
-        List<Post> myPosts = createPosts(user);
-        List<Post> privatePosts = createPosts(userRepository.save(createUser(2)));
-        List<Post> publicPosts = createPosts(userRepository.save(createUser(2)));
-        int size = 10;
+        int size = 20;
+        User user1 = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+
+        Post myPost = postRepository.save(createPost(user1.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
+        List<Post> privatePosts = createPosts(userRepository.save(createUser(2)), Scope.PRIVATE);
+        List<Post> publicPosts = createPosts(userRepository.save(createUser(2)), Scope.PUBLIC);
+
+        createVotes(user1, myPost);
+        createComments(user1, myPost);
 
         //when
-        var response = postService.findFeed(user.getId(), null, size);
+        List<Vote> votes = voteRepository.findByPostIdAndDeletedFalse(myPost.getId());
+        List<Comment> comments = commentRepository.findByPostIdAndDeletedFalse(myPost.getId());
+        CursorBasePaginatedResponse<FeedResponse> response = postService.findFeed(user1.getId(), null, size);
 
         //then
         assertAll(
-                () -> assertThat(response.data()).hasSize(size),
-                () -> assertThat(response.hasNext()).isTrue()
+                () -> assertThat(response.data().size()).isEqualTo(16),
+                () -> assertThat(response.data().getLast().participantCount()).isEqualTo(votes.size()),
+                () -> assertThat(response.data().getLast().commentCount()).isEqualTo(comments.size()),
+                () -> assertThat(response.data().getLast().isAuthor()).isTrue(),
+                () -> assertThat(response.data().getFirst().isAuthor()).isFalse()
         );
+    }
+
+    private void createVotes(User user, Post post) {
+        for (int i = 0; i < 5; i++) {
+            ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+            ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+            voteRepository.save(createVote(user.getId(), post.getId(), imageFile1.getId()));
+            voteRepository.save(createVote(user.getId(), post.getId(), imageFile2.getId()));
+        }
+    }
+
+    private void createComments(User user, Post post) {
+        for (int i = 0; i < 20; i++) {
+            commentRepository.save(createComment(user.getId(), post.getId()));
+        }
     }
 }

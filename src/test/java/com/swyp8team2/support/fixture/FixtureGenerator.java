@@ -1,5 +1,6 @@
 package com.swyp8team2.support.fixture;
 
+import com.swyp8team2.comment.domain.Comment;
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.presentation.dto.ImageFileDto;
 import com.swyp8team2.post.domain.Post;
@@ -7,6 +8,7 @@ import com.swyp8team2.post.domain.PostImage;
 import com.swyp8team2.post.domain.Scope;
 import com.swyp8team2.post.domain.VoteType;
 import com.swyp8team2.user.domain.User;
+import com.swyp8team2.vote.domain.Vote;
 
 import java.util.List;
 
@@ -50,5 +52,13 @@ public abstract class FixtureGenerator {
                         "thumbnailUrl" + key
                 )
         );
+    }
+
+    public static Vote createVote(Long userId, Long postId, Long imageId) {
+        return Vote.of(userId, postId, imageId);
+    }
+
+    public static Comment createComment(Long userId, Long postId) {
+        return new Comment(userId, postId, "내용");
     }
 }
