@@ -84,8 +84,8 @@ public class Post extends BaseEntity {
         }
     }
 
-    public static Post create(Long userId, String description, List<PostImage> images, VoteType voteType) {
-        return new Post(null, userId, description, Status.PROGRESS, Scope.PRIVATE, images, null, voteType);
+    public static Post create(Long userId, String description, List<PostImage> images, Scope scope, VoteType voteType) {
+        return new Post(null, userId, description, Status.PROGRESS, scope, images, null, voteType);
     }
 
     public PostImage getBestPickedImage() {

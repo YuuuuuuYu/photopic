@@ -4,6 +4,7 @@ import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.presentation.dto.ImageFileDto;
 import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.PostImage;
+import com.swyp8team2.post.domain.Scope;
 import com.swyp8team2.post.domain.VoteType;
 import com.swyp8team2.user.domain.User;
 
@@ -19,6 +20,7 @@ public abstract class FixtureGenerator {
                         PostImage.create("뽀또A", imageFile1.getId()),
                         PostImage.create("뽀또B", imageFile2.getId())
                 ),
+                Scope.PRIVATE,
                 VoteType.SINGLE
         );
     }
@@ -31,6 +33,7 @@ public abstract class FixtureGenerator {
                         PostImage.create("뽀또A", imageFile1.getId()),
                         PostImage.create("뽀또B", imageFile2.getId())
                 ),
+                Scope.PRIVATE,
                 VoteType.MULTIPLE
         );
     }

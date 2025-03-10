@@ -25,7 +25,7 @@ class PostTest {
         );
 
         //when
-        Post post = Post.create(userId, description, postImages, VoteType.SINGLE);
+        Post post = Post.create(userId, description, postImages, Scope.PRIVATE, VoteType.SINGLE);
 
         //then
         List<PostImage> images = post.getImages();
@@ -52,7 +52,7 @@ class PostTest {
         );
 
         //when then
-        assertThatThrownBy(() -> Post.create(1L, "description", postImages, VoteType.SINGLE))
+        assertThatThrownBy(() -> Post.create(1L, "description", postImages, Scope.PRIVATE, VoteType.SINGLE))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.INVALID_POST_IMAGE_COUNT.getMessage());
     }
@@ -68,7 +68,7 @@ class PostTest {
         );
 
         //when then
-        assertThatThrownBy(() -> Post.create(1L, description, postImages, VoteType.SINGLE))
+        assertThatThrownBy(() -> Post.create(1L, description, postImages, Scope.PRIVATE, VoteType.SINGLE))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.DESCRIPTION_LENGTH_EXCEEDED.getMessage());
     }

@@ -1,7 +1,7 @@
 package com.swyp8team2.post.presentation;
 
-import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
+import com.swyp8team2.post.domain.Scope;
 import com.swyp8team2.post.domain.Status;
 import com.swyp8team2.post.domain.VoteType;
 import com.swyp8team2.post.presentation.dto.*;
@@ -23,14 +23,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
-import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -45,6 +43,7 @@ class PostControllerTest extends RestDocsTest {
         CreatePostRequest request = new CreatePostRequest(
                 "제목",
                 List.of(new PostImageRequestDto(1L), new PostImageRequestDto(2L)),
+                Scope.PRIVATE,
                 VoteType.SINGLE
         );
         CreatePostResponse response = new CreatePostResponse(1L, "shareUrl");
@@ -72,6 +71,9 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("images[].imageFileId")
                                         .type(JsonFieldType.NUMBER)
                                         .description("투표 후보 이미지 ID"),
+                                fieldWithPath("scope")
+                                        .type(JsonFieldType.STRING)
+                                        .description("투표 공개범위 (PRIVATE, PUBLIC)"),
                                 fieldWithPath("voteType")
                                         .type(JsonFieldType.STRING)
                                         .description("투표 방식 (SINGLE, MULTIPLE)")

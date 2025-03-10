@@ -56,6 +56,7 @@ public class PostCommandServiceTest extends IntegrationTest {
                         new PostImageRequestDto(1L),
                         new PostImageRequestDto(2L)
                 ),
+                Scope.PRIVATE,
                 VoteType.SINGLE
         );
         String shareUrl = "shareUrl";
@@ -94,6 +95,7 @@ public class PostCommandServiceTest extends IntegrationTest {
                 List.of(
                         new PostImageRequestDto(1L)
                 ),
+                Scope.PRIVATE,
                 VoteType.SINGLE
         );
         //when then
@@ -113,6 +115,7 @@ public class PostCommandServiceTest extends IntegrationTest {
                         new PostImageRequestDto(1L),
                         new PostImageRequestDto(2L)
                 ),
+                Scope.PRIVATE,
                 VoteType.SINGLE
         );
 
