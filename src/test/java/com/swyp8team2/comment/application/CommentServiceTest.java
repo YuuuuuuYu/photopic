@@ -12,6 +12,7 @@ import com.swyp8team2.common.exception.ForbiddenException;
 import com.swyp8team2.user.domain.Role;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
+import com.swyp8team2.vote.domain.Vote;
 import com.swyp8team2.vote.domain.VoteRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -77,10 +78,14 @@ class CommentServiceTest {
         Comment comment2 = new Comment(2L, postId, 100L, "두 번째 댓글");
         SliceImpl<Comment> commentSlice = new SliceImpl<>(List.of(comment1, comment2), PageRequest.of(0, size), false);
         User user = new User(100L, "닉네임","http://example.com/profile.png", Role.USER);
+        List<Vote> votes = List.of(
+                Vote.of(1L, 100L, 1L),
+                Vote.of(1L, 101L, 1L)
+        );
 
         // Mock 설정
         given(commentRepository.findByPostId(eq(postId), eq(cursor), any(PageRequest.class))).willReturn(commentSlice);
-        given(voteRepository.findByUserIdAndPostId(eq(user.getId()), eq(postId))).willReturn(empty());
+        given(voteRepository.findByUserIdAndPostId(eq(user.getId()), eq(postId))).willReturn(votes);
         // 각 댓글마다 user_no=100L 이므로, findById(100L)만 호출됨
         given(userRepository.findById(100L)).willReturn(Optional.of(user));
 
