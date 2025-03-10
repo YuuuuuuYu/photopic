@@ -1,4 +1,4 @@
-package com.swyp8team2.post.application;
+package com.swyp8team2.vote.application;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

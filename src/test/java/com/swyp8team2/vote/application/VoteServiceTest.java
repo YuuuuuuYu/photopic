@@ -184,4 +184,75 @@ class VoteServiceTest extends IntegrationTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.NOT_VOTER.getMessage());
     }
+
+    @Test
+    @DisplayName("투표 현황 조회")
+    void findVoteStatus() throws Exception {
+        //given
+        User user = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post post = postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
+        voteService.vote(user.getId(), post.getId(), post.getImages().get(0).getId());
+
+        //when
+        var response = voteService.findVoteStatus(user.getId(), post.getId());
+
+        //then
+        assertAll(
+                () -> assertThat(response).hasSize(2),
+                () -> assertThat(response.get(0).id()).isEqualTo(post.getImages().get(0).getId()),
+                () -> assertThat(response.get(0).imageName()).isEqualTo(post.getImages().get(0).getName()),
+                () -> assertThat(response.get(0).voteCount()).isEqualTo(1),
+                () -> assertThat(response.get(0).voteRatio()).isEqualTo("100.0"),
+                () -> assertThat(response.get(1).id()).isEqualTo(post.getImages().get(1).getId()),
+                () -> assertThat(response.get(1).imageName()).isEqualTo(post.getImages().get(1).getName()),
+                () -> assertThat(response.get(1).voteCount()).isEqualTo(0),
+                () -> assertThat(response.get(1).voteRatio()).isEqualTo("0.0")
+        );
+    }
+
+    @Test
+    @DisplayName("투표 현황 조회 - 투표한 사람인 경우")
+    void findVoteStatus_voteUser() throws Exception {
+        //given
+        User author = userRepository.save(createUser(1));
+        User voter = userRepository.save(createUser(2));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post post = postRepository.save(createPost(author.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
+        voteService.vote(voter.getId(), post.getId(), post.getImages().get(0).getId());
+
+        //when
+        var response = voteService.findVoteStatus(voter.getId(), post.getId());
+
+        //then
+        assertAll(
+                () -> assertThat(response).hasSize(2),
+                () -> assertThat(response.get(0).id()).isEqualTo(post.getImages().get(0).getId()),
+                () -> assertThat(response.get(0).imageName()).isEqualTo(post.getImages().get(0).getName()),
+                () -> assertThat(response.get(0).voteCount()).isEqualTo(1),
+                () -> assertThat(response.get(0).voteRatio()).isEqualTo("100.0"),
+                () -> assertThat(response.get(1).id()).isEqualTo(post.getImages().get(1).getId()),
+                () -> assertThat(response.get(1).imageName()).isEqualTo(post.getImages().get(1).getName()),
+                () -> assertThat(response.get(1).voteCount()).isEqualTo(0),
+                () -> assertThat(response.get(1).voteRatio()).isEqualTo("0.0")
+        );
+    }
+
+    @Test
+    @DisplayName("투표 현황 조회 - 작성자 아니고 투표 안 한 사람인 경우")
+    void findVoteStatus_notAuthorAndVoter() throws Exception {
+        //given
+        User author = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post post = postRepository.save(createPost(author.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
+
+        //when
+        assertThatThrownBy(() -> voteService.findVoteStatus(2L, post.getId()))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage(ErrorCode.ACCESS_DENIED_VOTE_STATUS.getMessage());
+    }
+
 }

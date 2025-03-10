@@ -1,6 +1,11 @@
 [[투표-API]]
 == 투표 API
 
+[[투표-현황-조회]]
+=== `GET` 투표 현황 조회
+
+operation::vote-controller-test/find-vote-status[snippets='http-request,curl-request,request-headers,path-parameters,http-response,response-fields']
+
 [[투표]]
 === `POST` 투표
 

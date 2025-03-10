@@ -6,8 +6,7 @@ import com.swyp8team2.auth.application.jwt.TokenPair;
 import com.swyp8team2.auth.presentation.dto.TokenResponse;
 import com.swyp8team2.comment.domain.Comment;
 import com.swyp8team2.comment.domain.CommentRepository;
-import com.swyp8team2.common.annotation.ShareUrlCryptoService;
-import com.swyp8team2.crypto.application.CryptoService;
+import com.swyp8team2.post.application.ShareUrlService;
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
 import com.swyp8team2.image.presentation.dto.ImageFileDto;
@@ -37,7 +36,7 @@ public class DataInitializer {
     private final UserRepository userRepository;
     private final ImageFileRepository imageFileRepository;
     private final PostRepository postRepository;
-    private final CryptoService shaereUrlCryptoService;
+    private final ShareUrlService shaereUrlShareUrlService;
     private final JwtService jwtService;
     private final VoteService voteService;
     private final CommentRepository commentRepository;
@@ -47,7 +46,7 @@ public class DataInitializer {
             UserRepository userRepository,
             ImageFileRepository imageFileRepository,
             PostRepository postRepository,
-            @ShareUrlCryptoService CryptoService shaereUrlCryptoService,
+            ShareUrlService shaereUrlShareUrlService,
             JwtService jwtService,
             VoteService voteService,
             CommentRepository commentRepository
@@ -56,7 +55,7 @@ public class DataInitializer {
         this.userRepository = userRepository;
         this.imageFileRepository = imageFileRepository;
         this.postRepository = postRepository;
-        this.shaereUrlCryptoService = shaereUrlCryptoService;
+        this.shaereUrlShareUrlService = shaereUrlShareUrlService;
         this.jwtService = jwtService;
         this.voteService = voteService;
         this.commentRepository = commentRepository;
@@ -84,7 +83,7 @@ public class DataInitializer {
                 ImageFile imageFile1 = imageFileRepository.save(ImageFile.create(new ImageFileDto("202502240006030.png", "https://image.photopic.site/images-dev/202502240006030.png", "https://image.photopic.site/images-dev/resized_202502240006030.png")));
                 ImageFile imageFile2 = imageFileRepository.save(ImageFile.create(new ImageFileDto("202502240006030.png", "https://image.photopic.site/images-dev/202502240006030.png", "https://image.photopic.site/images-dev/resized_202502240006030.png")));
                 Post post = postRepository.save(Post.create(user.getId(), "description" + j, List.of(PostImage.create("뽀또A", imageFile1.getId()), PostImage.create("뽀또B", imageFile2.getId())), Scope.PUBLIC, VoteType.SINGLE));
-                post.setShareUrl(shaereUrlCryptoService.encrypt(String.valueOf(post.getId())));
+                post.setShareUrl(shaereUrlShareUrlService.encrypt(String.valueOf(post.getId())));
                 posts.add(post);
             }
 

@@ -5,7 +5,6 @@ import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.post.application.PostService;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.CreatePostResponse;
-import com.swyp8team2.post.presentation.dto.PostImageVoteStatusResponse;
 import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.UpdatePostRequest;
 import com.swyp8team2.post.presentation.dto.SimplePostResponse;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -62,14 +60,6 @@ public class PostController {
                 .map(UserInfo::userId)
                 .orElse(null);
         return ResponseEntity.ok(postService.findByShareUrl(userId, shareUrl));
-    }
-
-    @GetMapping("/{postId}/status")
-    public ResponseEntity<List<PostImageVoteStatusResponse>> findVoteStatus(
-            @PathVariable("postId") Long postId,
-            @AuthenticationPrincipal UserInfo userInfo
-    ) {
-        return ResponseEntity.ok(postService.findVoteStatus(userInfo.userId(), postId));
     }
 
     @PostMapping("/{postId}/scope")

@@ -71,7 +71,7 @@ class CommentControllerTest extends RestDocsTest {
                 1L,
                 "댓글 내용",
                 new AuthorDto(100L, "닉네임", "http://example.com/profile.png"),
-                null,
+                List.of(1L, 2L),
                 LocalDateTime.now(),
                 false
         );
@@ -120,8 +120,8 @@ class CommentControllerTest extends RestDocsTest {
                                 fieldWithPath("data[].author.profileUrl")
                                         .type(JsonFieldType.STRING)
                                         .description("작성자 프로필 이미지 url"),
-                                fieldWithPath("data[].voteImageId")
-                                        .type(JsonFieldType.NUMBER)
+                                fieldWithPath("data[].voteImageId[]")
+                                        .type(JsonFieldType.ARRAY)
                                         .optional()
                                         .description("작성자가 투표한 이미지 Id (투표 없을 시 null)"),
                                 fieldWithPath("data[].createdAt")

@@ -20,6 +20,9 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -46,10 +49,11 @@ public class CommentService {
     private CommentResponse createCommentResponse(Comment comment, Long userId) {
         User author = userRepository.findById(comment.getUserNo())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
-        Long voteImageId = voteRepository.findByUserIdAndPostId(userId, comment.getPostId())
+        List<Vote> votes = voteRepository.findByUserIdAndPostId(userId, comment.getPostId());
+        List<Long> voteImageIds = votes.stream()
                 .map(Vote::getPostImageId)
-                .orElse(null);
-        return CommentResponse.of(comment, author, author.getId().equals(userId), voteImageId);
+                .collect(Collectors.toList());
+        return CommentResponse.of(comment, author, author.getId().equals(userId), voteImageIds);
     }
 
     @Transactional
