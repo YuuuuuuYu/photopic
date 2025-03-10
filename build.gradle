@@ -61,6 +61,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// rest docs
 ext {
     snippetsDir = file('build/generated-snippets')
 }
@@ -72,7 +73,7 @@ asciidoctor {
     dependsOn test
 }
 
-task copyDocument(type: Copy) {
+tasks.register('copyDocument', Copy) {
     dependsOn asciidoctor
     doFirst {
         delete file('src/main/resources/static/docs')

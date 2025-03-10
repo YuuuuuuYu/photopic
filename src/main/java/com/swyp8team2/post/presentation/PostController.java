@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -56,14 +55,6 @@ public class PostController {
                 .map(UserInfo::userId)
                 .orElse(null);
         return ResponseEntity.ok(postService.findByShareUrl(userId, shareUrl));
-    }
-
-    @GetMapping("/{postId}/status")
-    public ResponseEntity<List<PostImageVoteStatusResponse>> findVoteStatus(
-            @PathVariable("postId") Long postId,
-            @AuthenticationPrincipal UserInfo userInfo
-    ) {
-        return ResponseEntity.ok(postService.findVoteStatus(userInfo.userId(), postId));
     }
 
     @PostMapping("/{postId}/scope")
