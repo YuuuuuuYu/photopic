@@ -14,6 +14,7 @@ import com.swyp8team2.image.presentation.dto.ImageFileDto;
 import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.PostImage;
 import com.swyp8team2.post.domain.PostRepository;
+import com.swyp8team2.post.domain.Scope;
 import com.swyp8team2.post.domain.VoteType;
 import com.swyp8team2.user.domain.NicknameAdjective;
 import com.swyp8team2.user.domain.NicknameAdjectiveRepository;
@@ -82,7 +83,7 @@ public class DataInitializer {
             for (int j = 0; j < 30; j += 2) {
                 ImageFile imageFile1 = imageFileRepository.save(ImageFile.create(new ImageFileDto("202502240006030.png", "https://image.photopic.site/images-dev/202502240006030.png", "https://image.photopic.site/images-dev/resized_202502240006030.png")));
                 ImageFile imageFile2 = imageFileRepository.save(ImageFile.create(new ImageFileDto("202502240006030.png", "https://image.photopic.site/images-dev/202502240006030.png", "https://image.photopic.site/images-dev/resized_202502240006030.png")));
-                Post post = postRepository.save(Post.create(user.getId(), "description" + j, List.of(PostImage.create("뽀또A", imageFile1.getId()), PostImage.create("뽀또B", imageFile2.getId())), VoteType.SINGLE));
+                Post post = postRepository.save(Post.create(user.getId(), "description" + j, List.of(PostImage.create("뽀또A", imageFile1.getId()), PostImage.create("뽀또B", imageFile2.getId())), Scope.PUBLIC, VoteType.SINGLE));
                 post.setShareUrl(shaereUrlCryptoService.encrypt(String.valueOf(post.getId())));
                 posts.add(post);
             }
