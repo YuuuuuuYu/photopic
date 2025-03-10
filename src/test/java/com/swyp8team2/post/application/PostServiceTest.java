@@ -6,11 +6,7 @@ import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.crypto.application.CryptoService;
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
-import com.swyp8team2.post.domain.Post;
-import com.swyp8team2.post.domain.PostImage;
-import com.swyp8team2.post.domain.PostRepository;
-import com.swyp8team2.post.domain.Status;
-import com.swyp8team2.post.domain.VoteType;
+import com.swyp8team2.post.domain.*;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.CreatePostResponse;
 import com.swyp8team2.post.presentation.dto.PostResponse;
@@ -74,6 +70,7 @@ class PostServiceTest extends IntegrationTest {
                         new PostImageRequestDto(1L),
                         new PostImageRequestDto(2L)
                 ),
+                Scope.PRIVATE,
                 VoteType.SINGLE
         );
         String shareUrl = "shareUrl";
@@ -112,6 +109,7 @@ class PostServiceTest extends IntegrationTest {
                 List.of(
                         new PostImageRequestDto(1L)
                 ),
+                Scope.PRIVATE,
                 VoteType.SINGLE
         );
         //when then
@@ -131,6 +129,7 @@ class PostServiceTest extends IntegrationTest {
                         new PostImageRequestDto(1L),
                         new PostImageRequestDto(2L)
                 ),
+                Scope.PRIVATE,
                 VoteType.SINGLE
         );
 
