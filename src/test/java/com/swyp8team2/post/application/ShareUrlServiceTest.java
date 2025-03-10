@@ -1,23 +1,20 @@
-package com.swyp8team2.crypto.application;
+package com.swyp8team2.post.application;
 
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
-class CryptoServiceTest {
+class ShareUrlServiceTest {
 
-    CryptoService cryptoService;
+    ShareUrlService shareUrlService;
 
     @BeforeEach
     void setUp() throws Exception {
-        cryptoService = new CryptoService(new AesBytesEncryptor("asdfd", "1541235432"));
+        shareUrlService = new ShareUrlService("asdfd", "1541235432");
     }
 
     @Test
@@ -27,9 +24,9 @@ class CryptoServiceTest {
         String plainText = "15411";
 
         // when
-        String encryptedText = cryptoService.encrypt(plainText);
+        String encryptedText = shareUrlService.encrypt(plainText);
         System.out.println("encryptedText = " + encryptedText);
-        String decryptedText = cryptoService.decrypt(encryptedText);
+        String decryptedText = shareUrlService.decrypt(encryptedText);
 
         // then
         assertThat(decryptedText).isEqualTo(plainText);
@@ -40,11 +37,11 @@ class CryptoServiceTest {
     void encryptAndDecrypt_differentKey() throws Exception {
         // given
         String plainText = "Hello, World!";
-        CryptoService differentCryptoService = new CryptoService(new AesBytesEncryptor("different", "234562"));
-        String encryptedText = differentCryptoService.encrypt(plainText);
+        ShareUrlService differentShareUrlService = new ShareUrlService("different", "234562");
+        String encryptedText = differentShareUrlService.encrypt(plainText);
 
         // when then
-        assertThatThrownBy(() -> cryptoService.decrypt(encryptedText))
+        assertThatThrownBy(() -> shareUrlService.decrypt(encryptedText))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.INVALID_TOKEN.getMessage());
     }
@@ -56,7 +53,7 @@ class CryptoServiceTest {
         String invalid = "invalidToken";
 
         // when then
-        assertThatThrownBy(() -> cryptoService.decrypt(invalid))
+        assertThatThrownBy(() -> shareUrlService.decrypt(invalid))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.INVALID_TOKEN.getMessage());
     }
@@ -68,7 +65,7 @@ class CryptoServiceTest {
         String invalid = "";
 
         // when then
-        assertThatThrownBy(() -> cryptoService.decrypt(invalid))
+        assertThatThrownBy(() -> shareUrlService.decrypt(invalid))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.INVALID_TOKEN.getMessage());
     }

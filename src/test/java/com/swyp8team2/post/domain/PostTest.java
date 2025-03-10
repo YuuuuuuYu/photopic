@@ -161,4 +161,45 @@ class PostTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.NOT_POST_AUTHOR.getMessage());
     }
+
+    @Test
+    @DisplayName("게시글 베스트 픽 조회")
+    void getBestPickedImage() throws Exception {
+        //given
+        long userId = 1L;
+        List<PostImage> postImages = List.of(
+                PostImage.create("뽀또A", 1L),
+                PostImage.create("뽀또B", 2L)
+        );
+        Post post = new Post(null, userId, "description", Status.PROGRESS, Scope.PRIVATE, postImages, "shareUrl", VoteType.SINGLE);
+        post.getImages().get(0).increaseVoteCount();
+        post.getImages().get(0).increaseVoteCount();
+        post.getImages().get(1).increaseVoteCount();
+
+        //when
+        PostImage bestPickedImage = post.getBestPickedImage();
+
+        //then
+        assertThat(bestPickedImage.getName()).isEqualTo("뽀또A");
+    }
+
+    @Test
+    @DisplayName("게시글 베스트 픽 조회 - 동일 투표수인 경우 첫 번째 이미지가 선택됨")
+    void getBestPickedImage_saveVoteCount() throws Exception {
+        //given
+        long userId = 1L;
+        List<PostImage> postImages = List.of(
+                PostImage.create("뽀또A", 1L),
+                PostImage.create("뽀또B", 2L)
+        );
+        Post post = new Post(null, userId, "description", Status.PROGRESS, Scope.PRIVATE, postImages, "shareUrl", VoteType.SINGLE);
+        post.getImages().get(0).increaseVoteCount();
+        post.getImages().get(1).increaseVoteCount();
+
+        //when
+        PostImage bestPickedImage = post.getBestPickedImage();
+
+        //then
+        assertThat(bestPickedImage.getName()).isEqualTo("뽀또A");
+    }
 }
