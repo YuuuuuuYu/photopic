@@ -1,5 +1,7 @@
 package com.swyp8team2.post.application;
 
+import com.swyp8team2.comment.domain.Comment;
+import com.swyp8team2.comment.domain.CommentRepository;
 import com.swyp8team2.common.annotation.ShareUrlCryptoService;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.common.exception.BadRequestException;
@@ -17,6 +19,7 @@ import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.PostImageVoteStatusResponse;
 import com.swyp8team2.post.presentation.dto.SimplePostResponse;
 import com.swyp8team2.post.presentation.dto.PostImageResponse;
+import com.swyp8team2.post.presentation.dto.FeedResponse;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import com.swyp8team2.vote.domain.Vote;
@@ -37,6 +40,7 @@ public class PostService {
     private final RatioCalculator ratioCalculator;
     private final ImageFileRepository imageFileRepository;
     private final VoteRepository voteRepository;
+    private final CommentRepository commentRepository;
     private final CryptoService shareUrlCryptoService;
 
     public PostService(
@@ -45,6 +49,7 @@ public class PostService {
             RatioCalculator ratioCalculator,
             ImageFileRepository imageFileRepository,
             VoteRepository voteRepository,
+            CommentRepository commentRepository,
             @ShareUrlCryptoService CryptoService shareUrlCryptoService
     ) {
         this.postRepository = postRepository;
@@ -52,6 +57,7 @@ public class PostService {
         this.ratioCalculator = ratioCalculator;
         this.imageFileRepository = imageFileRepository;
         this.voteRepository = voteRepository;
+        this.commentRepository = commentRepository;
         this.shareUrlCryptoService = shareUrlCryptoService;
     }
 
@@ -185,5 +191,19 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.POST_NOT_FOUND));
         post.toggleScope(userId);
+    }
+
+    public CursorBasePaginatedResponse<FeedResponse> findFeed(Long userId, Long cursor, int size) {
+        Slice<Post> postSlice = postRepository.findByScopeAndDeletedFalse(userId, cursor, PageRequest.ofSize(size));
+        return CursorBasePaginatedResponse.of(postSlice.map(post -> createFeedResponse(userId, post)));
+    }
+
+    private FeedResponse createFeedResponse(Long userId, Post post) {
+        List<PostImageResponse> images = createPostImageResponse(userId, post);
+        List<Vote> votes = voteRepository.findByPostIdAndDeletedFalse(post.getId());
+        List<Comment> comments = commentRepository.findByPostIdAndDeletedFalse(post.getId());
+        boolean isAuthor = post.getUserId().equals(userId);
+
+        return FeedResponse.of(post, images, votes.size(), comments.size(), isAuthor);
     }
 }

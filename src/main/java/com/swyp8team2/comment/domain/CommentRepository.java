@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -33,4 +34,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
                 AND c.deleted = false
             """)
     Optional<Comment> findByIdAndNotDeleted(@Param("commentId") Long commentId);
+
+    List<Comment> findByPostIdAndDeletedFalse(Long postId);
 }

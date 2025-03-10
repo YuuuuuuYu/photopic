@@ -12,7 +12,7 @@ import java.util.List;
 
 public abstract class FixtureGenerator {
 
-    public static Post createPost(Long userId, ImageFile imageFile1, ImageFile imageFile2, int key) {
+    public static Post createPost(Long userId, Scope scope, ImageFile imageFile1, ImageFile imageFile2, int key) {
         return Post.create(
                 userId,
                 "description" + key,
@@ -20,12 +20,12 @@ public abstract class FixtureGenerator {
                         PostImage.create("뽀또A", imageFile1.getId()),
                         PostImage.create("뽀또B", imageFile2.getId())
                 ),
-                Scope.PRIVATE,
+                scope,
                 VoteType.SINGLE
         );
     }
 
-    public static Post createMultiplePost(Long userId, ImageFile imageFile1, ImageFile imageFile2, int key) {
+    public static Post createMultiplePost(Long userId, Scope scope, ImageFile imageFile1, ImageFile imageFile2, int key) {
         return Post.create(
                 userId,
                 "description" + key,
@@ -33,7 +33,7 @@ public abstract class FixtureGenerator {
                         PostImage.create("뽀또A", imageFile1.getId()),
                         PostImage.create("뽀또B", imageFile2.getId())
                 ),
-                Scope.PRIVATE,
+                scope,
                 VoteType.MULTIPLE
         );
     }

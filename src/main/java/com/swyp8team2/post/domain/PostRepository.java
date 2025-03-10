@@ -31,4 +31,15 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             """
     )
     Slice<Post> findByIdIn(@Param("postIds") List<Long> postIds, @Param("postId") Long postId, Pageable pageable);
+
+    @Query("""
+            SELECT p
+            FROM Post p
+            WHERE p.deleted = false
+            AND (p.scope = 'PUBLIC' OR (p.userId = :userId AND p.scope = 'PRIVATE'))
+            AND (:postId IS NULL OR p.id < :postId)
+            ORDER BY p.createdAt DESC
+            """
+    )
+    Slice<Post> findByScopeAndDeletedFalse(@Param("userId") Long userId, @Param("postId") Long postId, Pageable pageable);
 }

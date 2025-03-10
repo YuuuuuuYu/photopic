@@ -48,7 +48,7 @@ class VoteServiceTest extends IntegrationTest {
         User user = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
 
         // when
         Long voteId = voteService.vote(user.getId(), post.getId(), post.getImages().get(0).getId());
@@ -71,7 +71,7 @@ class VoteServiceTest extends IntegrationTest {
         User user = userRepository.save(createUser(2));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
         voteService.vote(user.getId(), post.getId(), post.getImages().get(0).getId());
 
         // when
@@ -96,7 +96,7 @@ class VoteServiceTest extends IntegrationTest {
         User user = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createMultiplePost(user.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createMultiplePost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
 
         // when
         Long voteId1 = voteService.vote(user.getId(), post.getId(), post.getImages().get(0).getId());
@@ -154,7 +154,7 @@ class VoteServiceTest extends IntegrationTest {
         User user = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
         Long voteId = voteService.vote(user.getId(), post.getId(), post.getImages().get(0).getId());
 
         // when
@@ -176,7 +176,7 @@ class VoteServiceTest extends IntegrationTest {
         User user = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
         Long voteId = voteService.vote(user.getId(), post.getId(), post.getImages().get(0).getId());
 
         // when then
