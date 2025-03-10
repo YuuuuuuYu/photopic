@@ -3,6 +3,7 @@ package com.swyp8team2.post.application;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.CreatePostResponse;
+import com.swyp8team2.post.presentation.dto.FeedResponse;
 import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.SimplePostResponse;
 import lombok.RequiredArgsConstructor;
@@ -51,5 +52,9 @@ public class PostService {
 
     public PostResponse findByShareUrl(Long userId, String shareUrl) {
         return postQueryService.findByShareUrl(userId, shareUrl);
+    }
+
+    public CursorBasePaginatedResponse<FeedResponse> findFeed(Long userId, Long cursor, int size) {
+        return postQueryService.findFeed(userId, cursor, size);
     }
 }

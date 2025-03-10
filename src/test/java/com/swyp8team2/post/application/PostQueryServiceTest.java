@@ -1,9 +1,14 @@
 package com.swyp8team2.post.application;
 
+import com.swyp8team2.comment.domain.Comment;
+import com.swyp8team2.comment.domain.CommentRepository;
+import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
 import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.PostRepository;
+import com.swyp8team2.post.domain.Scope;
+import com.swyp8team2.post.presentation.dto.FeedResponse;
 import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.PostImageResponse;
 import com.swyp8team2.support.IntegrationTest;
@@ -19,9 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.swyp8team2.support.fixture.FixtureGenerator.createImageFile;
-import static com.swyp8team2.support.fixture.FixtureGenerator.createPost;
-import static com.swyp8team2.support.fixture.FixtureGenerator.createUser;
+import static com.swyp8team2.support.fixture.FixtureGenerator.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,6 +45,9 @@ class PostQueryServiceTest extends IntegrationTest {
     @Autowired
     VoteRepository voteRepository;
 
+    @Autowired
+    CommentRepository commentRepository;
+
     @Test
     @DisplayName("게시글 조회")
     void findById() throws Exception {
@@ -49,7 +55,7 @@ class PostQueryServiceTest extends IntegrationTest {
         User user = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
 
         //when
         PostResponse response = postService.findById(user.getId(), post.getId());
@@ -75,7 +81,7 @@ class PostQueryServiceTest extends IntegrationTest {
     void findUserPosts() throws Exception {
         //given
         User user = userRepository.save(createUser(1));
-        List<Post> posts = createPosts(user);
+        List<Post> posts = createPosts(user, Scope.PRIVATE);
         int size = 10;
 
         //when
@@ -94,7 +100,7 @@ class PostQueryServiceTest extends IntegrationTest {
     void findUserPosts2() throws Exception {
         //given
         User user = userRepository.save(createUser(1));
-        List<Post> posts = createPosts(user);
+        List<Post> posts = createPosts(user, Scope.PRIVATE);
         int size = 10;
 
         //when
@@ -108,12 +114,12 @@ class PostQueryServiceTest extends IntegrationTest {
         );
     }
 
-    private List<Post> createPosts(User user) {
+    private List<Post> createPosts(User user, Scope scope) {
         List<Post> posts = new ArrayList<>();
         for (int i = 0; i < 30; i += 2) {
             ImageFile imageFile1 = imageFileRepository.save(createImageFile(i));
             ImageFile imageFile2 = imageFileRepository.save(createImageFile(i + 1));
-            posts.add(postRepository.save(createPost(user.getId(), imageFile1, imageFile2, i)));
+            posts.add(postRepository.save(createPost(user.getId(), scope, imageFile1, imageFile2, i)));
         }
         return posts;
     }
@@ -123,7 +129,7 @@ class PostQueryServiceTest extends IntegrationTest {
     void findVotedPosts() throws Exception {
         //given
         User user = userRepository.save(createUser(1));
-        List<Post> posts = createPosts(user);
+        List<Post> posts = createPosts(user, Scope.PRIVATE);
         for (int i = 0; i < 15; i++) {
             Post post = posts.get(i);
             voteRepository.save(Vote.of(post.getId(), post.getImages().get(0).getId(), user.getId()));
@@ -140,5 +146,51 @@ class PostQueryServiceTest extends IntegrationTest {
                 () -> assertThat(response.hasNext()).isTrue(),
                 () -> assertThat(response.nextCursor()).isEqualTo(posts.get(전체_15개에서_맨_마지막_데이터_인덱스).getId())
         );
+    }
+
+    @Test
+    @DisplayName("피드 조회 - 내 게시글 1개, 공개 게시글 15개, 투표 10개, 댓글 20개")
+    void findFeed() throws Exception {
+        //given
+        int size = 20;
+        User user1 = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+
+        Post myPost = postRepository.save(createPost(user1.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
+        List<Post> privatePosts = createPosts(userRepository.save(createUser(2)), Scope.PRIVATE);
+        List<Post> publicPosts = createPosts(userRepository.save(createUser(2)), Scope.PUBLIC);
+
+        createVotes(user1, myPost);
+        createComments(user1, myPost);
+
+        //when
+        List<Vote> votes = voteRepository.findByPostIdAndDeletedFalse(myPost.getId());
+        List<Comment> comments = commentRepository.findByPostIdAndDeletedFalse(myPost.getId());
+        CursorBasePaginatedResponse<FeedResponse> response = postService.findFeed(user1.getId(), null, size);
+
+        //then
+        assertAll(
+                () -> assertThat(response.data().size()).isEqualTo(16),
+                () -> assertThat(response.data().getLast().participantCount()).isEqualTo(votes.size()),
+                () -> assertThat(response.data().getLast().commentCount()).isEqualTo(comments.size()),
+                () -> assertThat(response.data().getLast().isAuthor()).isTrue(),
+                () -> assertThat(response.data().getFirst().isAuthor()).isFalse()
+        );
+    }
+
+    private void createVotes(User user, Post post) {
+        for (int i = 0; i < 5; i++) {
+            ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+            ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+            voteRepository.save(createVote(user.getId(), post.getId(), imageFile1.getId()));
+            voteRepository.save(createVote(user.getId(), post.getId(), imageFile2.getId()));
+        }
+    }
+
+    private void createComments(User user, Post post) {
+        for (int i = 0; i < 20; i++) {
+            commentRepository.save(createComment(user.getId(), post.getId()));
+        }
     }
 }

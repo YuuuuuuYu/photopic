@@ -3,7 +3,12 @@ package com.swyp8team2.post.presentation;
 import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.post.application.PostService;
-import com.swyp8team2.post.presentation.dto.*;
+import com.swyp8team2.post.presentation.dto.CreatePostRequest;
+import com.swyp8team2.post.presentation.dto.CreatePostResponse;
+import com.swyp8team2.post.presentation.dto.PostResponse;
+import com.swyp8team2.post.presentation.dto.UpdatePostRequest;
+import com.swyp8team2.post.presentation.dto.SimplePostResponse;
+import com.swyp8team2.post.presentation.dto.FeedResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -109,5 +114,14 @@ public class PostController {
             @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size
     ) {
         return ResponseEntity.ok(postService.findVotedPosts(userId, cursor, size));
+    }
+
+    @GetMapping("/feed")
+    public ResponseEntity<CursorBasePaginatedResponse<FeedResponse>> findFeed(
+            @RequestParam(name = "cursor", required = false) @Min(0) Long cursor,
+            @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size,
+            @AuthenticationPrincipal UserInfo userInfo
+    ) {
+        return ResponseEntity.ok(postService.findFeed(userInfo.userId(), cursor, size));
     }
 }

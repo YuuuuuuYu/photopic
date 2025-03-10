@@ -132,7 +132,7 @@ public class PostCommandServiceTest extends IntegrationTest {
         User user = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
 
         //when
         post.close(user.getId());
@@ -149,7 +149,7 @@ public class PostCommandServiceTest extends IntegrationTest {
         User user = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
 
         //when then
         assertThatThrownBy(() -> post.close(2L))
@@ -164,7 +164,7 @@ public class PostCommandServiceTest extends IntegrationTest {
         User user = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
         post.close(user.getId());
 
         //when then
@@ -191,7 +191,7 @@ public class PostCommandServiceTest extends IntegrationTest {
         User user = userRepository.save(createUser(1));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post post = postRepository.save(createPost(user.getId(), imageFile1, imageFile2, 1));
+        Post post = postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
 
         //when
         postService.delete(user.getId(), post.getId());
@@ -205,7 +205,7 @@ public class PostCommandServiceTest extends IntegrationTest {
         for (int i = 0; i < 30; i += 2) {
             ImageFile imageFile1 = imageFileRepository.save(createImageFile(i));
             ImageFile imageFile2 = imageFileRepository.save(createImageFile(i + 1));
-            posts.add(postRepository.save(createPost(user.getId(), imageFile1, imageFile2, i)));
+            posts.add(postRepository.save(createPost(user.getId(), Scope.PRIVATE, imageFile1, imageFile2, i)));
         }
         return posts;
     }

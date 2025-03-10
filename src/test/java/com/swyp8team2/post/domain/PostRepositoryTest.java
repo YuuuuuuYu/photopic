@@ -26,7 +26,7 @@ class PostRepositoryTest extends RepositoryTest {
     void select_post_findByUserId1() throws Exception {
         //given
         long userId = 1L;
-        List<Post> posts = createPosts(userId);
+        List<Post> posts = createPosts(userId, Scope.PRIVATE);
         int size = 10;
 
         //when
@@ -47,7 +47,7 @@ class PostRepositoryTest extends RepositoryTest {
     void select_post_findByUserId2() throws Exception {
         //given
         long userId = 1L;
-        List<Post> posts = createPosts(userId);
+        List<Post> posts = createPosts(userId, Scope.PRIVATE);
         int size = 10;
         int cursorIndex = 5;
 
@@ -68,7 +68,7 @@ class PostRepositoryTest extends RepositoryTest {
     @DisplayName("id 리스트에 포함되는 게시글 조회")
     void select_post_findByIdIn() throws Exception {
         //given
-        List<Post> posts = createPosts(1L);
+        List<Post> posts = createPosts(1L, Scope.PRIVATE);
         List<Long> postIds = List.of(posts.get(0).getId(), posts.get(1).getId(), posts.get(2).getId());
 
         //when
@@ -84,13 +84,32 @@ class PostRepositoryTest extends RepositoryTest {
         );
     }
 
-    private List<Post> createPosts(long userId) {
+    private List<Post> createPosts(long userId, Scope scope) {
         List<Post> posts = new ArrayList<>();
         for (int i = 0; i < 30; i += 2) {
             ImageFile imageFile1 = createImageFile(i);
             ImageFile imageFile2 = createImageFile(i + 1);
-            posts.add(postRepository.save(createPost(userId, imageFile1, imageFile2, i)));
+            posts.add(postRepository.save(createPost(userId, scope, imageFile1, imageFile2, i)));
         }
         return posts;
+    }
+
+    @Test
+    @DisplayName("피드 조회")
+    void select_post_findByScopeAndDeletedFalse() {
+        //given
+        List<Post> myPosts = createPosts(1L, Scope.PRIVATE);
+        List<Post> privatePosts = createPosts(2L, Scope.PRIVATE);
+        List<Post> publicPosts = createPosts(2L, Scope.PUBLIC);
+        int size = 10;
+
+        //when
+        Slice<Post> res = postRepository.findByScopeAndDeletedFalse(1L, null, PageRequest.ofSize(size));
+
+        //then
+        assertAll(
+                () -> assertThat(res.getContent().size()).isEqualTo(size),
+                () -> assertThat(res.hasNext()).isTrue()
+        );
     }
 }

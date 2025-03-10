@@ -45,3 +45,8 @@ operation::post-controller-test/close-post[snippets='http-request,curl-request,p
 === `DELETE` 게시글 삭제
 
 operation::post-controller-test/delete-post[snippets='http-request,curl-request,path-parameters,request-headers,http-response']
+
+[[피드-조회]]
+=== `GET` 피드 조회
+
+operation::post-controller-test/find-feed[snippets='http-request,curl-request,query-parameters,request-headers,http-response,response-fields']

@@ -395,4 +395,57 @@ class PostControllerTest extends RestDocsTest {
                 ));
         verify(postService, times(1)).close(any(), any());
     }
+
+    @Test
+    @WithMockUserInfo
+    @DisplayName("피드 조회")
+    void findFeed() throws Exception {
+        //given
+        var response = new CursorBasePaginatedResponse<> (
+                1L,
+                false,
+                List.of(
+                        new FeedResponse(
+                                1L,
+                                List.of(
+                                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/image/1", "https://image.photopic.site/image/resize/1", 1L),
+                                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/image/2", "https://image.photopic.site/image/resize/2", null)
+                                ),
+                                Status.PROGRESS,
+                                "description",
+                                true,
+                                1,
+                                2
+                        )
+                )
+        );
+        given(postService.findFeed(1L, null, 10)).willReturn(response);
+
+        //when then
+        mockMvc.perform(RestDocumentationRequestBuilders.get("/posts/feed")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer token"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(response)))
+                .andDo(restDocs.document(
+                        requestHeaders(authorizationHeader()),
+                        queryParameters(cursorQueryParams()),
+                        responseFields(
+                                fieldWithPath("nextCursor").type(JsonFieldType.NUMBER).optional().description("다음 조회 커서 값"),
+                                fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("다음 페이지 존재 여부 (기본 값 10)"),
+                                fieldWithPath("data[]").type(JsonFieldType.ARRAY).description("게시글 데이터"),
+                                fieldWithPath("data[].id").type(JsonFieldType.NUMBER).description("게시글 Id"),
+                                fieldWithPath("data[].images[]").type(JsonFieldType.ARRAY).description("투표 선택지 목록"),
+                                fieldWithPath("data[].images[].id").type(JsonFieldType.NUMBER).description("투표 선택지 Id"),
+                                fieldWithPath("data[].images[].imageName").type(JsonFieldType.STRING).description("사진 이름"),
+                                fieldWithPath("data[].images[].imageUrl").type(JsonFieldType.STRING).description("사진 이미지"),
+                                fieldWithPath("data[].images[].thumbnailUrl").type(JsonFieldType.STRING).description("나중에 없어질 예정"),
+                                fieldWithPath("data[].images[].voteId").type(JsonFieldType.NUMBER).optional().description("투표 Id (투표 안 한 경우 null)"),
+                                fieldWithPath("data[].status").type(JsonFieldType.STRING).description("게시글 마감 여부 (PROGRESS, CLOSED)"),
+                                fieldWithPath("data[].description").type(JsonFieldType.STRING).description("설명"),
+                                fieldWithPath("data[].isAuthor").type(JsonFieldType.BOOLEAN).description("게시글 작성자 여부"),
+                                fieldWithPath("data[].participantCount").type(JsonFieldType.NUMBER).description("투표 참여자 수"),
+                                fieldWithPath("data[].commentCount").type(JsonFieldType.NUMBER).description("투표 댓글 수")
+                        )
+                ));
+    }
 }
