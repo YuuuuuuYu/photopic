@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,7 +86,9 @@ public class VoteService {
                 .map(image -> {
                     String ratio = ratioCalculator.calculate(totalVoteCount, image.getVoteCount());
                     return new PostImageVoteStatusResponse(image.getId(), image.getName(), image.getVoteCount(), ratio);
-                }).toList();
+                })
+                .sorted(Comparator.comparingInt(PostImageVoteStatusResponse::voteCount).reversed())
+                .toList();
     }
 
     private void validateVoteStatus(Long userId, Post post) {

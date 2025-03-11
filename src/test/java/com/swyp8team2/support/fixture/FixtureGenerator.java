@@ -11,6 +11,7 @@ import com.swyp8team2.user.domain.User;
 import com.swyp8team2.vote.domain.Vote;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class FixtureGenerator {
 
@@ -22,6 +23,18 @@ public abstract class FixtureGenerator {
                         PostImage.create("뽀또A", imageFile1.getId()),
                         PostImage.create("뽀또B", imageFile2.getId())
                 ),
+                scope,
+                VoteType.SINGLE
+        );
+    }
+
+    public static Post createPost(Long userId, Scope scope, List<ImageFile> imageFiles, int key) {
+        return Post.create(
+                userId,
+                "description" + key,
+                imageFiles.stream()
+                        .map(imageFile -> PostImage.create("뽀또"+key, imageFile.getId()))
+                        .toList(),
                 scope,
                 VoteType.SINGLE
         );
