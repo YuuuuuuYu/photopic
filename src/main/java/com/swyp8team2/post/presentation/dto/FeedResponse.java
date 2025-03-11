@@ -13,6 +13,7 @@ public record FeedResponse(
         List<PostImageResponse> images,
         Status status,
         String description,
+        String shareUrl,
         boolean isAuthor,
         int participantCount,
         int commentCount
@@ -31,6 +32,7 @@ public record FeedResponse(
                 images,
                 post.getStatus(),
                 post.getDescription(),
+                post.getShareUrl(),
                 isAuthor,
                 participantCount,
                 commentCount

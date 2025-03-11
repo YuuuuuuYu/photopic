@@ -418,6 +418,7 @@ class PostControllerTest extends RestDocsTest {
                                 ),
                                 Status.PROGRESS,
                                 "description",
+                                "https://photopic.site/shareurl",
                                 true,
                                 1,
                                 2
@@ -451,6 +452,7 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("data[].images[].voteId").type(JsonFieldType.NUMBER).optional().description("투표 Id (투표 안 한 경우 null)"),
                                 fieldWithPath("data[].status").type(JsonFieldType.STRING).description("게시글 마감 여부 (PROGRESS, CLOSED)"),
                                 fieldWithPath("data[].description").type(JsonFieldType.STRING).description("설명"),
+                                fieldWithPath("data[].shareUrl").type(JsonFieldType.STRING).description("게시글 공유 URL"),
                                 fieldWithPath("data[].isAuthor").type(JsonFieldType.BOOLEAN).description("게시글 작성자 여부"),
                                 fieldWithPath("data[].participantCount").type(JsonFieldType.NUMBER).description("투표 참여자 수"),
                                 fieldWithPath("data[].commentCount").type(JsonFieldType.NUMBER).description("투표 댓글 수")
