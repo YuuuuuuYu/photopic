@@ -418,7 +418,7 @@ class PostControllerTest extends RestDocsTest {
                                 ),
                                 Status.PROGRESS,
                                 "description",
-                                "https://photopic.site/shareurl",
+                                "anioefw78f329jcs9",
                                 true,
                                 1,
                                 2
