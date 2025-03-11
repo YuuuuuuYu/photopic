@@ -128,11 +128,13 @@ public class PostQueryService {
     }
 
     private FeedResponse createFeedResponse(Long userId, Post post) {
+        User user = userRepository.findById(post.getUserId())
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         List<PostImageResponse> images = createPostImageResponse(userId, post);
         List<Vote> votes = voteRepository.findByPostIdAndDeletedFalse(post.getId());
         List<Comment> comments = commentRepository.findByPostIdAndDeletedFalse(post.getId());
         boolean isAuthor = post.getUserId().equals(userId);
 
-        return FeedResponse.of(post, images, votes.size(), comments.size(), isAuthor);
+        return FeedResponse.of(post, user, images, votes.size(), comments.size(), isAuthor);
     }
 }

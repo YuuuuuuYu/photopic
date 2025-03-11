@@ -407,12 +407,18 @@ class PostControllerTest extends RestDocsTest {
                 List.of(
                         new FeedResponse(
                                 1L,
+                                new AuthorDto(
+                                        1L,
+                                        "author",
+                                        "https://image.photopic.site/profile-image"
+                                ),
                                 List.of(
                                         new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/image/1", "https://image.photopic.site/image/resize/1", 1L),
                                         new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/image/2", "https://image.photopic.site/image/resize/2", null)
                                 ),
                                 Status.PROGRESS,
                                 "description",
+                                "anioefw78f329jcs9",
                                 true,
                                 1,
                                 2
@@ -434,6 +440,10 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("hasNext").type(JsonFieldType.BOOLEAN).description("다음 페이지 존재 여부 (기본 값 10)"),
                                 fieldWithPath("data[]").type(JsonFieldType.ARRAY).description("게시글 데이터"),
                                 fieldWithPath("data[].id").type(JsonFieldType.NUMBER).description("게시글 Id"),
+                                fieldWithPath("data[].author").type(JsonFieldType.OBJECT).description("게시글 작성자 정보"),
+                                fieldWithPath("data[].author.id").type(JsonFieldType.NUMBER).description("게시글 작성자 유저 ID"),
+                                fieldWithPath("data[].author.nickname").type(JsonFieldType.STRING).description("게시글 작성자 닉네임"),
+                                fieldWithPath("data[].author.profileUrl").type(JsonFieldType.STRING).description("게시글 작성자 프로필 이미지"),
                                 fieldWithPath("data[].images[]").type(JsonFieldType.ARRAY).description("투표 선택지 목록"),
                                 fieldWithPath("data[].images[].id").type(JsonFieldType.NUMBER).description("투표 선택지 Id"),
                                 fieldWithPath("data[].images[].imageName").type(JsonFieldType.STRING).description("사진 이름"),
@@ -442,6 +452,7 @@ class PostControllerTest extends RestDocsTest {
                                 fieldWithPath("data[].images[].voteId").type(JsonFieldType.NUMBER).optional().description("투표 Id (투표 안 한 경우 null)"),
                                 fieldWithPath("data[].status").type(JsonFieldType.STRING).description("게시글 마감 여부 (PROGRESS, CLOSED)"),
                                 fieldWithPath("data[].description").type(JsonFieldType.STRING).description("설명"),
+                                fieldWithPath("data[].shareUrl").type(JsonFieldType.STRING).description("게시글 공유 URL"),
                                 fieldWithPath("data[].isAuthor").type(JsonFieldType.BOOLEAN).description("게시글 작성자 여부"),
                                 fieldWithPath("data[].participantCount").type(JsonFieldType.NUMBER).description("투표 참여자 수"),
                                 fieldWithPath("data[].commentCount").type(JsonFieldType.NUMBER).description("투표 댓글 수")

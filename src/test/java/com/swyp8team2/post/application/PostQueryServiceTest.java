@@ -3,11 +3,11 @@ package com.swyp8team2.post.application;
 import com.swyp8team2.comment.domain.Comment;
 import com.swyp8team2.comment.domain.CommentRepository;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
+import com.swyp8team2.common.exception.BadRequestException;
+import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
-import com.swyp8team2.post.domain.Post;
-import com.swyp8team2.post.domain.PostRepository;
-import com.swyp8team2.post.domain.Scope;
+import com.swyp8team2.post.domain.*;
 import com.swyp8team2.post.presentation.dto.FeedResponse;
 import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.PostImageResponse;
@@ -26,6 +26,7 @@ import java.util.List;
 
 import static com.swyp8team2.support.fixture.FixtureGenerator.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PostQueryServiceTest extends IntegrationTest {
@@ -177,6 +178,30 @@ class PostQueryServiceTest extends IntegrationTest {
                 () -> assertThat(response.data().getLast().isAuthor()).isTrue(),
                 () -> assertThat(response.data().getFirst().isAuthor()).isFalse()
         );
+    }
+
+    @Test
+    @DisplayName("피드 조회 - 존재하지 않는 유저")
+    void findFeed_userNotFound() throws Exception {
+        //given
+        User user1 = userRepository.save(createUser(1));
+        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
+        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
+        Post myPost = postRepository.save(createPost(user1.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
+        postRepository.save(Post.create(
+                2L,
+                "설명",
+                List.of(
+                        PostImage.create("1", imageFile1.getId()),
+                        PostImage.create("1", imageFile1.getId())
+                ),
+                Scope.PUBLIC,
+                VoteType.SINGLE));
+
+        //when then
+        assertThatThrownBy(() -> postService.findFeed(1L, null, 10))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage(ErrorCode.USER_NOT_FOUND.getMessage());
     }
 
     private void createVotes(User user, Post post) {
