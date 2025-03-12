@@ -87,11 +87,9 @@ public class JwtProvider {
         } catch (ExpiredJwtException e) {
             log.trace("Expired Jwt Token: {}", e.getMessage());
             throw new UnauthorizedException(ErrorCode.EXPIRED_TOKEN);
-        } catch (JwtException e) {
+        } catch (Exception e) {
             log.trace("Invalid Jwt Token: {}", e.getMessage());
             throw new UnauthorizedException(ErrorCode.INVALID_TOKEN);
-        } catch (Exception e) {
-            throw new InternalServerException(e);
         }
     }
 }
