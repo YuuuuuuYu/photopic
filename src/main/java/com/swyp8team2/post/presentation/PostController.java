@@ -40,17 +40,6 @@ public class PostController {
         return ResponseEntity.ok(postService.create(userInfo.userId(), request));
     }
 
-    @GetMapping("/{postId}")
-    public ResponseEntity<PostResponse> findPost(
-            @PathVariable("postId") Long postId,
-            @AuthenticationPrincipal UserInfo userInfo
-    ) {
-        Long userId = Optional.ofNullable(userInfo)
-                .map(UserInfo::userId)
-                .orElse(null);
-        return ResponseEntity.ok(postService.findById(userId, postId));
-    }
-
     @GetMapping("/shareUrl/{shareUrl}")
     public ResponseEntity<PostResponse> findPostByShareUrl(
             @PathVariable("shareUrl") String shareUrl,

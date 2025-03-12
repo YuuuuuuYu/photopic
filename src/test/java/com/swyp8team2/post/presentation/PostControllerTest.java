@@ -88,61 +88,7 @@ class PostControllerTest extends RestDocsTest {
                         )
                 ));
     }
-
-    @Test
-    @WithAnonymousUser
-    @DisplayName("게시글 상세 조회")
-    void findPost() throws Exception {
-        //given
-        PostResponse response = new PostResponse(
-                1L,
-                new AuthorDto(
-                        1L,
-                        "author",
-                        "https://image.photopic.site/profile-image"
-                ),
-                "description",
-                List.of(
-                        new PostImageResponse(1L, "뽀또A", "https://image.photopic.site/image/1", "https://image.photopic.site/image/resize/1", 1L),
-                        new PostImageResponse(2L, "뽀또B", "https://image.photopic.site/image/2", "https://image.photopic.site/image/resize/2", null)
-                ),
-                "https://photopic.site/shareurl",
-                 true,
-                Status.PROGRESS,
-                LocalDateTime.of(2025, 2, 13, 12, 0)
-        );
-        given(postService.findById(any(), any()))
-                .willReturn(response);
-
-        //when then
-        mockMvc.perform(RestDocumentationRequestBuilders.get("/posts/{postId}", 1))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(response)))
-                .andDo(restDocs.document(
-                        pathParameters(
-                                parameterWithName("postId").description("게시글 Id")
-                        ),
-                        responseFields(
-                                fieldWithPath("id").type(JsonFieldType.NUMBER).description("게시글 Id"),
-                                fieldWithPath("author").type(JsonFieldType.OBJECT).description("게시글 작성자 정보"),
-                                fieldWithPath("author.id").type(JsonFieldType.NUMBER).description("게시글 작성자 유저 Id"),
-                                fieldWithPath("author.nickname").type(JsonFieldType.STRING).description("게시글 작성자 닉네임"),
-                                fieldWithPath("author.profileUrl").type(JsonFieldType.STRING).description("게시글 작성자 프로필 이미지"),
-                                fieldWithPath("description").type(JsonFieldType.STRING).description("설명"),
-                                fieldWithPath("images[]").type(JsonFieldType.ARRAY).description("투표 선택지 목록"),
-                                fieldWithPath("images[].id").type(JsonFieldType.NUMBER).description("투표 선택지 Id"),
-                                fieldWithPath("images[].imageName").type(JsonFieldType.STRING).description("사진 이름"),
-                                fieldWithPath("images[].imageUrl").type(JsonFieldType.STRING).description("사진 이미지"),
-                                fieldWithPath("images[].thumbnailUrl").type(JsonFieldType.STRING).description("확대 사진 이미지"),
-                                fieldWithPath("images[].voteId").type(JsonFieldType.NUMBER).optional().description("투표 Id (투표 안 한 경우 null)"),
-                                fieldWithPath("shareUrl").type(JsonFieldType.STRING).description("게시글 공유 URL"),
-                                fieldWithPath("createdAt").type(JsonFieldType.STRING).description("게시글 생성 시간"),
-                                fieldWithPath("status").type(JsonFieldType.STRING).description("게시글 마감 여부 (PROGRESS, CLOSED)"),
-                                fieldWithPath("isAuthor").type(JsonFieldType.BOOLEAN).description("게시글 작성자 여부")
-                        )
-                ));
-    }
-
+    
     @Test
     @WithAnonymousUser
     @DisplayName("게시글 공유 url 상세 조회")
