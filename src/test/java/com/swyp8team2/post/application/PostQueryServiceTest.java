@@ -153,28 +153,30 @@ class PostQueryServiceTest extends IntegrationTest {
         //given
         int size = 20;
         User user1 = userRepository.save(createUser(1));
+        User user2 = userRepository.save(createUser(2));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
 
-        Post myPost = postRepository.save(createPost(user1.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
-        List<Post> privatePosts = createPosts(userRepository.save(createUser(2)), Scope.PRIVATE);
-        List<Post> publicPosts = createPosts(userRepository.save(createUser(2)), Scope.PUBLIC);
+        List<Post> publicPosts = createPosts(user2, Scope.PUBLIC);
+        List<Post> privatePosts = createPosts(user2, Scope.PRIVATE);
+        Post myPost = postRepository.save(createPost(user1.getId(), Scope.PUBLIC, imageFile1, imageFile2, 1));
 
-        createVotes(user1, myPost);
-        createComments(user1, myPost);
+        createVotes(user1, publicPosts.getFirst());
+        createComments(user1, publicPosts.getFirst());
+
+        List<Vote> publicPostVotes = voteRepository.findByPostIdAndDeletedFalse(publicPosts.getFirst().getId());
+        List<Comment> publicPostComments = commentRepository.findByPostIdAndDeletedFalse(publicPosts.getFirst().getId());
 
         //when
-        List<Vote> votes = voteRepository.findByPostIdAndDeletedFalse(myPost.getId());
-        List<Comment> comments = commentRepository.findByPostIdAndDeletedFalse(myPost.getId());
         CursorBasePaginatedResponse<FeedResponse> response = postService.findFeed(user1.getId(), null, size);
 
         //then
         assertAll(
                 () -> assertThat(response.data().size()).isEqualTo(16),
-                () -> assertThat(response.data().getLast().participantCount()).isEqualTo(votes.size()),
-                () -> assertThat(response.data().getLast().commentCount()).isEqualTo(comments.size()),
-                () -> assertThat(response.data().getLast().isAuthor()).isTrue(),
-                () -> assertThat(response.data().getFirst().isAuthor()).isFalse()
+                () -> assertThat(response.data().getLast().participantCount()).isEqualTo(publicPostVotes.size()),
+                () -> assertThat(response.data().getLast().commentCount()).isEqualTo(publicPostComments.size()),
+                () -> assertThat(response.data().getLast().isAuthor()).isFalse(),
+                () -> assertThat(response.data().getFirst().isAuthor()).isTrue()
         );
     }
 
