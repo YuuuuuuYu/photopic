@@ -420,8 +420,8 @@ class PostControllerTest extends RestDocsTest {
                                 "description",
                                 "anioefw78f329jcs9",
                                 true,
-                                1,
-                                2
+                                1L,
+                                2L
                         )
                 )
         );
