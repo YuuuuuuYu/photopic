@@ -1,9 +1,7 @@
 package com.swyp8team2.post.presentation.dto;
 
 import com.swyp8team2.common.dto.CursorDto;
-import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.Status;
-import com.swyp8team2.user.domain.User;
 
 import java.util.List;
 
@@ -15,27 +13,22 @@ public record FeedResponse(
         String description,
         String shareUrl,
         boolean isAuthor,
-        int participantCount,
-        int commentCount
+        Long participantCount,
+        Long commentCount
 
 ) implements CursorDto {
 
-    public static FeedResponse of(Post post,
-                                  User user,
-                                  List<PostImageResponse> images,
-                                  int participantCount,
-                                  int commentCount,
-                                  boolean isAuthor) {
+    public static FeedResponse of(FeedDto feedDto, AuthorDto author, List<PostImageResponse> images, boolean isAuthor) {
         return new FeedResponse(
-                post.getId(),
-                AuthorDto.of(user),
+                feedDto.postId(),
+                author,
                 images,
-                post.getStatus(),
-                post.getDescription(),
-                post.getShareUrl(),
+                feedDto.status(),
+                feedDto.description(),
+                feedDto.shareUrl(),
                 isAuthor,
-                participantCount,
-                commentCount
+                feedDto.participantCount(),
+                feedDto.commentCount()
         );
     }
 

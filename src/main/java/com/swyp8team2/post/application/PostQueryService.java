@@ -1,7 +1,5 @@
 package com.swyp8team2.post.application;
 
-import com.swyp8team2.comment.domain.Comment;
-import com.swyp8team2.comment.domain.CommentRepository;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.common.exception.BadRequestException;
 import com.swyp8team2.common.exception.ErrorCode;
@@ -10,11 +8,14 @@ import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
 import com.swyp8team2.post.domain.Post;
 import com.swyp8team2.post.domain.PostImage;
+import com.swyp8team2.post.domain.PostImageRepository;
 import com.swyp8team2.post.domain.PostRepository;
 import com.swyp8team2.post.presentation.dto.FeedResponse;
 import com.swyp8team2.post.presentation.dto.PostImageResponse;
 import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.SimplePostResponse;
+import com.swyp8team2.post.presentation.dto.AuthorDto;
+import com.swyp8team2.post.presentation.dto.FeedDto;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import com.swyp8team2.vote.domain.Vote;
@@ -34,11 +35,11 @@ import java.util.List;
 public class PostQueryService {
 
     private final PostRepository postRepository;
+    private final PostImageRepository postImageRepository;
     private final UserRepository userRepository;
     private final ImageFileRepository imageFileRepository;
     private final VoteRepository voteRepository;
     private final ShareUrlService shareUrlShareUrlService;
-    private final CommentRepository commentRepository;
 
     public PostResponse findByShareUrl(Long userId, String shareUrl) {
         String decrypt = shareUrlShareUrlService.decrypt(shareUrl);
@@ -123,18 +124,14 @@ public class PostQueryService {
     }
 
     public CursorBasePaginatedResponse<FeedResponse> findFeed(Long userId, Long cursor, int size) {
-        Slice<Post> postSlice = postRepository.findByScopeAndDeletedFalse(userId, cursor, PageRequest.ofSize(size));
+        Slice<FeedDto> postSlice = postRepository.findFeedByScopeWithUser(userId, cursor, PageRequest.ofSize(size));
         return CursorBasePaginatedResponse.of(postSlice.map(post -> createFeedResponse(userId, post)));
     }
 
-    private FeedResponse createFeedResponse(Long userId, Post post) {
-        User user = userRepository.findById(post.getUserId())
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
-        List<PostImageResponse> images = createPostImageResponse(userId, post);
-        List<Vote> votes = voteRepository.findByPostIdAndDeletedFalse(post.getId());
-        List<Comment> comments = commentRepository.findByPostIdAndDeletedFalse(post.getId());
-        boolean isAuthor = post.getUserId().equals(userId);
-
-        return FeedResponse.of(post, user, images, votes.size(), comments.size(), isAuthor);
+    private FeedResponse createFeedResponse(Long userId, FeedDto dto) {
+        AuthorDto author = new AuthorDto(dto.postUserId(), dto.nickname(), dto.profileUrl());
+        List<PostImageResponse> postImages = postImageRepository.findByPostId(userId, dto.postId());
+        boolean isAuthor = dto.postUserId().equals(userId);
+        return FeedResponse.of(dto, author, postImages, isAuthor);
     }
 }
