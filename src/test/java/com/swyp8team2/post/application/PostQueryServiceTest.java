@@ -3,20 +3,19 @@ package com.swyp8team2.post.application;
 import com.swyp8team2.comment.domain.Comment;
 import com.swyp8team2.comment.domain.CommentRepository;
 import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
-import com.swyp8team2.common.exception.BadRequestException;
-import com.swyp8team2.common.exception.ErrorCode;
 import com.swyp8team2.image.domain.ImageFile;
 import com.swyp8team2.image.domain.ImageFileRepository;
-import com.swyp8team2.post.domain.*;
+import com.swyp8team2.post.domain.Post;
+import com.swyp8team2.post.domain.PostRepository;
+import com.swyp8team2.post.domain.Scope;
 import com.swyp8team2.post.presentation.dto.FeedResponse;
-import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.post.presentation.dto.PostImageResponse;
+import com.swyp8team2.post.presentation.dto.PostResponse;
 import com.swyp8team2.support.IntegrationTest;
 import com.swyp8team2.user.domain.User;
 import com.swyp8team2.user.domain.UserRepository;
 import com.swyp8team2.vote.domain.Vote;
 import com.swyp8team2.vote.domain.VoteRepository;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +25,7 @@ import java.util.List;
 
 import static com.swyp8team2.support.fixture.FixtureGenerator.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 class PostQueryServiceTest extends IntegrationTest {
 
@@ -155,53 +153,31 @@ class PostQueryServiceTest extends IntegrationTest {
         //given
         int size = 20;
         User user1 = userRepository.save(createUser(1));
+        User user2 = userRepository.save(createUser(2));
         ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
         ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
 
-        Post myPost = postRepository.save(createPost(user1.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
-        List<Post> privatePosts = createPosts(userRepository.save(createUser(2)), Scope.PRIVATE);
-        List<Post> publicPosts = createPosts(userRepository.save(createUser(2)), Scope.PUBLIC);
+        List<Post> publicPosts = createPosts(user2, Scope.PUBLIC);
+        List<Post> privatePosts = createPosts(user2, Scope.PRIVATE);
+        Post myPost = postRepository.save(createPost(user1.getId(), Scope.PUBLIC, imageFile1, imageFile2, 1));
 
-        createVotes(user1, myPost);
-        createComments(user1, myPost);
+        createVotes(user1, publicPosts.getFirst());
+        createComments(user1, publicPosts.getFirst());
+
+        List<Vote> publicPostVotes = voteRepository.findByPostIdAndDeletedFalse(publicPosts.getFirst().getId());
+        List<Comment> publicPostComments = commentRepository.findByPostIdAndDeletedFalse(publicPosts.getFirst().getId());
 
         //when
-        List<Vote> votes = voteRepository.findByPostIdAndDeletedFalse(myPost.getId());
-        List<Comment> comments = commentRepository.findByPostIdAndDeletedFalse(myPost.getId());
         CursorBasePaginatedResponse<FeedResponse> response = postService.findFeed(user1.getId(), null, size);
 
         //then
         assertAll(
                 () -> assertThat(response.data().size()).isEqualTo(16),
-                () -> assertThat(response.data().getLast().participantCount()).isEqualTo(votes.size()),
-                () -> assertThat(response.data().getLast().commentCount()).isEqualTo(comments.size()),
-                () -> assertThat(response.data().getLast().isAuthor()).isTrue(),
-                () -> assertThat(response.data().getFirst().isAuthor()).isFalse()
+                () -> assertThat(response.data().getLast().participantCount()).isEqualTo(publicPostVotes.size()),
+                () -> assertThat(response.data().getLast().commentCount()).isEqualTo(publicPostComments.size()),
+                () -> assertThat(response.data().getLast().isAuthor()).isFalse(),
+                () -> assertThat(response.data().getFirst().isAuthor()).isTrue()
         );
-    }
-
-    @Test
-    @DisplayName("피드 조회 - 존재하지 않는 유저")
-    void findFeed_userNotFound() throws Exception {
-        //given
-        User user1 = userRepository.save(createUser(1));
-        ImageFile imageFile1 = imageFileRepository.save(createImageFile(1));
-        ImageFile imageFile2 = imageFileRepository.save(createImageFile(2));
-        Post myPost = postRepository.save(createPost(user1.getId(), Scope.PRIVATE, imageFile1, imageFile2, 1));
-        postRepository.save(Post.create(
-                2L,
-                "설명",
-                List.of(
-                        PostImage.create("1", imageFile1.getId()),
-                        PostImage.create("1", imageFile1.getId())
-                ),
-                Scope.PUBLIC,
-                VoteType.SINGLE));
-
-        //when then
-        assertThatThrownBy(() -> postService.findFeed(1L, null, 10))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage(ErrorCode.USER_NOT_FOUND.getMessage());
     }
 
     private void createVotes(User user, Post post) {

@@ -1,7 +1,10 @@
 package com.swyp8team2.post.domain;
 
 import com.swyp8team2.image.domain.ImageFile;
+import com.swyp8team2.post.presentation.dto.FeedDto;
 import com.swyp8team2.support.RepositoryTest;
+import com.swyp8team2.user.domain.User;
+import com.swyp8team2.user.domain.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +14,7 @@ import org.springframework.data.domain.Slice;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.swyp8team2.support.fixture.FixtureGenerator.createImageFile;
-import static com.swyp8team2.support.fixture.FixtureGenerator.createPost;
+import static com.swyp8team2.support.fixture.FixtureGenerator.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,6 +22,9 @@ class PostRepositoryTest extends RepositoryTest {
 
     @Autowired
     PostRepository postRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @Test
     @DisplayName("유저가 작성한 게시글 조회 - 게시글이 15개일 경우 15번쨰부터 10개 조회해야 함")
@@ -98,13 +103,15 @@ class PostRepositoryTest extends RepositoryTest {
     @DisplayName("피드 조회")
     void select_post_findByScopeAndDeletedFalse() {
         //given
-        List<Post> myPosts = createPosts(1L, Scope.PRIVATE);
-        List<Post> privatePosts = createPosts(2L, Scope.PRIVATE);
-        List<Post> publicPosts = createPosts(2L, Scope.PUBLIC);
+        User user1 = userRepository.save(createUser(1));
+        User user2 = userRepository.save(createUser(2));
+        List<Post> myPosts = createPosts(user1.getId(), Scope.PRIVATE);
+        List<Post> privatePosts = createPosts(user2.getId(), Scope.PRIVATE);
+        List<Post> publicPosts = createPosts(user2.getId(), Scope.PUBLIC);
         int size = 10;
 
         //when
-        Slice<Post> res = postRepository.findByScopeAndDeletedFalse(1L, null, PageRequest.ofSize(size));
+        Slice<FeedDto> res = postRepository.findFeedByScopeWithUser(1L, null, PageRequest.ofSize(size));
 
         //then
         assertAll(

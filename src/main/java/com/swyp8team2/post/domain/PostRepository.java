@@ -1,5 +1,6 @@
 package com.swyp8team2.post.domain;
 
+import com.swyp8team2.post.presentation.dto.FeedDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -42,14 +43,25 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     )
     Optional<Post> findByIdFetchPostImage(@Param("postId") Long postId);
 
-    @Query("""
-            SELECT p
+    @Query(""" 
+            SELECT new com.swyp8team2.post.presentation.dto.FeedDto(
+                    p.id,
+                   	p.status ,
+                   	p.description ,
+                   	p.shareUrl ,
+                   	p.userId ,
+                   	u.nickname, 
+                   	u.profileUrl,
+                   	cast((select count(distinct v.id) from Vote v where p.id = v.postId) as long),
+                   	cast((select count(*) from Comment c where p.id = c.postId and c.deleted = false) as long)
+            )
             FROM Post p
+            INNER JOIN User u on p.userId = u.id
             WHERE p.deleted = false
-            AND (p.scope = 'PUBLIC' OR (p.userId = :userId AND p.scope = 'PRIVATE'))
+            AND p.scope = 'PUBLIC'
             AND (:postId IS NULL OR p.id < :postId)
             ORDER BY p.createdAt DESC
             """
     )
-    Slice<Post> findByScopeAndDeletedFalse(@Param("userId") Long userId, @Param("postId") Long postId, Pageable pageable);
+    Slice<FeedDto> findFeedByScopeWithUser(@Param("userId") Long userId, @Param("postId") Long postId, Pageable pageable);
 }
