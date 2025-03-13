@@ -25,7 +25,7 @@ class PostTest {
         );
 
         //when
-        Post post = Post.create(userId, description, postImages);
+        Post post = Post.create(userId, description, postImages, Scope.PRIVATE, VoteType.SINGLE);
 
         //then
         List<PostImage> images = post.getImages();
@@ -52,7 +52,7 @@ class PostTest {
         );
 
         //when then
-        assertThatThrownBy(() -> Post.create(1L, "description", postImages))
+        assertThatThrownBy(() -> Post.create(1L, "description", postImages, Scope.PRIVATE, VoteType.SINGLE))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.INVALID_POST_IMAGE_COUNT.getMessage());
     }
@@ -68,7 +68,7 @@ class PostTest {
         );
 
         //when then
-        assertThatThrownBy(() -> Post.create(1L, description, postImages))
+        assertThatThrownBy(() -> Post.create(1L, description, postImages, Scope.PRIVATE, VoteType.SINGLE))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.DESCRIPTION_LENGTH_EXCEEDED.getMessage());
     }
@@ -82,7 +82,7 @@ class PostTest {
                 PostImage.create("뽀또A", 1L),
                 PostImage.create("뽀또B", 2L)
         );
-        Post post = new Post(null, userId, "description", Status.PROGRESS, postImages, "shareUrl");
+        Post post = new Post(null, userId, "description", Status.PROGRESS, Scope.PRIVATE, postImages, "shareUrl", VoteType.SINGLE);
 
         //when
         post.close(userId);
@@ -100,7 +100,7 @@ class PostTest {
                 PostImage.create("뽀또A", 1L),
                 PostImage.create("뽀또B", 2L)
         );
-        Post post = new Post(null, userId, "description", Status.CLOSED, postImages, "shareUrl");
+        Post post = new Post(null, userId, "description", Status.CLOSED, Scope.PRIVATE, postImages, "shareUrl", VoteType.SINGLE);
 
         //when then
         assertThatThrownBy(() -> post.close(userId))
@@ -117,11 +117,89 @@ class PostTest {
                 PostImage.create("뽀또A", 1L),
                 PostImage.create("뽀또B", 2L)
         );
-        Post post = new Post(null, userId, "description", Status.PROGRESS, postImages, "shareUrl");
+        Post post = new Post(null, userId, "description", Status.PROGRESS, Scope.PRIVATE, postImages, "shareUrl", VoteType.SINGLE);
 
         //when then
         assertThatThrownBy(() -> post.close(2L))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage(ErrorCode.NOT_POST_AUTHOR.getMessage());
+    }
+
+    @Test
+    @DisplayName("게시글 공개 범위 수정")
+    void toggleScope() throws Exception {
+        //given
+        long userId = 1L;
+        List<PostImage> postImages = List.of(
+                PostImage.create("뽀또A", 1L),
+                PostImage.create("뽀또B", 2L)
+        );
+        Post post = new Post(null, userId, "description", Status.PROGRESS, Scope.PRIVATE, postImages, "shareUrl", VoteType.SINGLE);
+
+        //when then
+        post.toggleScope(userId);
+        assertThat(post.getScope()).isEqualTo(Scope.PUBLIC);
+
+        //when then
+        post.toggleScope(userId);
+        assertThat(post.getScope()).isEqualTo(Scope.PRIVATE);
+    }
+
+    @Test
+    @DisplayName("게시글 공개 범위 수정 - 게시글 작성자가 아닌 경우")
+    void toggleScope_notPostAuthor() throws Exception {
+        //given
+        long userId = 1L;
+        List<PostImage> postImages = List.of(
+                PostImage.create("뽀또A", 1L),
+                PostImage.create("뽀또B", 2L)
+        );
+        Post post = new Post(null, userId, "description", Status.PROGRESS, Scope.PRIVATE, postImages, "shareUrl", VoteType.SINGLE);
+
+        //when then
+        assertThatThrownBy(() -> post.toggleScope(2L))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage(ErrorCode.NOT_POST_AUTHOR.getMessage());
+    }
+
+    @Test
+    @DisplayName("게시글 베스트 픽 조회")
+    void getBestPickedImage() throws Exception {
+        //given
+        long userId = 1L;
+        List<PostImage> postImages = List.of(
+                PostImage.create("뽀또A", 1L),
+                PostImage.create("뽀또B", 2L)
+        );
+        Post post = new Post(null, userId, "description", Status.PROGRESS, Scope.PRIVATE, postImages, "shareUrl", VoteType.SINGLE);
+        post.getImages().get(0).increaseVoteCount();
+        post.getImages().get(0).increaseVoteCount();
+        post.getImages().get(1).increaseVoteCount();
+
+        //when
+        PostImage bestPickedImage = post.getBestPickedImage();
+
+        //then
+        assertThat(bestPickedImage.getName()).isEqualTo("뽀또A");
+    }
+
+    @Test
+    @DisplayName("게시글 베스트 픽 조회 - 동일 투표수인 경우 첫 번째 이미지가 선택됨")
+    void getBestPickedImage_saveVoteCount() throws Exception {
+        //given
+        long userId = 1L;
+        List<PostImage> postImages = List.of(
+                PostImage.create("뽀또A", 1L),
+                PostImage.create("뽀또B", 2L)
+        );
+        Post post = new Post(null, userId, "description", Status.PROGRESS, Scope.PRIVATE, postImages, "shareUrl", VoteType.SINGLE);
+        post.getImages().get(0).increaseVoteCount();
+        post.getImages().get(1).increaseVoteCount();
+
+        //when
+        PostImage bestPickedImage = post.getBestPickedImage();
+
+        //then
+        assertThat(bestPickedImage.getName()).isEqualTo("뽀또A");
     }
 }

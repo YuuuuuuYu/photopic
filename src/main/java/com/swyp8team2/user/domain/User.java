@@ -10,16 +10,13 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
-import static com.swyp8team2.common.util.Validator.validateEmptyString;
-import static com.swyp8team2.common.util.Validator.validateNull;
-
 @Getter
 @Entity
 @Table(name = "users")
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 public class User extends BaseEntity {
+
+    public static final String DEFAULT_PROFILE_URL = "https://image.photopic.site/default_profile.png";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,11 +40,11 @@ public class User extends BaseEntity {
         return new User(null, nickname, profileUrl, Role.USER);
     }
 
-    public static User createGuest() {
+    public static User createGuest(String nickname) {
         return new User(
                 null,
-                "guest_" + System.currentTimeMillis(),
-                "https://image.photopic.site/images-dev/resized_202502240006030.png",
+                nickname,
+                DEFAULT_PROFILE_URL,
                 Role.GUEST
         );
     }

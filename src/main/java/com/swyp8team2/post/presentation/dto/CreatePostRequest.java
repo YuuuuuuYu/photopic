@@ -1,5 +1,7 @@
 package com.swyp8team2.post.presentation.dto;
 
+import com.swyp8team2.post.domain.Scope;
+import com.swyp8team2.post.domain.VoteType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
@@ -10,6 +12,12 @@ public record CreatePostRequest(
         String description,
 
         @Valid @NotNull
-        List<PostImageRequestDto> images
+        List<PostImageRequestDto> images,
+
+        @NotNull
+        Scope scope,
+
+        @NotNull
+        VoteType voteType
 ) {
 }

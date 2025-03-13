@@ -20,13 +20,13 @@ class FileValidatorTest {
 
     @BeforeEach
     void setUp() {
-        String allowedExtensions = "gif,jpg,jpeg,png";
+        String allowedExtensions = "gif,jpg,jpeg,png,webp,heic,heif";
         fileValidator = new FileValidator(allowedExtensions);
     }
 
     @Test
     @DisplayName("파일 유효성 체크 - 파일 크기 초과")
-    void validate_validFile_shouldPass() {
+    void validate_exceedMaxFileSize() {
         // given
         byte[] largeContent = new byte[(int) (MAX_FILE_SIZE + 1)];
         MockMultipartFile file = new MockMultipartFile(
@@ -44,7 +44,7 @@ class FileValidatorTest {
 
     @Test
     @DisplayName("파일 유효성 체크 - 지원하지 않는 확장자")
-    void validate_unsupportedExtension_shouldThrowException() {
+    void validate_unsupportedFileExtension() {
         // given
         MockMultipartFile file = new MockMultipartFile(
                 "file",
@@ -60,13 +60,31 @@ class FileValidatorTest {
     }
 
     @Test
+    @DisplayName("파일 유효성 체크 - 파일명 너무 김")
+    void validate_fileNameTooLong() {
+        // given
+        String filename = new String(new char[101])+".jpeg";
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                filename,
+                "",
+                "dummy content".getBytes(StandardCharsets.UTF_8)
+        );
+
+        // when then
+        assertThatThrownBy(() -> fileValidator.validate(file))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage(ErrorCode.FILE_NAME_TOO_LONG.getMessage());
+    }
+
+    @Test
     @DisplayName("파일 유효성 체크 - 확장자 누락")
-    void validate_missingFileExtension_shouldThrowException() {
+    void validate_missingFileExtension() {
         // given
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "test",
-                "",
+                "text/plain",
                 "dummy content".getBytes(StandardCharsets.UTF_8)
         );
 
@@ -78,7 +96,7 @@ class FileValidatorTest {
 
     @Test
     @DisplayName("파일 유효성 체크 - 여러 파일 중 하나가 유효성 실패")
-    void validate_multipleFiles_oneInvalid_shouldThrowException() {
+    void validate_multipleFilesOneInvalid() {
         // given
         MockMultipartFile file1 = new MockMultipartFile(
                 "file",

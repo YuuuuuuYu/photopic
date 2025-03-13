@@ -1,7 +1,10 @@
 package com.swyp8team2.post.domain;
 
 import com.swyp8team2.image.domain.ImageFile;
+import com.swyp8team2.post.presentation.dto.FeedDto;
 import com.swyp8team2.support.RepositoryTest;
+import com.swyp8team2.user.domain.User;
+import com.swyp8team2.user.domain.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +14,7 @@ import org.springframework.data.domain.Slice;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.swyp8team2.support.fixture.FixtureGenerator.createImageFile;
-import static com.swyp8team2.support.fixture.FixtureGenerator.createPost;
+import static com.swyp8team2.support.fixture.FixtureGenerator.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,12 +23,15 @@ class PostRepositoryTest extends RepositoryTest {
     @Autowired
     PostRepository postRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
     @Test
     @DisplayName("유저가 작성한 게시글 조회 - 게시글이 15개일 경우 15번쨰부터 10개 조회해야 함")
     void select_post_findByUserId1() throws Exception {
         //given
         long userId = 1L;
-        List<Post> posts = createPosts(userId);
+        List<Post> posts = createPosts(userId, Scope.PRIVATE);
         int size = 10;
 
         //when
@@ -47,7 +52,7 @@ class PostRepositoryTest extends RepositoryTest {
     void select_post_findByUserId2() throws Exception {
         //given
         long userId = 1L;
-        List<Post> posts = createPosts(userId);
+        List<Post> posts = createPosts(userId, Scope.PRIVATE);
         int size = 10;
         int cursorIndex = 5;
 
@@ -68,7 +73,7 @@ class PostRepositoryTest extends RepositoryTest {
     @DisplayName("id 리스트에 포함되는 게시글 조회")
     void select_post_findByIdIn() throws Exception {
         //given
-        List<Post> posts = createPosts(1L);
+        List<Post> posts = createPosts(1L, Scope.PRIVATE);
         List<Long> postIds = List.of(posts.get(0).getId(), posts.get(1).getId(), posts.get(2).getId());
 
         //when
@@ -84,13 +89,34 @@ class PostRepositoryTest extends RepositoryTest {
         );
     }
 
-    private List<Post> createPosts(long userId) {
+    private List<Post> createPosts(long userId, Scope scope) {
         List<Post> posts = new ArrayList<>();
         for (int i = 0; i < 30; i += 2) {
             ImageFile imageFile1 = createImageFile(i);
             ImageFile imageFile2 = createImageFile(i + 1);
-            posts.add(postRepository.save(createPost(userId, imageFile1, imageFile2, i)));
+            posts.add(postRepository.save(createPost(userId, scope, imageFile1, imageFile2, i)));
         }
         return posts;
+    }
+
+    @Test
+    @DisplayName("피드 조회")
+    void select_post_findByScopeAndDeletedFalse() {
+        //given
+        User user1 = userRepository.save(createUser(1));
+        User user2 = userRepository.save(createUser(2));
+        List<Post> myPosts = createPosts(user1.getId(), Scope.PRIVATE);
+        List<Post> privatePosts = createPosts(user2.getId(), Scope.PRIVATE);
+        List<Post> publicPosts = createPosts(user2.getId(), Scope.PUBLIC);
+        int size = 10;
+
+        //when
+        Slice<FeedDto> res = postRepository.findFeedByScopeWithUser(1L, null, PageRequest.ofSize(size));
+
+        //then
+        assertAll(
+                () -> assertThat(res.getContent().size()).isEqualTo(size),
+                () -> assertThat(res.hasNext()).isTrue()
+        );
     }
 }

@@ -1,4 +1,4 @@
-package com.swyp8team2.post.presentation.dto;
+package com.swyp8team2.vote.presentation.dto;
 
 public record PostImageVoteStatusResponse(
         Long id,

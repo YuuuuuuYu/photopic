@@ -32,20 +32,23 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
+            log.debug("JwtAuthFilter.doFilterInternal start");
             String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
             JwtClaim claim = jwtProvider.parseToken(headerTokenExtractor.extractToken(authorization));
 
-            Authentication authentication = getAuthentication(claim.idAsLong());
+            Authentication authentication = getAuthentication(claim);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (ApplicationException e) {
+            log.debug("JwtAuthFilter.doFilterInternal application exception {}", e.getMessage());
             request.setAttribute(EXCEPTION_KEY, e);
         } finally {
+            log.debug("JwtAuthFilter.doFilterInternal end");
             doFilter(request, response, filterChain);
         }
     }
 
-    private Authentication getAuthentication(long userId) {
-        UserInfo userInfo = new UserInfo(userId, Role.USER);
+    private Authentication getAuthentication(JwtClaim claim) {
+        UserInfo userInfo = new UserInfo(claim.idAsLong(), claim.role());
         return new UsernamePasswordAuthenticationToken(userInfo, null, userInfo.getAuthorities());
     }
 }

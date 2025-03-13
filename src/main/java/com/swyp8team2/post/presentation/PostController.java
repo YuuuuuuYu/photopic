@@ -5,9 +5,10 @@ import com.swyp8team2.common.dto.CursorBasePaginatedResponse;
 import com.swyp8team2.post.application.PostService;
 import com.swyp8team2.post.presentation.dto.CreatePostRequest;
 import com.swyp8team2.post.presentation.dto.CreatePostResponse;
-import com.swyp8team2.post.presentation.dto.PostImageVoteStatusResponse;
 import com.swyp8team2.post.presentation.dto.PostResponse;
+import com.swyp8team2.post.presentation.dto.UpdatePostRequest;
 import com.swyp8team2.post.presentation.dto.SimplePostResponse;
+import com.swyp8team2.post.presentation.dto.FeedResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -37,19 +37,7 @@ public class PostController {
             @Valid @RequestBody CreatePostRequest request,
             @AuthenticationPrincipal UserInfo userInfo
     ) {
-
         return ResponseEntity.ok(postService.create(userInfo.userId(), request));
-    }
-
-    @GetMapping("/{postId}")
-    public ResponseEntity<PostResponse> findPost(
-            @PathVariable("postId") Long postId,
-            @AuthenticationPrincipal UserInfo userInfo
-    ) {
-        Long userId = Optional.ofNullable(userInfo)
-                .map(UserInfo::userId)
-                .orElse(null);
-        return ResponseEntity.ok(postService.findById(userId, postId));
     }
 
     @GetMapping("/shareUrl/{shareUrl}")
@@ -63,11 +51,22 @@ public class PostController {
         return ResponseEntity.ok(postService.findByShareUrl(userId, shareUrl));
     }
 
-    @GetMapping("/{postId}/status")
-    public ResponseEntity<List<PostImageVoteStatusResponse>> findVoteStatus(
-            @PathVariable("postId") Long postId
+    @PostMapping("/{postId}/scope")
+    public ResponseEntity<Void> toggleScopePost(
+            @PathVariable("postId") Long postId,
+            @AuthenticationPrincipal UserInfo userInfo
     ) {
-        return ResponseEntity.ok(postService.findPostStatus(postId));
+        postService.toggleScope(userInfo.userId(), postId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{postId}/update")
+    public ResponseEntity<Void> updatePost(
+            @PathVariable("postId") Long postId,
+            @Valid @RequestBody UpdatePostRequest request,
+            @AuthenticationPrincipal UserInfo userInfo
+    ) {
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{postId}/close")
@@ -104,5 +103,14 @@ public class PostController {
             @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size
     ) {
         return ResponseEntity.ok(postService.findVotedPosts(userId, cursor, size));
+    }
+
+    @GetMapping("/feed")
+    public ResponseEntity<CursorBasePaginatedResponse<FeedResponse>> findFeed(
+            @RequestParam(name = "cursor", required = false) @Min(0) Long cursor,
+            @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size,
+            @AuthenticationPrincipal UserInfo userInfo
+    ) {
+        return ResponseEntity.ok(postService.findFeed(userInfo.userId(), cursor, size));
     }
 }

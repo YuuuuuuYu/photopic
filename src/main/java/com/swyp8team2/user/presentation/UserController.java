@@ -3,6 +3,7 @@ package com.swyp8team2.user.presentation;
 import com.swyp8team2.auth.domain.UserInfo;
 import com.swyp8team2.user.application.UserService;
 import com.swyp8team2.user.presentation.dto.UserInfoResponse;
+import com.swyp8team2.user.presentation.dto.UserMyInfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,9 +25,9 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserInfoResponse> findMyInfo(
+    public ResponseEntity<UserMyInfoResponse> findMyInfo(
             @AuthenticationPrincipal UserInfo userInfo
     ) {
-        return ResponseEntity.ok(userService.findById(userInfo.userId()));
+        return ResponseEntity.ok(userService.findByMe(userInfo.userId()));
     }
 }

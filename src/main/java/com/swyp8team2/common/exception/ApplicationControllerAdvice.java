@@ -54,29 +54,27 @@ public class ApplicationControllerAdvice {
                 .body(new ErrorResponse(ErrorCode.INVALID_ARGUMENT));
     }
 
-    @ExceptionHandler({HttpRequestMethodNotSupportedException.class, MethodArgumentTypeMismatchException.class})
-    public ResponseEntity<Void> notFound(HttpRequestMethodNotSupportedException e) {
+    @ExceptionHandler({
+            HttpRequestMethodNotSupportedException.class,
+            MethodArgumentTypeMismatchException.class,
+            NoResourceFoundException.class
+    })
+    public ResponseEntity<ErrorResponse> notFound(Exception e) {
         log.debug("notFound: {}", e.getMessage());
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(ErrorCode.NOT_FOUND));
     }
-
-    @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ErrorResponse> handle(NoResourceFoundException e) {
-        log.debug("NoResourceFoundException {}", e.getMessage());
-        return ResponseEntity.notFound().build();
-    }
-
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handle(AuthenticationException e) {
-        log.info(e.getMessage());
+        log.debug(e.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(ErrorCode.INVALID_TOKEN));
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handle(AccessDeniedException e) {
-        log.info(e.getMessage());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(ErrorCode.INVALID_TOKEN));
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handle(ForbiddenException e) {
+        log.debug(e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(ErrorCode.FORBIDDEN));
     }
 
     @ExceptionHandler(Exception.class)

@@ -12,7 +12,7 @@ public class DataInitConfig {
 
     private final DataInitializer dataInitializer;
 
-//    @PostConstruct
+    @PostConstruct
     public void init() {
         dataInitializer.init();
     }

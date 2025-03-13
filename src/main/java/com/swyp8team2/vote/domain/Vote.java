@@ -36,4 +36,8 @@ public class Vote extends BaseEntity {
     public static Vote of(Long postId, Long postImageId, Long userId) {
         return new Vote(null, postId, postImageId, userId);
     }
+
+    public boolean isVoter(Long userId) {
+        return this.userId.equals(userId);
+    }
 }

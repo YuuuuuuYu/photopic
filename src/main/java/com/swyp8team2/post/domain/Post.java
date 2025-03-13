@@ -39,21 +39,37 @@ public class Post extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Enumerated(EnumType.STRING)
+    private Scope scope;
+
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<PostImage> images = new ArrayList<>();
 
     private String shareUrl;
 
-    public Post(Long id, Long userId, String description, Status status, List<PostImage> images, String shareUrl) {
+    private VoteType voteType;
+
+    public Post(
+            Long id,
+            Long userId,
+            String description,
+            Status status,
+            Scope scope,
+            List<PostImage> images,
+            String shareUrl,
+            VoteType voteType
+    ) {
         validateDescription(description);
         validatePostImages(images);
         this.id = id;
         this.description = description;
         this.userId = userId;
         this.status = status;
+        this.scope = scope;
         this.images = images;
         images.forEach(image -> image.setPost(this));
         this.shareUrl = shareUrl;
+        this.voteType = voteType;
     }
 
     private void validatePostImages(List<PostImage> images) {
@@ -68,8 +84,8 @@ public class Post extends BaseEntity {
         }
     }
 
-    public static Post create(Long userId, String description, List<PostImage> images) {
-        return new Post(null, userId, description, Status.PROGRESS, images, null);
+    public static Post create(Long userId, String description, List<PostImage> images, Scope scope, VoteType voteType) {
+        return new Post(null, userId, description, Status.PROGRESS, scope, images, null, voteType);
     }
 
     public PostImage getBestPickedImage() {
@@ -95,17 +111,17 @@ public class Post extends BaseEntity {
     }
 
     public void close(Long userId) {
-        validateOwner(userId);
+        if (!isAuthor(userId)) {
+            throw new BadRequestException(ErrorCode.NOT_POST_AUTHOR);
+        }
         if (status == Status.CLOSED) {
             throw new BadRequestException(ErrorCode.POST_ALREADY_CLOSED);
         }
         this.status = Status.CLOSED;
     }
 
-    public void validateOwner(Long userId) {
-        if (!this.userId.equals(userId)) {
-            throw new BadRequestException(ErrorCode.NOT_POST_AUTHOR);
-        }
+    public boolean isAuthor(Long userId) {
+        return this.userId.equals(userId);
     }
 
     public void validateProgress() {
@@ -119,5 +135,12 @@ public class Post extends BaseEntity {
             throw new InternalServerException(ErrorCode.SHARE_URL_ALREADY_EXISTS);
         }
         this.shareUrl = shareUrl;
+    }
+
+    public void toggleScope(Long userId) {
+        if (!isAuthor(userId)) {
+            throw new BadRequestException(ErrorCode.NOT_POST_AUTHOR);
+        }
+        this.scope = scope.equals(Scope.PRIVATE) ? Scope.PUBLIC : Scope.PRIVATE;
     }
 }

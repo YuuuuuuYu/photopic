@@ -10,9 +10,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
-import static com.swyp8team2.common.config.SecurityConfig.getGuestTokenRequestList;
-import static com.swyp8team2.common.config.SecurityConfig.getWhiteList;
-
 @TestConfiguration
 public class TestSecurityConfig {
 

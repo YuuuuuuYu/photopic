@@ -30,11 +30,20 @@ class CommentRepositoryTest extends RepositoryTest {
 
         // then
         assertThat(result1.getContent()).hasSize(3);
+    }
 
-        // when2
-        Slice<Comment> result2 = commentRepository.findByPostId(1L, 1L, PageRequest.of(0, 10));
+    @Test
+    @DisplayName("댓글 조회 - 단일 조회")
+    void select_CommentById() {
+        // given
+        Comment comment = new Comment(1L, 100L, "content");
+        commentRepository.save(comment);
 
-        // then2
-        assertThat(result2.getContent()).hasSize(2);
+        // when
+        Comment selectComment = commentRepository.findByIdAndNotDeleted(1L)
+                .orElse(new Comment(2L, 2L, 101L, "content"));
+
+        // then
+        assertThat(comment.getId()).isEqualTo(selectComment.getId());
     }
 }

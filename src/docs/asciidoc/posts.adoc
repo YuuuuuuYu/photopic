@@ -16,14 +16,6 @@ operation::post-controller-test/find-post[snippets='http-request,curl-request,pa
 
 operation::post-controller-test/find-post_share-url[snippets='http-request,curl-request,path-parameters,http-response,response-fields']
 
-[[게시글-목록-조회]]
-
-[[사진-투표-현황-조회]]
-=== `GET` 사진 투표 현황 조회
-
-operation::post-controller-test/find-vote-status[snippets='http-request,curl-request,request-headers,path-parameters,http-response,response-fields']
-
-
 [[유저가-작성한-게시글-조회]]
 === `GET` 유저가 작성한 게시글 조회
 
@@ -34,6 +26,16 @@ operation::post-controller-test/find-my-post[snippets='http-request,curl-request
 
 operation::post-controller-test/find-voted-post[snippets='http-request,curl-request,query-parameters,request-headers,http-response,response-fields']
 
+[[게시글-투표-수정]]
+=== `POST` 게시글 노출 변경
+
+operation::post-controller-test/toggle-status-post[snippets='http-request,curl-request,path-parameters,request-headers,http-response']
+
+[[게시글-투표-수정]]
+=== `POST` 게시글 투표 수정 (미구현)
+
+operation::post-controller-test/update-post[snippets='http-request,curl-request,path-parameters,request-headers,http-response']
+
 [[게시글-투표-마감]]
 === `POST` 게시글 투표 마감
 
@@ -43,3 +45,8 @@ operation::post-controller-test/close-post[snippets='http-request,curl-request,p
 === `DELETE` 게시글 삭제
 
 operation::post-controller-test/delete-post[snippets='http-request,curl-request,path-parameters,request-headers,http-response']
+
+[[피드-조회]]
+=== `GET` 피드 조회
+
+operation::post-controller-test/find-feed[snippets='http-request,curl-request,query-parameters,request-headers,http-response,response-fields']

@@ -19,16 +19,14 @@ public class JwtService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
-    public TokenResponse createToken(long userId) {
-        TokenPair tokenPair = jwtProvider.createToken(new JwtClaim(userId));
-        RefreshToken refreshToken = refreshTokenRepository.findByUserId(userId)
-                .orElseGet(() -> new RefreshToken(userId, tokenPair.refreshToken()));
+    public TokenResponse createToken(JwtClaim claim) {
+        TokenPair tokenPair = jwtProvider.createToken(claim);
+        RefreshToken refreshToken = refreshTokenRepository.findByUserId(claim.idAsLong())
+                .orElseGet(() -> new RefreshToken(claim.idAsLong(), tokenPair.refreshToken()));
         refreshToken.setRefreshToken(tokenPair.refreshToken());
         refreshTokenRepository.save(refreshToken);
 
-        log.debug("createToken userId: {} accessToken: {} refreshToken: {}",
-                userId, tokenPair.accessToken(), tokenPair.refreshToken());
-        return new TokenResponse(tokenPair, userId);
+        return new TokenResponse(tokenPair, claim.idAsLong(), claim.role());
     }
 
     @Transactional
@@ -37,12 +35,10 @@ public class JwtService {
         RefreshToken findRefreshToken = refreshTokenRepository.findByUserId(claim.idAsLong())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
 
-        TokenPair tokenPair = jwtProvider.createToken(new JwtClaim(claim.idAsLong()));
+        TokenPair tokenPair = jwtProvider.createToken(new JwtClaim(claim.idAsLong(), claim.role()));
         findRefreshToken.rotate(refreshToken, tokenPair.refreshToken());
 
-        log.debug("reissue userId: {} accessToken: {} refreshToken: {}",
-                claim.id(), tokenPair.accessToken(), tokenPair.refreshToken());
-        return new TokenResponse(tokenPair, claim.idAsLong());
+        return new TokenResponse(tokenPair, claim.idAsLong(), claim.role());
     }
 
     @Transactional
