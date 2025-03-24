@@ -15,6 +15,6 @@ public class NicknameGenerator {
         long randomIndex = (long)(Math.random() * 500);
         return nicknameAdjectiveRepository.findNicknameAdjectiveById(randomIndex)
                 .map(adjective -> adjective.getAdjective() + " " + role.getNickname())
-                .orElse("user_" + System.currentTimeMillis());
+                .orElse("숨겨진 " + role.getNickname());
     }
 }
