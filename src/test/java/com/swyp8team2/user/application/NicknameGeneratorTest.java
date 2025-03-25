@@ -32,7 +32,7 @@ class NicknameGeneratorTest {
     void generate() throws Exception {
         //given
         Role role = Role.USER;
-        given(nicknameAdjectiveRepository.findNicknameAdjectiveById(any()))
+        given(nicknameAdjectiveRepository.findRandomNicknameAdjective())
                 .willReturn(Optional.of(new NicknameAdjective("호기심 많은")));
 
         //when
@@ -47,7 +47,7 @@ class NicknameGeneratorTest {
     void generate_guest() throws Exception {
         //given
         Role role = Role.GUEST;
-        given(nicknameAdjectiveRepository.findNicknameAdjectiveById(any()))
+        given(nicknameAdjectiveRepository.findRandomNicknameAdjective())
                 .willReturn(Optional.of(new NicknameAdjective("호기심 많은")));
 
         //when
